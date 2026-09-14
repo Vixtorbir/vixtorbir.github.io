@@ -170,10 +170,22 @@ const P1_BARS = [
   { label: 'ZERO-ALLOC POOLING (PERF)', pct: 0.92 },
   { label: 'GIT & PRODUCTION HYGIENE', pct: 0.98 }
 ];
-const p1Cache = { w: 0, h: 0, bg: null, bar: null };
+// Tamanos minimos absolutos (px CSS): nunca se reducen por debajo, solo crecen
+// suavemente en pantallas grandes. Sin shadowBlur en texto de 12-14px: en
+// Canvas 2D las sombras emborronan los glifos pequenos.
+const P1_TYPE = { title: 21, sub: 12, label: 13.5, pct: 13.5, badge: 12, tag: 11 };
+const P1_PANEL_FILL = 'rgba(5, 10, 22, 0.88)';
+const P1_PANEL_STROKE = 'rgba(56, 189, 248, 0.25)';
+const p1Cache = { w: 0, h: 0, bg: null, bar: null, barX: 0, barW: 0 };
+
+function px(min, u) {
+  return Math.max(min, Math.round(min * u));
+}
 
 function drawPlayerOneScene(ctx, w, h, t) {
   const u = unit(w, h);
+  const r = Math.round;
+
   if (p1Cache.w !== w || p1Cache.h !== h) {
     p1Cache.w = w; p1Cache.h = h;
     const bg = ctx.createLinearGradient(0, 0, 0, h);
@@ -181,109 +193,150 @@ function drawPlayerOneScene(ctx, w, h, t) {
     bg.addColorStop(0.55, '#050a14');
     bg.addColorStop(1, '#02040a');
     p1Cache.bg = bg;
-    const bar = ctx.createLinearGradient(0, 0, w, 0);
-    bar.addColorStop(0, '#f59e0b');
-    bar.addColorStop(0.5, '#fde047');
-    bar.addColorStop(1, '#38bdf8');
-    p1Cache.bar = bar;
+    p1Cache.bar = null; // se reconstruye con la geometria de la barra
   }
 
   ctx.fillStyle = p1Cache.bg;
   ctx.fillRect(0, 0, w, h);
   drawFineGrid(ctx, w, h, 32 * u, 'rgba(56, 189, 248, 0.05)');
-  drawRetroFloorGrid(ctx, w, h, 0.78, '56, 189, 248', 0.45);
+  drawRetroFloorGrid(ctx, w, h, 0.8, '56, 189, 248', 0.4);
 
-  // Cabecera de cabina
-  const headerY = h * 0.14;
-  font(ctx, 19 * u, FONT_ARCADE, '800');
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
+  // ---- Cabecera sobre panel oscuro ----
+  const margin = r(w * 0.05);
+  const hx = margin;
+  const hy = r(h * 0.11);
+  const hw = w - margin * 2;
+  const hh = r(P1_TYPE.title * 1.25 + P1_TYPE.sub * 1.4 + 22);
+  drawPanel(ctx, hx, hy, hw, hh, P1_PANEL_FILL, P1_PANEL_STROKE);
   ctx.fillStyle = '#fbbf24';
-  ctx.shadowColor = 'rgba(251, 191, 36, 0.7)';
-  ctx.shadowBlur = 10;
-  ctx.fillText('PLAYER 1 // VÍCTOR CÁRDENAS [BCN]', w * 0.06, headerY);
-  ctx.shadowBlur = 0;
-  ctx.strokeStyle = 'rgba(251, 191, 36, 0.55)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.06, headerY + 16 * u);
-  ctx.lineTo(w * 0.94, headerY + 16 * u);
-  ctx.stroke();
-  font(ctx, 9 * u, FONT_MONO, '600');
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.9)';
-  ctx.fillText('SPEC SHEET // GAMEPLAY & SYSTEMS PROGRAMMER', w * 0.06, headerY + 28 * u);
+  ctx.fillRect(hx, hy, 4, hh);
 
-  // Retrato enmarcado (fosforo ambar + cian)
-  const frameSize = Math.min(h * 0.46, w * 0.3);
-  const fx = w * 0.06;
-  const fy = h * 0.29;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  font(ctx, px(P1_TYPE.title, u), FONT_ARCADE, '800');
+  ctx.fillStyle = '#fbbf24';
+  const titleBase = hy + 12 + px(P1_TYPE.title, u);
+  ctx.fillText('PLAYER 1 // VÍCTOR CÁRDENAS [BCN]', hx + 16, titleBase);
+  font(ctx, px(P1_TYPE.sub, u), FONT_MONO, '600');
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText('SPEC SHEET // GAMEPLAY & SYSTEMS PROGRAMMER', hx + 16, titleBase + px(P1_TYPE.sub, u) + 8);
+
+  // ---- Retrato con marco biselado ----
+  const top = hy + hh + r(h * 0.04);
+  const badgeY = r(h * 0.88);
+  const areaH = badgeY - r(P1_TYPE.badge * 2.2) - top;
+  const frameSize = r(Math.min(areaH - 24, w * 0.3));
+  const fx = margin;
+  const fy = top;
   ctx.save();
-  ctx.shadowColor = 'rgba(56, 189, 248, 0.55)';
-  ctx.shadowBlur = 22 * u;
-  drawPanel(ctx, fx, fy, frameSize, frameSize, '#03060d');
-  ctx.restore();
+  ctx.beginPath();
+  ctx.moveTo(fx + 10, fy); ctx.lineTo(fx + frameSize - 10, fy); ctx.lineTo(fx + frameSize, fy + 10);
+  ctx.lineTo(fx + frameSize, fy + frameSize - 10); ctx.lineTo(fx + frameSize - 10, fy + frameSize);
+  ctx.lineTo(fx + 10, fy + frameSize); ctx.lineTo(fx, fy + frameSize - 10); ctx.lineTo(fx, fy + 10);
+  ctx.closePath();
+  ctx.fillStyle = '#03060d';
+  ctx.fill();
+  ctx.save();
+  ctx.clip();
   if (ready(portraitImg)) {
     drawContain(ctx, portraitImg, fx + 6, fy + 6, frameSize - 12, frameSize - 12, true);
   }
+  ctx.restore();
   ctx.strokeStyle = '#f59e0b';
   ctx.lineWidth = 2;
-  ctx.strokeRect(fx + 1, fy + 1, frameSize - 2, frameSize - 2);
-  drawCornerBrackets(ctx, fx - 6, fy - 6, frameSize + 12, frameSize + 12, 14 * u, '#38bdf8', 2);
-  font(ctx, 8 * u, FONT_PIXEL);
+  ctx.stroke();
+  ctx.restore();
+  drawCornerBrackets(ctx, fx - 6, fy - 6, frameSize + 12, frameSize + 12, 14, '#38bdf8', 2);
+
+  // Etiqueta del piloto bajo el retrato
+  const tagH = r(P1_TYPE.tag * 1.9);
+  const tagY = fy + frameSize + 8;
+  drawPanel(ctx, fx, tagY, frameSize, tagH, P1_PANEL_FILL, P1_PANEL_STROKE);
+  font(ctx, px(P1_TYPE.tag, u), FONT_ARCADE, '700');
   ctx.fillStyle = '#38bdf8';
   ctx.textAlign = 'center';
-  ctx.fillText('P1', fx + frameSize / 2, fy + frameSize + 14 * u);
+  ctx.textBaseline = 'middle';
+  ctx.fillText('PILOT: P1 // BCN', fx + frameSize / 2, tagY + tagH / 2 + 1);
+  ctx.textBaseline = 'alphabetic';
 
-  // Barras de energia
-  const bx = fx + frameSize + w * 0.05;
-  const bw = w * 0.94 - bx;
-  const rowH = h * 0.105;
-  const by0 = h * 0.3;
+  // ---- Barras de energia sobre panel oscuro ----
+  const px0 = fx + frameSize + r(w * 0.035);
+  const pw = w - margin - px0;
+  const py0 = top;
+  const ph = frameSize + 8 + tagH;
+  drawPanel(ctx, px0, py0, pw, ph, P1_PANEL_FILL, P1_PANEL_STROKE);
+
+  const inner = 16;
+  const bx = px0 + inner;
+  const bw = pw - inner * 2;
+  const labelPx = px(P1_TYPE.label, u);
+  const pctPx = px(P1_TYPE.pct, u);
+  const barH = 10;
+  const rowH = (ph - inner * 2) / P1_BARS.length;
+  const rowContent = labelPx + 8 + barH;
   const fillEase = Math.min(1, t / 1.1);
   const eased = 1 - Math.pow(1 - fillEase, 3);
-  ctx.textAlign = 'left';
-  for (let i = 0; i < P1_BARS.length; i++) {
-    const bar = P1_BARS[i];
-    const y = by0 + i * rowH;
-    font(ctx, 10.5 * u, FONT_MONO, '700');
-    ctx.fillStyle = '#e2e8f0';
-    ctx.fillText(bar.label, bx, y);
 
-    const barY = y + 12 * u;
-    const barH = 12 * u;
-    drawPanel(ctx, bx, barY, bw, barH, 'rgba(15, 23, 42, 0.9)', 'rgba(148, 163, 184, 0.5)');
-    const segments = 10;
-    const segGap = 3 * u;
-    const segW = (bw - segGap * (segments + 1)) / segments;
-    const filled = bar.pct * eased * segments;
-    for (let s = 0; s < segments; s++) {
-      const sx = bx + segGap + s * (segW + segGap);
-      const on = s + 1 <= filled;
-      const partial = !on && s < filled ? filled - s : 0;
-      if (on || partial > 0) {
-        ctx.fillStyle = p1Cache.bar;
-        ctx.globalAlpha = on ? 1 : partial;
-        ctx.fillRect(sx, barY + 2 * u, segW, barH - 4 * u);
-        ctx.globalAlpha = 1;
-      }
-    }
-    font(ctx, 10 * u, FONT_ARCADE, '800');
-    ctx.fillStyle = '#fde047';
-    ctx.textAlign = 'right';
-    ctx.fillText(`${Math.round(bar.pct * 100 * eased)}%`, bx + bw, y);
-    ctx.textAlign = 'left';
+  if (!p1Cache.bar || p1Cache.barX !== bx || p1Cache.barW !== bw) {
+    const g = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+    g.addColorStop(0, '#f59e0b');
+    g.addColorStop(1, '#38bdf8');
+    p1Cache.bar = g;
+    p1Cache.barX = bx;
+    p1Cache.barW = bw;
   }
 
-  // Estado arcade parpadeante
-  font(ctx, 11 * u, FONT_PIXEL);
-  ctx.textAlign = 'center';
-  ctx.fillStyle = blink(t, 1.2) ? '#fbbf24' : 'rgba(251, 191, 36, 0.35)';
-  ctx.shadowColor = 'rgba(251, 191, 36, 0.8)';
-  ctx.shadowBlur = 12;
-  ctx.fillText('[ P1 READY // INSERT COIN TO PLAY ]', w * 0.5, h * 0.88);
-  ctx.shadowBlur = 0;
+  for (let i = 0; i < P1_BARS.length; i++) {
+    const bar = P1_BARS[i];
+    const rowTop = py0 + inner + i * rowH + (rowH - rowContent) / 2;
+    const textBase = r(rowTop + labelPx);
+    font(ctx, labelPx, FONT_MONO, '700');
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(bar.label, bx, textBase);
 
-  drawCornerBrackets(ctx, w * 0.03, h * 0.04, w * 0.94, h * 0.92, 18 * u, 'rgba(251, 191, 36, 0.7)', 2);
+    font(ctx, pctPx, FONT_ARCADE, '800');
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText(Math.round(bar.pct * 100 * eased) + '%', bx + bw, textBase);
+
+    const barY = r(textBase + 8);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(bx, barY, bw, barH);
+    const segments = 12;
+    const segGap = 3;
+    const segW = (bw - segGap * (segments - 1)) / segments;
+    const filled = bar.pct * eased * segments;
+    ctx.fillStyle = p1Cache.bar;
+    for (let sIdx = 0; sIdx < segments; sIdx++) {
+      const sx = bx + sIdx * (segW + segGap);
+      const on = sIdx + 1 <= filled;
+      const partial = !on && sIdx < filled ? filled - sIdx : 0;
+      if (on || partial > 0) {
+        ctx.globalAlpha = on ? 1 : partial;
+        ctx.fillRect(sx, barY, segW, barH);
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(bx + 0.5, barY + 0.5, bw - 1, barH - 1);
+  }
+
+  // ---- Badge inferior parpadeante (sin blur) ----
+  const badgePx = px(P1_TYPE.badge, u);
+  font(ctx, badgePx, FONT_ARCADE, '700');
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const badgeText = '[ P1 READY // INSERT COIN TO PLAY ]';
+  const badgeW = r(ctx.measureText(badgeText).width + 28);
+  const badgeH = r(badgePx * 2);
+  const on = blink(t, 1.2);
+  drawPanel(ctx, r(w / 2 - badgeW / 2), badgeY - badgeH / 2, badgeW, badgeH, P1_PANEL_FILL, on ? 'rgba(251, 191, 36, 0.8)' : P1_PANEL_STROKE);
+  ctx.fillStyle = on ? '#fbbf24' : 'rgba(251, 191, 36, 0.45)';
+  ctx.fillText(badgeText, r(w / 2), badgeY + 1);
+
+  drawCornerBrackets(ctx, r(w * 0.025), r(h * 0.035), r(w * 0.95), r(h * 0.93), 18, 'rgba(251, 191, 36, 0.6)', 2);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
 }
