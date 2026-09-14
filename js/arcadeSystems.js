@@ -165,15 +165,15 @@ function drawContain(ctx, img, x, y, boxW, boxH, pixelated) {
 // ESCENA 0 — PLAYER 1 SPEC SHEET (buque insignia)
 // ---------------------------------------------------------------------------
 const P1_BARS = [
-  { label: 'C++ / C# ENGINE & MEMORY', pct: 0.99 },
-  { label: 'GAMEPLAY & STATE MACHINES', pct: 0.94 },
-  { label: 'ZERO-ALLOC POOLING (PERF)', pct: 0.92 },
-  { label: 'GIT & PRODUCTION HYGIENE', pct: 0.98 }
+  { label: 'C++ / C# ENGINE ARCHITECTURE', pct: 0.99 },
+  { label: 'GAMEPLAY & STATE MACHINES', pct: 0.95 },
+  { label: 'AUDIO INTEGRATION (FMOD & WWISE)', pct: 0.96 },
+  { label: 'ZERO-ALLOC POOLING & MEMORY', pct: 0.92 }
 ];
 // Tamanos minimos absolutos (px CSS): nunca se reducen por debajo, solo crecen
 // suavemente en pantallas grandes. Sin shadowBlur en texto de 12-14px: en
 // Canvas 2D las sombras emborronan los glifos pequenos.
-const P1_TYPE = { title: 21, sub: 12, label: 13.5, pct: 13.5, badge: 12, tag: 11 };
+const P1_TYPE = { title: 24, sub: 13.5, label: 15, pct: 15, badge: 13.5, tag: 12 };
 const P1_PANEL_FILL = 'rgba(5, 10, 22, 0.88)';
 const P1_PANEL_STROKE = 'rgba(56, 189, 248, 0.25)';
 const p1Cache = { w: 0, h: 0, bg: null, bar: null, barX: 0, barW: 0 };
@@ -219,7 +219,7 @@ function drawPlayerOneScene(ctx, w, h, t) {
   ctx.fillText('PLAYER 1 // VÍCTOR CÁRDENAS [BCN]', hx + 16, titleBase);
   font(ctx, px(P1_TYPE.sub, u), FONT_MONO, '600');
   ctx.fillStyle = '#94a3b8';
-  ctx.fillText('SPEC SHEET // GAMEPLAY & SYSTEMS PROGRAMMER', hx + 16, titleBase + px(P1_TYPE.sub, u) + 8);
+  ctx.fillText('SPEC SHEET // GAMEPLAY PROGRAMMER', hx + 16, titleBase + px(P1_TYPE.sub, u) + 8);
 
   // ---- Retrato con marco biselado ----
   const top = hy + hh + r(h * 0.04);
@@ -271,7 +271,7 @@ function drawPlayerOneScene(ctx, w, h, t) {
   const bw = pw - inner * 2;
   const labelPx = px(P1_TYPE.label, u);
   const pctPx = px(P1_TYPE.pct, u);
-  const barH = 10;
+  const barH = 12;
   const rowH = (ph - inner * 2) / P1_BARS.length;
   const rowContent = labelPx + 8 + barH;
   const fillEase = Math.min(1, t / 1.1);
@@ -328,7 +328,7 @@ function drawPlayerOneScene(ctx, w, h, t) {
   font(ctx, badgePx, FONT_ARCADE, '700');
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const badgeText = '[ P1 READY // INSERT COIN TO PLAY ]';
+  const badgeText = '[ 1P PROFILE LOADED // GAMEPLAY & AUDIO SYSTEMS ]';
   const badgeW = r(ctx.measureText(badgeText).width + 28);
   const badgeH = r(badgePx * 2);
   const on = blink(t, 1.2);
@@ -936,16 +936,16 @@ export const arcadeSystems = [
     hardwareHtml: hardwareBox(`<div class="rom-cartridge"><span class="rom-notch"></span><span class="rom-label">ROM</span><span class="rom-code">BCN-DEV</span></div>`, 'ROM: BCN-DEV // PLAYER 1'),
     meta: {
       es: {
-        role: "Gameplay & Systems Programmer",
+        role: "Gameplay Programmer",
         stack: "C++ / C# / Unity / Unreal Engine",
-        focus: "Arquitectura de Motores & Sistemas de Gameplay",
+        focus: "Arquitectura de Motores, Gameplay & Audio (FMOD / Wwise)",
         statusLabel: "Base :",
         status: "Barcelona, España (BCN)"
       },
       en: {
-        role: "Gameplay & Systems Programmer",
+        role: "Gameplay Programmer",
         stack: "C++ / C# / Unity / Unreal Engine",
-        focus: "Engine Architecture & Gameplay Systems",
+        focus: "Engine Architecture, Gameplay & Game Audio (FMOD / Wwise)",
         statusLabel: "Base :",
         status: "Barcelona, Spain (BCN)"
       }
