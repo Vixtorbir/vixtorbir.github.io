@@ -126,15 +126,13 @@
            ================================================================= -->
       <section class="arcade-left-display">
         
-        <!-- Vertical Title Box on Far Left Margin -->
-        <div class="vertical-title-container">
-          <div class="vertical-title-text" id="vertical-title">
-            01. PLAYER 1 // VÍCTOR CÁRDENAS
-          </div>
-        </div>
-
         <!-- Sci-Fi Bezel Screen Housing (Solid white mecha frame, vents, targets) -->
         <div class="scifi-screen-wrapper">
+
+          <!-- Vertical Title Box: anclado al alto exacto de la pantalla -->
+          <div class="vertical-title-container">
+            <div class="vertical-title-text" id="vertical-title">01. PLAYER 1 // VÍCTOR CÁRDENAS</div>
+          </div>
           
           <!-- Sci-Fi Bevelled Bezel: chamfered outline, top notch, circuit traces, vent slats -->
           <div class="crt-bezel-frame" aria-hidden="true">
@@ -232,83 +230,112 @@
       </section>
 
       <!-- =================================================================
-           RIGHT COLUMN: THICK GLOWING CURVED RAIL & CUSTOM ARCADE MARQUEES
+           RIGHT COLUMN: TWIN CURVED RAILS "( (" + VINTAGE MARQUEE WHEEL
            ================================================================= -->
       <section class="arcade-wheel-section" id="wheel-section" aria-label="Console Selector">
-        
-        <!-- Thick Glowing Curved Rail -->
-        <div class="arcade-curved-arc"></div>
 
-        <!-- Classic 90s Arcade Arrow Selector Pointer -->
-        <div class="arcade-wheel-pointer">
-          <div class="pointer-triangle"></div>
+        <!-- Twin parallel rails + translucent channel (single SVG, scales with the column) -->
+        <svg class="wheel-rails-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="railChannelFill" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="rgba(30, 41, 59, 0.55)" />
+              <stop offset="0.45" stop-color="rgba(10, 15, 30, 0.35)" />
+              <stop offset="1" stop-color="rgba(10, 15, 30, 0.12)" />
+            </linearGradient>
+            <linearGradient id="railSteel" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#94a3b8" />
+              <stop offset="0.35" stop-color="#ffffff" />
+              <stop offset="0.5" stop-color="#fef9c3" />
+              <stop offset="0.65" stop-color="#ffffff" />
+              <stop offset="1" stop-color="#94a3b8" />
+            </linearGradient>
+            <filter id="railGlow" x="-50%" y="-10%" width="200%" height="120%">
+              <feGaussianBlur stdDeviation="6" />
+            </filter>
+          </defs>
+          <!-- Channel between the rails: translucent, floor grid and amber glow show through -->
+          <path class="rail-channel" d="M 200 -40 Q -40 500 200 1040 L 760 1040 Q 520 500 760 -40 Z" fill="url(#railChannelFill)" />
+          <!-- Left rail: glow halo (blurred copy) + steel core -->
+          <path class="rail-left-glow" d="M 200 -40 Q -40 500 200 1040" fill="none" stroke="#38bdf8" stroke-width="16" filter="url(#railGlow)" vector-effect="non-scaling-stroke" opacity="0.55" />
+          <path class="rail-left-glow-warm" d="M 200 -40 Q -40 500 200 1040" fill="none" stroke="#fbbf24" stroke-width="10" filter="url(#railGlow)" vector-effect="non-scaling-stroke" opacity="0.5" />
+          <path class="rail-left" d="M 200 -40 Q -40 500 200 1040" fill="none" stroke="url(#railSteel)" stroke-width="6" vector-effect="non-scaling-stroke" />
+          <!-- Right rail: thinner, parallel, same curvature -->
+          <path class="rail-right" d="M 760 -40 Q 520 500 760 1040" fill="none" stroke="rgba(226, 232, 240, 0.42)" stroke-width="2" vector-effect="non-scaling-stroke" />
+          <path class="rail-right-glow" d="M 760 -40 Q 520 500 760 1040" fill="none" stroke="#38bdf8" stroke-width="6" filter="url(#railGlow)" vector-effect="non-scaling-stroke" opacity="0.25" />
+        </svg>
+
+        <!-- Retro amber marker on the outer apex of the left rail -->
+        <div class="arcade-wheel-pointer" aria-hidden="true">
+          <span class="pointer-bar"></span>
+          <span class="pointer-triangle"></span>
         </div>
 
-        <!-- Floating Logos Track (Arcade Game Marquees) -->
+        <!-- Floating Logos Track (Vintage Marquees) -->
         <div class="arcade-logos-track" id="logos-track">
-          
-          <!-- Logo 0: Víctor Cárdenas (Tandy /// Style) -->
+
+          <!-- Logo 0: VÍCTOR CÁRDENAS (Tandy / Sega Arcade: bevelled silver + speed stripes) -->
           <div class="system-logo-item active" data-index="0" onclick="selectSystem(0)">
             <div class="logo-tandy-style">
               <span class="tandy-text">VÍCTOR CÁRDENAS</span>
               <div class="tandy-slashes">
                 <span class="tandy-slash slash-red"></span>
                 <span class="tandy-slash slash-green"></span>
-                <span class="tandy-slash slash-cyan"></span>
+                <span class="tandy-slash slash-blue"></span>
               </div>
             </div>
           </div>
 
-          <!-- Logo 1: The Fable of the Eclipse & Loopie Engine -->
+          <!-- Logo 1: THE FABLE OF THE ECLIPSE (Dreamcast / PlayStation: eclipse orb + metallic type) -->
           <div class="system-logo-item pos-1" data-index="1" onclick="selectSystem(1)">
-            <div class="logo-psp-style">
-              <span class="psp-main">FABLE OF THE ECLIPSE</span>
-              <span class="psp-sub">CUSTOM C++ LOOPIE ENGINE &bull; 18 DEVS</span>
+            <div class="logo-eclipse-style">
+              <span class="eclipse-orb"></span>
+              <div class="eclipse-title-block">
+                <span class="eclipse-main">THE FABLE OF THE ECLIPSE</span>
+                <span class="eclipse-sub">CUSTOM C++ ENGINE &middot; 18 DEVS</span>
+              </div>
             </div>
           </div>
 
-          <!-- Logo 2: Ave Phoenix Regen (Features user's uploaded pixel art phoenix!) -->
+          <!-- Logo 2: AVE PHOENIX REGEN (Shmup arcade marquee: sprite + fire/gold type) -->
           <div class="system-logo-item pos-2" data-index="2" onclick="selectSystem(2)">
             <div class="logo-phoenix-marquee">
               <img src="assets/phoenix_pixel_art.png" class="phoenix-wheel-thumb" alt="Phoenix" />
               <div class="phoenix-title-block">
                 <span class="phoenix-main-text">AVE PHOENIX</span>
-                <span class="phoenix-sub-text">REGEN &bull; UNITY C#</span>
+                <span class="phoenix-sub-text">REGEN &middot; UNITY C#</span>
               </div>
             </div>
           </div>
 
-          <!-- Logo 3: Fighting Games (Versus Arcade Style) -->
+          <!-- Logo 3: FIGHTING GAMES (Capcom / Neo-Geo VS badge) -->
           <div class="system-logo-item pos-hidden" data-index="3" onclick="selectSystem(3)">
-            <div class="logo-thomson-style">
-              <div class="thomson-main">
-                <span class="fight-badge">VS</span>
-                <span class="thomson-text">FIGHTING GAMES</span>
+            <div class="logo-versus-style">
+              <span class="versus-badge">VS</span>
+              <div class="versus-title-block">
+                <span class="versus-main">FIGHTING GAMES</span>
+                <span class="versus-sub">COMBAT SYSTEMS &amp; AI</span>
               </div>
-              <span class="thomson-sub">COMBAT SYSTEMS &amp; AI</span>
             </div>
           </div>
 
-          <!-- Logo 4: Hardware & Skills (Microchip Brackets Style) -->
+          <!-- Logo 4: HARDWARE & SKILLS (SGI / Naomi industrial) -->
           <div class="system-logo-item pos-hidden" data-index="4" onclick="selectSystem(4)">
             <div class="logo-hardware-style">
               <div class="hw-main">
                 <span class="hw-bracket">&lt;</span>
-                <span class="hw-text">HARDWARE &amp; SKILLS</span>
+                <span class="hw-text">HARDWARE <em>&amp;</em> SKILLS</span>
                 <span class="hw-bracket">&gt;</span>
               </div>
-              <span class="hw-sub">C++ ENGINE ARCHITECTURE &amp; MEMORY</span>
+              <span class="hw-sub">C++ ENGINE ARCHITECTURE &middot; MEMORY</span>
             </div>
           </div>
 
-          <!-- Logo 5: Contact & Help (Tiger Style) -->
+          <!-- Logo 5: CONTACT & HELP (Sega Service Menu plate) -->
           <div class="system-logo-item pos--1" data-index="5" onclick="selectSystem(5)">
-            <div class="logo-tiger-style">
-              <div class="tiger-main-row">
-                <span class="tiger-main">CONTACT &amp; HELP</span>
-                <span class="tiger-sub"></span>
-              </div>
-              <span class="tiger-tag">GITHUB · LINKEDIN · EMAIL</span>
+            <div class="logo-service-style">
+              <span class="service-plate-tag">SERVICE MENU</span>
+              <span class="service-main">CONTACT &amp; HELP</span>
+              <span class="service-sub">GITHUB &middot; LINKEDIN &middot; EMAIL</span>
             </div>
           </div>
 
@@ -322,7 +349,7 @@
          3. CONTROLES INFERIORES RETRO (Exact Layout Mandated by User)
          │ [CONTROLES INFERIORES]  [▲/▼ SCROLL PARA CAMBIAR]  [ENTER/CLIC: INSPECCIONAR] [MUTE SFX]│
          =================================================================== -->
-    <footer class="arcade-bottom-controls">
+    <footer class="arcade-bottom-panel">
 
       <div class="bottom-ctrl-group">
         <!-- Real cabinet control panel: ball-top joystick + Sanwa-style buttons -->

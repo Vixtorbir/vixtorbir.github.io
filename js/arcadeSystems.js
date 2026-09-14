@@ -255,7 +255,7 @@ export const arcadeSystems = [
     }
   },
   {
-    verticalTitle: "03. AVE PHOENIX REGEN",
+    verticalTitle: "03. AVE PHOENIX // RETRO SHMUP",
     trayTag: "UNITY C#",
     trayBrand: "REGEN",
     badgeText: "UNITY // RETRO SHOOTER",
@@ -325,7 +325,7 @@ export const arcadeSystems = [
     }
   },
   {
-    verticalTitle: "04. FIGHTING GAMES // COMBAT SYSTEMS",
+    verticalTitle: "04. COMBAT & AI // FIGHTING GAMES",
     trayTag: "GAMEPLAY",
     trayBrand: "VS",
     badgeText: "GAMEPLAY // FIGHTING",
@@ -390,7 +390,7 @@ export const arcadeSystems = [
     }
   },
   {
-    verticalTitle: "05. HARDWARE & SKILLS // TECH STACK",
+    verticalTitle: "05. HARDWARE & SKILLS // C++ ENGINE",
     trayTag: "TECH STACK",
     trayBrand: "SKILL",
     badgeText: "SKILLS // HARDWARE",
