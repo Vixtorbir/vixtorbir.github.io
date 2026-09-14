@@ -65,10 +65,60 @@ function drawJaggedMountains(ctx, w, h, startYRatio, color, peakVariance) {
   ctx.fill();
 }
 
+// Retro blue floor grid with a single vanishing point (CoinOPS / outrun floor)
+function drawRetroFloorGrid(ctx, w, h, horizonRatio, rgb) {
+  const horizon = h * horizonRatio;
+  const vpX = w * 0.5;
+  const depth = h - horizon;
+
+  ctx.save();
+
+  // Horizon glow band
+  const glow = ctx.createLinearGradient(0, horizon, 0, horizon + depth * 0.55);
+  glow.addColorStop(0, `rgba(${rgb}, 0.28)`);
+  glow.addColorStop(1, `rgba(${rgb}, 0)`);
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, horizon, w, depth * 0.55);
+
+  ctx.strokeStyle = `rgba(${rgb}, 0.55)`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+
+  // Converging verticals
+  const spacing = w * 0.11;
+  for (let i = -14; i <= 14; i++) {
+    const xBottom = vpX + i * spacing;
+    ctx.moveTo(vpX, horizon);
+    ctx.lineTo(xBottom, h);
+  }
+
+  // Horizontals compressed toward the horizon
+  const rows = 12;
+  for (let r = 1; r <= rows; r++) {
+    const t = r / rows;
+    const y = horizon + depth * t * t;
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+  }
+  ctx.stroke();
+
+  // Bright horizon line
+  ctx.strokeStyle = `rgba(${rgb}, 0.9)`;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, horizon);
+  ctx.lineTo(w, horizon);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 // 6 Core Systems Database (Bilingual ES / EN)
 export const arcadeSystems = [
   {
     verticalTitle: "01. PLAYER 1 // VÍCTOR CÁRDENAS",
+    trayTag: "2025-26",
+    trayBrand: "CITM",
     badgeText: "CITM // P1 PROFILE",
     themeColor: "#38bdf8",
     // Real asset: Authentic pixel portrait of Victor from Ave Phoenix!
@@ -113,6 +163,9 @@ export const arcadeSystems = [
       drawJaggedMountains(ctx, w, h, 0.58, "#2a0a0d", 45);
       drawJaggedMountains(ctx, w, h, 0.72, "#130406", 60);
 
+      // Retro blue floor grid fleeing to the horizon beneath the canyon
+      drawRetroFloorGrid(ctx, w, h, 0.74, "56, 189, 248");
+
       // HUD Overlay Wireframe Vectors
       ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
       ctx.lineWidth = 1.5;
@@ -127,6 +180,8 @@ export const arcadeSystems = [
   },
   {
     verticalTitle: "02. THE FABLE OF THE ECLIPSE // LOOPIE",
+    trayTag: "C++ ENGINE",
+    trayBrand: "LOOP",
     badgeText: "C++ GAME & ENGINE // 18 DEVS",
     themeColor: "#38bdf8",
     // Real assets: Official LoopieEngine logo + MiniKnight character!
@@ -180,6 +235,7 @@ export const arcadeSystems = [
 
         drawJaggedMountains(ctx, w, h, 0.52, "#2b0f19", 40);
         drawJaggedMountains(ctx, w, h, 0.70, "#120509", 55);
+        drawRetroFloorGrid(ctx, w, h, 0.72, "245, 158, 11");
       }
 
       // C++ Engine Audio Waves overlay
@@ -200,6 +256,8 @@ export const arcadeSystems = [
   },
   {
     verticalTitle: "03. AVE PHOENIX REGEN",
+    trayTag: "UNITY C#",
+    trayBrand: "REGEN",
     badgeText: "UNITY // RETRO SHOOTER",
     themeColor: "#10b981",
     // Real asset: Authentic user-uploaded pixel art Phoenix!
@@ -268,6 +326,8 @@ export const arcadeSystems = [
   },
   {
     verticalTitle: "04. FIGHTING GAMES // COMBAT SYSTEMS",
+    trayTag: "GAMEPLAY",
+    trayBrand: "VS",
     badgeText: "GAMEPLAY // FIGHTING",
     themeColor: "#c084fc",
     // Fighting Games Arcade Icon
@@ -296,19 +356,20 @@ export const arcadeSystems = [
       }
     },
     drawScene: function(ctx, w, h) {
-      // Tech Grid Dojo
+      // Tech Grid Dojo: flat wall grid above, 3D floor grid below the stage line
       ctx.fillStyle = "#0a0714";
       ctx.fillRect(0, 0, w, h);
 
-      // Grid
-      ctx.strokeStyle = "rgba(168, 85, 247, 0.25)";
+      const stageY = h * 0.62;
+      ctx.strokeStyle = "rgba(168, 85, 247, 0.18)";
       ctx.lineWidth = 1;
       for (let x = 0; x < w; x += 35) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, stageY); ctx.stroke();
       }
-      for (let y = 0; y < h; y += 35) {
+      for (let y = 0; y < stageY; y += 35) {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
       }
+      drawRetroFloorGrid(ctx, w, h, 0.62, "192, 132, 252");
 
       // Fighter Hitbox & Hurtbox visualization
       ctx.fillStyle = "rgba(59, 130, 246, 0.28)";
@@ -330,6 +391,8 @@ export const arcadeSystems = [
   },
   {
     verticalTitle: "05. HARDWARE & SKILLS // TECH STACK",
+    trayTag: "TECH STACK",
+    trayBrand: "SKILL",
     badgeText: "SKILLS // HARDWARE",
     themeColor: "#38bdf8",
     // Hardware & CPU Silicon Microchip Icon
@@ -434,6 +497,8 @@ export const arcadeSystems = [
   },
   {
     verticalTitle: "06. CONTACT & HELP // HIRE INQUIRIES",
+    trayTag: "HIRE ME",
+    trayBrand: "HELP",
     badgeText: "CONTACT // HELP",
     themeColor: "#f43f5e",
     // Help / Contact Coin Door Icon

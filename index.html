@@ -136,8 +136,36 @@
         <!-- Sci-Fi Bezel Screen Housing (Solid white mecha frame, vents, targets) -->
         <div class="scifi-screen-wrapper">
           
-          <!-- Retro CRT Bezel Frame -->
-          <div class="crt-bezel-frame" aria-hidden="true"></div>
+          <!-- Sci-Fi Bevelled Bezel: chamfered outline, top notch, circuit traces, vent slats -->
+          <div class="crt-bezel-frame" aria-hidden="true">
+            <svg class="bezel-circuit-svg" viewBox="0 0 1000 620" preserveAspectRatio="none">
+              <!-- Inner chamfered outline -->
+              <path d="M 22 8 L 978 8 L 992 22 L 992 598 L 978 612 L 22 612 L 8 598 L 8 22 Z"
+                    fill="none" stroke="rgba(15,23,42,0.55)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <!-- Top notch tab -->
+              <path d="M 440 0 L 560 0 L 548 14 L 452 14 Z" fill="#0b0f19" />
+              <!-- Circuit traces: top-left -->
+              <path d="M 8 120 L 40 120 L 52 132 L 52 200" fill="none" stroke="rgba(15,23,42,0.6)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <circle cx="52" cy="204" r="3" fill="#0b0f19" />
+              <path d="M 120 8 L 120 30 L 132 42 L 260 42" fill="none" stroke="rgba(15,23,42,0.6)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <circle cx="264" cy="42" r="3" fill="#0b0f19" />
+              <!-- Circuit traces: bottom-right -->
+              <path d="M 992 480 L 960 480 L 948 468 L 948 380" fill="none" stroke="rgba(15,23,42,0.6)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <circle cx="948" cy="376" r="3" fill="#0b0f19" />
+              <path d="M 880 612 L 880 590 L 868 578 L 700 578" fill="none" stroke="rgba(15,23,42,0.6)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <circle cx="696" cy="578" r="3" fill="#0b0f19" />
+              <!-- Targeting crosshair + arrow (bottom decal) -->
+              <circle cx="330" cy="596" r="6" fill="none" stroke="#0b0f19" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <line x1="340" y1="596" x2="400" y2="596" stroke="#0b0f19" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              <polygon points="400,590 412,596 400,602" fill="#0b0f19" />
+            </svg>
+            <span class="bezel-vent bezel-vent-right"></span>
+            <span class="bezel-vent bezel-vent-bottom"></span>
+            <span class="bezel-screw screw-tl"></span>
+            <span class="bezel-screw screw-tr"></span>
+            <span class="bezel-screw screw-bl"></span>
+            <span class="bezel-screw screw-br"></span>
+          </div>
 
           <!-- Inner Screen Viewport (Zero-filter, 100% crisp media!) -->
           <div class="scifi-screen-viewport">
@@ -168,7 +196,12 @@
 
         <!-- Metadata Tray (Personalized Hardware Icon + Crystal-Clear Spec List) -->
         <div class="arcade-metadata-tray">
-          
+
+          <!-- Year / label tag embedded in the top border line -->
+          <span class="tray-top-tag" id="tray-tag">CITM-UPC</span>
+          <!-- Vertical brand tab on the left edge -->
+          <span class="tray-brand-tab" id="tray-brand">CITM</span>
+
           <!-- Hardware Thumbnail Box (Renders Phoenix pixel art, LoopieEngine logo, Victor portrait) -->
           <div class="hardware-thumb-box" id="hardware-box">
             <!-- Dynamically populated in js/app.js with real assets -->
@@ -298,20 +331,18 @@
             <span class="joystick-shaft"></span>
             <span class="joystick-ball"></span>
           </div>
-          <span class="mini-button btn-red"></span>
-          <span class="mini-button btn-blue"></span>
         </div>
-        <button class="bottom-key-badge cursor-pointer hover:border-amber-400 hover:text-amber-300 transition" onclick="goToMainMenu()" title="Volver al Perfil Principal / Back to Main Profile">
-          <kbd>⚪</kbd>
-          <span data-i18n="bottom_main_menu">MENÚ PRINCIPAL</span>
+        <button class="panel-action" onclick="goToMainMenu()" title="Volver al Perfil Principal / Back to Main Profile">
+          <span class="sanwa-btn sanwa-red" aria-hidden="true">A</span>
+          <span class="panel-action-label" data-i18n="bottom_main_menu">MENÚ PRINCIPAL</span>
         </button>
-        <div class="bottom-key-badge">
-          <kbd>▲ / ▼</kbd>
-          <span data-i18n="bottom_scroll">SCROLL PARA CAMBIAR</span>
+        <div class="panel-action">
+          <span class="sanwa-btn sanwa-blue" aria-hidden="true">↕</span>
+          <span class="panel-action-label" data-i18n="bottom_scroll">SCROLL PARA CAMBIAR</span>
         </div>
-        <div class="bottom-key-badge">
-          <kbd>ENTER / CLIC</kbd>
-          <span data-i18n="bottom_inspect">INSPECCIONAR</span>
+        <div class="panel-action">
+          <span class="sanwa-btn sanwa-yellow" aria-hidden="true">↵</span>
+          <span class="panel-action-label" data-i18n="bottom_inspect">INSPECCIONAR</span>
         </div>
       </div>
 

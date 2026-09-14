@@ -29,9 +29,14 @@ function updateLeftDisplay() {
   const badge = document.getElementById('screen-badge-text');
   if (badge) badge.textContent = system.badgeText;
 
-  // 3. Personalized Hardware Box (Loads real image or SVG)
+  // 3. Personalized Hardware Box (Loads real image or SVG) + tray chassis tags
   const hwBox = document.getElementById('hardware-box');
   if (hwBox) hwBox.innerHTML = system.hardwareHtml;
+
+  const trayTag = document.getElementById('tray-tag');
+  if (trayTag) trayTag.textContent = system.trayTag;
+  const trayBrand = document.getElementById('tray-brand');
+  if (trayBrand) trayBrand.textContent = system.trayBrand;
 
   // 4. Metadata List Rows (Crystal-clear monospace typography)
   const meta = system.meta[currentLang];
