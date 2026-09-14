@@ -9,7 +9,7 @@
  */
 
 import { arcadeSystems, uiText, onAssetLoad } from './arcadeSystems.js';
-import { initCanvasRenderer, renderScreenArtwork } from './canvasRenderer.js';
+import { initCanvasRenderer, renderScreenArtwork, resizeCanvas, startRenderLoop } from './canvasRenderer.js';
 import { playArcadeTick, playCoinSound, playArcadeStartSound, toggleAudioSFX } from './audioManager.js';
 
 let currentLang = 'es';
@@ -49,6 +49,10 @@ function updateLeftDisplay() {
   if (metaStack) metaStack.textContent = meta.stack;
   if (metaFocus) metaFocus.textContent = meta.focus;
   if (metaStatus) metaStatus.textContent = meta.status;
+
+  // La 4a fila puede renombrarse por sistema (p. ej. "Base :" en Player 1)
+  const statusLabel = document.querySelector('[data-i18n="meta_status_lbl"]');
+  if (statusLabel) statusLabel.textContent = meta.statusLabel || uiText[currentLang].meta_status_lbl;
 
   // 5. Draw Canvas Scene
   renderScreenArtwork(activeSystemIndex);
@@ -185,9 +189,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateLogosView();
 
+  startRenderLoop();
+
   // Resize canvas when window resizes
   window.addEventListener('resize', () => {
-    renderScreenArtwork(activeSystemIndex);
+    resizeCanvas();
   });
 
   // Mouse Wheel navigation anywhere on screen

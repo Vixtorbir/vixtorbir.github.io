@@ -59,7 +59,7 @@
 
     <!-- ===================================================================
          1. TOP BAR RETRO MARQUEE (Exact User Specification)
-         │ [TOP BAR RETRO]  > VICTOR_CARDENAS.EXE   [INSERT COIN: PRÁCTICAS ACTIVAS]  [CV PDF] [EN/ES]│
+         │ [TOP BAR RETRO]  > VICTOR_CARDENAS.EXE   [INSERT COIN: P1 READY]  [CV PDF] [EN/ES]│
          =================================================================== -->
     <header class="arcade-top-marquee">
       
@@ -77,10 +77,10 @@
         </div>
       </div>
 
-      <!-- Center: [INSERT COIN: PRÁCTICAS ACTIVAS] (Clickable with authentic coin sound!) -->
+      <!-- Center: [INSERT COIN: P1 READY] (Clickable with authentic coin sound!) -->
       <div class="top-insert-coin cursor-pointer" onclick="playCoinSound()" title="Insert Coin / Insertar Moneda">
         <span class="coin-slot-icon">[¢]</span>
-        <span data-i18n="insert_coin_text">INSERT COIN: PRÁCTICAS ACTIVAS</span>
+        <span data-i18n="insert_coin_text">INSERT COIN: P1 READY</span>
       </div>
 
       <!-- Right Controls: [CV PDF] [EN/ES] [SFX] -->
@@ -179,6 +179,9 @@
               <canvas id="media-canvas" class="w-full h-full block"></canvas>
             </div>
 
+            <!-- Interactive CTA: click / Enter opens the spec sheet (Phase 2) -->
+            <div class="screen-inspect-cta" data-i18n="screen_inspect_cta">[ ↵ CLIC / ENTER: INSPECCIONAR ]</div>
+
             <!-- Authentic Arcade Decal Strip -->
             <div class="arcade-decal-strip">
               <span>[P1] 1P ONLY</span>
@@ -221,7 +224,7 @@
             </div>
             <div class="metadata-row">
               <span class="metadata-label" data-i18n="meta_status_lbl">Estado :</span>
-              <span class="metadata-value text-emerald-400 font-semibold" id="meta-status">Disponible Convenio Prácticas (CITM-UPC)</span>
+              <span class="metadata-value text-emerald-400 font-semibold" id="meta-status">Barcelona, España (BCN)</span>
             </div>
           </div>
 
@@ -291,7 +294,7 @@
               <span class="eclipse-orb"></span>
               <div class="eclipse-title-block">
                 <span class="eclipse-main">THE FABLE OF THE ECLIPSE</span>
-                <span class="eclipse-sub">CUSTOM C++ ENGINE &middot; 18 DEVS</span>
+                <span class="eclipse-sub">3D ACTION RPG // CUSTOM C++ ENGINE</span>
               </div>
             </div>
           </div>
