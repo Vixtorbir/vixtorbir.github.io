@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Víctor Cárdenas (Vixtorbir) | Arcade Front-End — Gameplay & Systems Programmer</title>
+  <meta name="description" content="Portfolio Arcade de Víctor Cárdenas (Vixtorbir) — Gameplay & Systems Programmer (CITM-UPC). C++, FMOD nativo, Unity Zero-GC y Arquitectura de Motores.">
+  
+  <!-- Arcade Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            arcade: ['"Chakra Petch"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            sans: ['"Inter"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Arcade Cabinet Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+
+  <!-- Fullscreen Arcade Cabinet Viewport Environment -->
+  <div class="arcade-viewport-env">
+
+    <!-- CRT Tube Simulation: scanlines, phosphor grain, tube flicker -->
+    <div class="crt-scanlines" aria-hidden="true"></div>
+    <div class="crt-grain" aria-hidden="true"></div>
+    <div class="crt-vignette" aria-hidden="true"></div>
+    
+    <!-- Cabinet Corner Hex Bolts -->
+    <span class="chassis-bolt bolt-tl"></span>
+    <span class="chassis-bolt bolt-tr"></span>
+    <span class="chassis-bolt bolt-bl"></span>
+    <span class="chassis-bolt bolt-br"></span>
+
+    <!-- 3D Perspective Retro Floor Grid -->
+    <div class="arcade-floor-grid">
+      <div class="arcade-floor-grid-plane"></div>
+    </div>
+
+    <!-- Glowing Yellow Arcade Cabinet in Background Right -->
+    <div class="arcade-bg-silhouette"></div>
+
+    <!-- ===================================================================
+         1. TOP BAR RETRO MARQUEE (Exact User Specification)
+         │ [TOP BAR RETRO]  > VICTOR_CARDENAS.EXE   [INSERT COIN: PRÁCTICAS ACTIVAS]  [CV PDF] [EN/ES]│
+         =================================================================== -->
+    <header class="arcade-top-marquee">
+      
+      <!-- Left: Speaker Grille + Terminal prompt > VICTOR_CARDENAS.EXE -->
+      <div class="flex items-center gap-3">
+        <div class="speaker-grille hidden sm:flex">
+          <span class="speaker-slit"></span>
+          <span class="speaker-slit"></span>
+          <span class="speaker-slit"></span>
+          <span class="speaker-slit"></span>
+        </div>
+        <div class="top-terminal-prompt">
+          <span>&gt; VICTOR_CARDENAS.EXE</span>
+          <span class="terminal-cursor"></span>
+        </div>
+      </div>
+
+      <!-- Center: [INSERT COIN: PRÁCTICAS ACTIVAS] (Clickable with authentic coin sound!) -->
+      <div class="top-insert-coin cursor-pointer" onclick="playCoinSound()" title="Insert Coin / Insertar Moneda">
+        <span class="coin-slot-icon">[¢]</span>
+        <span data-i18n="insert_coin_text">INSERT COIN: PRÁCTICAS ACTIVAS</span>
+      </div>
+
+      <!-- Right Controls: [CV PDF] [EN/ES] [SFX] -->
+      <div class="top-right-controls">
+        <!-- Subtle CV Button -->
+        <a href="assets/Victor_Cardenas_CV.pdf" download="Victor_Cardenas_CV.pdf" class="arcade-btn-retro" title="Descargar CV / Resume">
+          <svg class="w-3.5 h-3.5 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span data-i18n="cv_btn">[CV PDF]</span>
+        </a>
+
+        <!-- Language Switcher [ EN | ES ] -->
+        <div class="arcade-lang-retro" role="group" aria-label="Language Selector">
+          <button id="lang-btn-en" class="lang-retro-btn" onclick="setLanguage('en')">EN</button>
+          <button id="lang-btn-es" class="lang-retro-btn active" onclick="setLanguage('es')">ES</button>
+        </div>
+
+        <!-- Audio SFX Toggle -->
+        <button id="sfx-toggle-btn" class="arcade-btn-retro !px-2" onclick="toggleAudioSFX()" title="Silenciar / Activar Sonido">
+          <span id="sfx-label">🔊 SFX</span>
+        </button>
+
+        <div class="speaker-grille hidden sm:flex">
+          <span class="speaker-slit"></span>
+          <span class="speaker-slit"></span>
+          <span class="speaker-slit"></span>
+          <span class="speaker-slit"></span>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- ===================================================================
+         2. MAIN STAGE (EXACT LAYOUT OF IMAGE 2)
+         - Left: Framed Vertical Title + Sci-Fi Screen + Hardware Box + Clear Metadata
+         - Right: Thick Glowing Curved Rail + Custom System Branding Logos
+         =================================================================== -->
+    <main class="arcade-main-stage">
+      
+      <!-- =================================================================
+           LEFT COLUMN: SCI-FI BEZEL SCREEN & METADATA TRAY
+           ================================================================= -->
+      <section class="arcade-left-display">
+        
+        <!-- Vertical Title Box on Far Left Margin -->
+        <div class="vertical-title-container">
+          <div class="vertical-title-text" id="vertical-title">
+            01. PLAYER 1 // VÍCTOR CÁRDENAS
+          </div>
+        </div>
+
+        <!-- Sci-Fi Bezel Screen Housing (Solid white mecha frame, vents, targets) -->
+        <div class="scifi-screen-wrapper">
+          
+          <!-- Retro CRT Bezel Frame -->
+          <div class="crt-bezel-frame" aria-hidden="true"></div>
+
+          <!-- Inner Screen Viewport (Zero-filter, 100% crisp media!) -->
+          <div class="scifi-screen-viewport">
+            
+            <!-- Top-Left Arcade Badge -->
+            <div class="screen-top-badge">
+              <span class="text-amber-400 text-sm">[*]</span>
+              <span class="badge-logo-text" id="screen-badge-text">CITM // ARCADE</span>
+            </div>
+
+            <!-- Dynamic Canvas / Video (Crisp, zero-filter display) -->
+            <div class="w-full h-full relative" id="screen-media-container">
+              <canvas id="media-canvas" class="w-full h-full block"></canvas>
+            </div>
+
+            <!-- Authentic Arcade Decal Strip -->
+            <div class="arcade-decal-strip">
+              <span>[P1] 1P ONLY</span>
+              <span>&bull;</span>
+              <span>LEVEL 01</span>
+              <span>&bull;</span>
+              <span>CITM-UPC</span>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Metadata Tray (Personalized Hardware Icon + Crystal-Clear Spec List) -->
+        <div class="arcade-metadata-tray">
+          
+          <!-- Hardware Thumbnail Box (Renders Phoenix pixel art, LoopieEngine logo, Victor portrait) -->
+          <div class="hardware-thumb-box" id="hardware-box">
+            <!-- Dynamically populated in js/app.js with real assets -->
+          </div>
+
+          <!-- Metadata Spec List (Crisp monospace font, ultra-legible) -->
+          <div class="metadata-list" id="metadata-list-container">
+            <div class="metadata-row">
+              <span class="metadata-label" data-i18n="meta_role_lbl">Rol :</span>
+              <span class="metadata-value" id="meta-role">Gameplay &amp; Systems Programmer</span>
+            </div>
+            <div class="metadata-row">
+              <span class="metadata-label" data-i18n="meta_stack_lbl">Tech Stack :</span>
+              <span class="metadata-value" id="meta-stack">C++ / C# / Unity / Unreal Engine</span>
+            </div>
+            <div class="metadata-row">
+              <span class="metadata-label" data-i18n="meta_focus_lbl">Especialidad :</span>
+              <span class="metadata-value" id="meta-focus">Low-Level Architecture &amp; Audio Subsystems</span>
+            </div>
+            <div class="metadata-row">
+              <span class="metadata-label" data-i18n="meta_status_lbl">Estado :</span>
+              <span class="metadata-value text-emerald-400 font-semibold" id="meta-status">Disponible Convenio Prácticas (CITM-UPC)</span>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- =================================================================
+           RIGHT COLUMN: THICK GLOWING CURVED RAIL & CUSTOM ARCADE MARQUEES
+           ================================================================= -->
+      <section class="arcade-wheel-section" id="wheel-section" aria-label="Console Selector">
+        
+        <!-- Thick Glowing Curved Rail -->
+        <div class="arcade-curved-arc"></div>
+
+        <!-- Classic 90s Arcade Arrow Selector Pointer -->
+        <div class="arcade-wheel-pointer">
+          <div class="pointer-triangle"></div>
+        </div>
+
+        <!-- Floating Logos Track (Arcade Game Marquees) -->
+        <div class="arcade-logos-track" id="logos-track">
+          
+          <!-- Logo 0: Víctor Cárdenas (Tandy /// Style) -->
+          <div class="system-logo-item active" data-index="0" onclick="selectSystem(0)">
+            <div class="logo-tandy-style">
+              <span class="tandy-text">VÍCTOR CÁRDENAS</span>
+              <div class="tandy-slashes">
+                <span class="tandy-slash slash-red"></span>
+                <span class="tandy-slash slash-green"></span>
+                <span class="tandy-slash slash-cyan"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logo 1: The Fable of the Eclipse & Loopie Engine -->
+          <div class="system-logo-item pos-1" data-index="1" onclick="selectSystem(1)">
+            <div class="logo-psp-style">
+              <span class="psp-main">FABLE OF THE ECLIPSE</span>
+              <span class="psp-sub">CUSTOM C++ LOOPIE ENGINE &bull; 18 DEVS</span>
+            </div>
+          </div>
+
+          <!-- Logo 2: Ave Phoenix Regen (Features user's uploaded pixel art phoenix!) -->
+          <div class="system-logo-item pos-2" data-index="2" onclick="selectSystem(2)">
+            <div class="logo-phoenix-marquee">
+              <img src="assets/phoenix_pixel_art.png" class="phoenix-wheel-thumb" alt="Phoenix" />
+              <div class="phoenix-title-block">
+                <span class="phoenix-main-text">AVE PHOENIX</span>
+                <span class="phoenix-sub-text">REGEN &bull; UNITY C#</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logo 3: Fighting Games (Versus Arcade Style) -->
+          <div class="system-logo-item pos-hidden" data-index="3" onclick="selectSystem(3)">
+            <div class="logo-thomson-style">
+              <div class="thomson-main">
+                <span class="fight-badge">VS</span>
+                <span class="thomson-text">FIGHTING GAMES</span>
+              </div>
+              <span class="thomson-sub">COMBAT SYSTEMS &amp; AI</span>
+            </div>
+          </div>
+
+          <!-- Logo 4: Hardware & Skills (Microchip Brackets Style) -->
+          <div class="system-logo-item pos-hidden" data-index="4" onclick="selectSystem(4)">
+            <div class="logo-hardware-style">
+              <div class="hw-main">
+                <span class="hw-bracket">&lt;</span>
+                <span class="hw-text">HARDWARE &amp; SKILLS</span>
+                <span class="hw-bracket">&gt;</span>
+              </div>
+              <span class="hw-sub">C++ ENGINE ARCHITECTURE &amp; MEMORY</span>
+            </div>
+          </div>
+
+          <!-- Logo 5: Contact & Help (Tiger Style) -->
+          <div class="system-logo-item pos--1" data-index="5" onclick="selectSystem(5)">
+            <div class="logo-tiger-style">
+              <div class="tiger-main-row">
+                <span class="tiger-main">CONTACT &amp; HELP</span>
+                <span class="tiger-sub"></span>
+              </div>
+              <span class="tiger-tag">GITHUB · LINKEDIN · EMAIL</span>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ===================================================================
+         3. CONTROLES INFERIORES RETRO (Exact Layout Mandated by User)
+         │ [CONTROLES INFERIORES]  [▲/▼ SCROLL PARA CAMBIAR]  [ENTER/CLIC: INSPECCIONAR] [MUTE SFX]│
+         =================================================================== -->
+    <footer class="arcade-bottom-controls">
+
+      <div class="bottom-ctrl-group">
+        <!-- Real cabinet control panel: ball-top joystick + Sanwa-style buttons -->
+        <div class="control-panel-visual" aria-hidden="true">
+          <div class="mini-joystick">
+            <span class="joystick-shaft"></span>
+            <span class="joystick-ball"></span>
+          </div>
+          <span class="mini-button btn-red"></span>
+          <span class="mini-button btn-blue"></span>
+        </div>
+        <button class="bottom-key-badge cursor-pointer hover:border-amber-400 hover:text-amber-300 transition" onclick="selectSystem(0)" title="Volver al Perfil Principal / Back to Main Profile">
+          <kbd>⚪</kbd>
+          <span data-i18n="bottom_main_menu">MENÚ PRINCIPAL</span>
+        </button>
+        <div class="bottom-key-badge">
+          <kbd>▲ / ▼</kbd>
+          <span data-i18n="bottom_scroll">SCROLL PARA CAMBIAR</span>
+        </div>
+        <div class="bottom-key-badge">
+          <kbd>ENTER / CLIC</kbd>
+          <span data-i18n="bottom_inspect">INSPECCIONAR</span>
+        </div>
+      </div>
+
+      <div class="bottom-right-branding">
+        <span>CITM - UNIVERSITAT POLITÈCNICA DE CATALUNYA</span>
+        <span class="text-zinc-600">|</span>
+        <a href="https://github.com/Vixtorbir" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline">
+          github.com/Vixtorbir
+        </a>
+      </div>
+
+    </footer>
+
+  </div>
+
+  <!-- Desktop-Only Fallback Screen (shown below 1024px via styles.css) -->
+  <div class="arcade-mobile-fallback" role="status">
+    <div class="mobile-fallback-icon" aria-hidden="true">[*]</div>
+    <p class="mobile-fallback-title" data-i18n="mobile_fallback_title">EXPERIENCIA OPTIMIZADA PARA ESCRITORIO</p>
+    <p class="mobile-fallback-msg" data-i18n="mobile_fallback_msg">Este cabinet arcade necesita una pantalla de 1024px de ancho o más para mostrarse sin recortes. Abre este portfolio en un ordenador de escritorio o portátil.</p>
+  </div>
+
+  <!-- Arcade Logic Engine (ES Modules, sin build step) -->
+  <script type="module" src="js/app.js"></script>
+
+</body>
+</html>

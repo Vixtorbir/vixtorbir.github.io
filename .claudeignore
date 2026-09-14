@@ -1,0 +1,25 @@
+# Archivos binarios y multimedia pesados (no indexar en contexto de Claude)
+assets/*.png
+assets/*.jpg
+assets/*.jpeg
+assets/*.webp
+assets/*.pdf
+assets/*.ico
+assets/*.mp3
+assets/*.wav
+assets/*.ogg
+
+# Dependencias y builds
+node_modules/
+dist/
+build/
+
+# Control de versiones y SO
+.git/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs y temporales
+*.log
+*.tmp

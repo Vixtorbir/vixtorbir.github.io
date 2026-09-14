@@ -1,0 +1,1092 @@
+/* ==========================================================================
+   VÍCTOR CÁRDENAS (Vixtorbir) — 100% VINTAGE RETRO ARCADE CABINET
+   Authentic 80s/90s Coin-Op Arcade Aesthetic (Neo-Geo MVS / Candy Cab Style)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600;700&family=VT323&display=swap');
+
+:root {
+  --arcade-black: #010204;
+  --arcade-bezel-gray: #121622;
+  --arcade-chassis: #0a0d16;
+  --neon-cyan: #00f0ff;
+  --neon-yellow: #ffe600;
+  --neon-amber: #f59e0b;
+  --neon-red: #ff2a5f;
+  --neon-green: #00ff66;
+  --neon-purple: #c084fc;
+  
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-vfd: 'VT323', monospace;
+  --font-arcade: 'Chakra Petch', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
+  background-color: var(--arcade-black);
+  color: #ffffff;
+  font-family: var(--font-arcade);
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   0. CRT TUBE SIMULATION — SCANLINES, PHOSPHOR GRAIN, TUBE FLICKER
+   The single biggest thing separating "neon sci-fi panel" from "childhood
+   arcade cabinet" is that every real cabinet was viewed through a curved,
+   slightly-dirty CRT tube. These three layers sit above everything.
+   ========================================================================== */
+.crt-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.18) 0px,
+    rgba(0, 0, 0, 0.18) 1px,
+    transparent 2px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+  animation: scanlineDrift 9s linear infinite;
+}
+
+@keyframes scanlineDrift {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 120px; }
+}
+
+/* Faint phosphor grain — the "dusty old tube" texture */
+.crt-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 199;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Barrel vignette + very subtle tube flicker, like a warming-up monitor */
+.crt-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 198;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  animation: tubeFlicker 6.5s ease-in-out infinite;
+}
+
+@keyframes tubeFlicker {
+  0%, 96%, 100% { opacity: 1; }
+  97% { opacity: 0.92; }
+  98% { opacity: 1; }
+  98.5% { opacity: 0.88; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-scanlines, .crt-vignette { animation: none; }
+}
+
+/* ==========================================================================
+   1. ARCADE CABINET VIEWPORT — Chasis principal, siempre visible
+   Bloqueado a aspect-ratio 16:9 y centrado con letterboxing (misma
+   tonalidad que el fondo) para no deformarse en monitores no estándar
+   ni provocar scroll. Por debajo de 1024px de ancho se oculta a favor
+   de .arcade-mobile-fallback (ver media query al final del archivo).
+   ========================================================================== */
+.arcade-viewport-env {
+  width: min(100vw, 177.78vh);
+  height: min(100vh, 56.25vw);
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  background:
+    radial-gradient(circle at 85% 45%, rgba(245, 158, 11, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 30% 35%, rgba(18, 32, 60, 0.85) 0%, #03050a 85%),
+    linear-gradient(180deg, #070b18 0%, #010204 100%);
+}
+
+/* Heavy Rubber/Chrome T-Molding on Cabinet Edges */
+.arcade-viewport-env::before,
+.arcade-viewport-env::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  z-index: 100;
+  pointer-events: none;
+}
+.arcade-viewport-env::before {
+  left: 0;
+  background:
+    repeating-linear-gradient(115deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 1px, transparent 3px, transparent 7px),
+    linear-gradient(90deg, #7a3b1e 0%, #4a2412 35%, #0f172a 80%, transparent 100%);
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.95);
+}
+.arcade-viewport-env::after {
+  right: 0;
+  background:
+    repeating-linear-gradient(65deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 1px, transparent 3px, transparent 7px),
+    linear-gradient(270deg, #7a3b1e 0%, #4a2412 35%, #0f172a 80%, transparent 100%);
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.95);
+}
+
+/* Hex Bolts on Cabinet Corners */
+.chassis-bolt {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #475569;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.6);
+  z-index: 95;
+}
+.bolt-tl { top: 10px; left: 20px; }
+.bolt-tr { top: 10px; right: 20px; }
+.bolt-bl { bottom: 10px; left: 20px; }
+.bolt-br { bottom: 10px; right: 20px; }
+
+/* 3D Floor Grid with Cyan Perspective */
+.arcade-floor-grid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 58%;
+  perspective: 400px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+}
+
+.arcade-floor-grid-plane {
+  width: 200%;
+  height: 200%;
+  margin-left: -50%;
+  transform: rotateX(65deg) translateY(-24%);
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(251, 191, 36, 0.2) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, rgba(251, 191, 36, 0.2) 1.5px, transparent 1.5px);
+}
+
+/* Warm Arcade Machine Glow in the Background */
+.arcade-bg-silhouette {
+  position: absolute;
+  right: 5%;
+  top: 18%;
+  bottom: 12%;
+  width: 280px;
+  background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.3) 0%, rgba(202, 138, 4, 0.08) 50%, transparent 80%);
+  filter: blur(35px);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   2. TOP BAR RETRO: ILLUMINATED BACKLIT MARQUEE (VINTAGE ACRYLIC)
+   ========================================================================== */
+.arcade-top-marquee {
+  height: 50px;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 65%, #090e17 100%);
+  border-bottom: 2px solid #334155;
+  position: relative;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  box-shadow: 
+    0 6px 25px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Understated bottom edge — no animated neon strip */
+.arcade-top-marquee::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(148, 163, 184, 0.25);
+  pointer-events: none;
+}
+
+/* Speaker Grille Slits on edges */
+.speaker-grille {
+  display: flex;
+  gap: 3px;
+}
+.speaker-slit {
+  width: 2.5px;
+  height: 16px;
+  background: #1e293b;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+  border-radius: 1px;
+}
+
+/* Terminal Prompt: > VICTOR_CARDENAS.EXE (Pixel arcade styling) */
+.top-terminal-prompt {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  color: #fbbf24;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.7);
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 12px;
+  background: #fbbf24;
+  box-shadow: 0 0 8px #fbbf24;
+  animation: blinkCursor 0.9s infinite;
+}
+
+@keyframes blinkCursor {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Center: [INSERT COIN: PRÁCTICAS ACTIVAS] (Vintage Coin-Op Marquee) */
+.top-insert-coin {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #000000;
+  border: 1.5px solid #78716c;
+  padding: 0.3rem 1rem;
+  border-radius: 4px;
+  font-family: var(--font-pixel);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: #fbbf24;
+}
+
+.top-insert-coin span[data-i18n] {
+  animation: coinMarqueePulse 1.3s steps(1) infinite;
+}
+
+@keyframes coinMarqueePulse {
+  0%, 55% { opacity: 1; }
+  60%, 65% { opacity: 0.15; }
+  70%, 100% { opacity: 1; }
+}
+
+/* Right Controls: [CV PDF] [EN/ES] [SFX] */
+.top-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.arcade-btn-retro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 1.5px solid #475569;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.28rem 0.75rem;
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+.arcade-btn-retro:hover {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  border-color: #94a3b8;
+  color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+.arcade-lang-retro {
+  display: inline-flex;
+  background: #000000;
+  border: 1.5px solid #475569;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.lang-retro-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.22rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lang-retro-btn.active {
+  background: #fbbf24;
+  color: #000000;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   3. MAIN STAGE: VINTAGE CRT CHASSIS & ROTARY MARQUEE WHEEL
+   ========================================================================== */
+.arcade-main-stage {
+  flex: 1;
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 57% 43%;
+  padding: 1.25rem 2.25rem 0.85rem 2.25rem;
+  gap: 2rem;
+  align-items: center;
+}
+
+/* ==========================================================================
+   LEFT: THE CURVED CRT ARCADE MONITOR (BEZEL ART & DECALS)
+   ========================================================================== */
+.arcade-left-display {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* Vertical Title Box on Left Margin (Framed in Arcade Chute) */
+.vertical-title-container {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 120px;
+  width: 34px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-right: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 25;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.vertical-title-text {
+  transform: rotate(-90deg);
+  white-space: nowrap;
+  font-family: var(--font-pixel);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+/* The Sci-Fi / Arcade Bezel Screen Wrapper */
+.scifi-screen-wrapper {
+  flex: 1;
+  max-height: 72%;
+  position: relative;
+  margin-left: 42px;
+  border-radius: 12px;
+  padding: 4px;
+  background: #0b0f19;
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.9),
+    0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.crt-bezel-frame {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  border: 3px solid #2a2015;
+  box-shadow:
+    inset 0 0 30px rgba(0, 0, 0, 0.95),
+    inset 0 0 8px rgba(251, 191, 36, 0.08),
+    0 0 15px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* Inner Screen Viewport: Curved CRT with Phosphor Edge Shadow */
+.scifi-screen-viewport {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #03060d;
+  border-radius: 8px;
+  box-shadow: 
+    inset 0 0 45px rgba(0, 0, 0, 0.95),
+    inset 0 0 15px rgba(0, 0, 0, 0.9);
+}
+
+/* Authentic Faint Phosphor Screen Glow (Gives CRT presence without darkening art!) */
+.scifi-screen-viewport::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 65%, rgba(0, 0, 0, 0.5) 100%);
+  pointer-events: none;
+  z-index: 12;
+}
+
+#media-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  animation: crtBrightnessFlicker 0.18s infinite;
+}
+
+@keyframes crtBrightnessFlicker {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.015); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #media-canvas { animation: none; }
+}
+
+/* Top-Left Arcade Badge (Authentic 80s arcade logo tab) */
+.screen-top-badge {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 15;
+  background: #000000;
+  border: 1.5px solid #f59e0b;
+  padding: 0.25rem 0.65rem;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.9), 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.badge-logo-text {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.7);
+}
+
+/* Instruction Decal Strip (Classic Arcade Screen Sticker) */
+.arcade-decal-strip {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  z-index: 15;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Metadata Tray: Hardware Box + Stats List */
+.arcade-metadata-tray {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  margin-left: 42px;
+  padding-top: 0.65rem;
+}
+
+/* Hardware Frame (Solid white border with authentic game thumbnail / logo) */
+.hardware-thumb-box {
+  width: 125px;
+  height: 92px;
+  background: #050811;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.9),
+    inset 0 0 12px rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.hardware-thumb-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Clear, High-Legibility Typography for Metadata */
+.metadata-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.metadata-row {
+  display: flex;
+  gap: 0.65rem;
+  align-items: baseline;
+}
+
+.metadata-label {
+  color: #38bdf8;
+  font-weight: 700;
+  min-width: 130px;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 6px rgba(56, 189, 248, 0.4);
+}
+
+.metadata-value {
+  color: #f8fafc;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   4. RIGHT: THE GLOWING CURVED RAIL & AUTHENTIC ARCADE MARQUEE WHEEL
+   ========================================================================== */
+.arcade-wheel-section {
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* The Thick Glowing Curved Rail */
+.arcade-curved-arc {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 6%;
+  width: 520px;
+  border-left: 5px solid var(--arc-white);
+  border-radius: 50% / 100%;
+  box-shadow: 
+    -6px 0 25px rgba(255, 255, 255, 0.5),
+    -2px 0 8px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.arcade-curved-arc::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 8px;
+  width: 500px;
+  border-left: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50% / 100%;
+  pointer-events: none;
+}
+
+/* Fixed Arcade Selector Pointer (Classic 90s Arcade Arrow) */
+.arcade-wheel-pointer {
+  position: absolute;
+  left: calc(6% - 24px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  z-index: 35;
+  pointer-events: none;
+}
+
+.pointer-triangle {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 16px solid #fbbf24;
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9));
+  animation: pointerNudge 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes pointerNudge {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(5px); }
+}
+
+/* Logos Track */
+.arcade-logos-track {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 20;
+}
+
+/* Individual Arcade Game Wheel Item */
+.system-logo-item {
+  position: absolute;
+  left: 16%;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+  transform-origin: left center;
+}
+
+/* Active Highlighted Arcade Item (Slide forward, scale up, intense arcade glow) */
+.system-logo-item.active {
+  left: 22%;
+  transform: translateY(0) scale(1.35);
+  opacity: 1;
+  z-index: 30;
+  filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.5));
+}
+
+.system-logo-item.pos--1 {
+  transform: translateY(-95px) scale(0.9);
+  opacity: 0.65;
+  z-index: 20;
+}
+
+.system-logo-item.pos-1 {
+  transform: translateY(95px) scale(0.9);
+  opacity: 0.65;
+  z-index: 20;
+}
+
+.system-logo-item.pos--2 {
+  transform: translateY(-180px) scale(0.72);
+  opacity: 0.35;
+  z-index: 15;
+}
+
+.system-logo-item.pos-2 {
+  transform: translateY(180px) scale(0.72);
+  opacity: 0.35;
+  z-index: 15;
+}
+
+.system-logo-item.pos-hidden {
+  transform: translateY(270px) scale(0.55);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ==========================================================================
+   VINTAGE ARCADE GAME WHEEL MARQUEES (AUTHENTIC RETRO FLYER BRANDING)
+   ========================================================================== */
+
+/* 1. VÍCTOR CÁRDENAS (Tandy Style: Heavy block letters + 3 thick colored slashes) */
+.logo-tandy-style {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.tandy-text {
+  font-family: var(--font-pixel);
+  font-size: 1.15rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 2px 0 0 rgba(255, 42, 95, 0.5), -2px 0 0 rgba(0, 240, 255, 0.4), 0 0 14px rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+}
+.tandy-slashes {
+  display: flex;
+  gap: 5px;
+}
+.tandy-slash {
+  width: 12px;
+  height: 32px;
+  transform: skewX(-24deg);
+  border-radius: 1px;
+}
+.slash-red { background: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.7); }
+.slash-green { background: #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.7); }
+.slash-cyan { background: #fbbf24; box-shadow: 0 0 10px rgba(56, 189, 248, 0.7); }
+
+/* 2. THE FABLE OF THE ECLIPSE (Neo Geo Gold Marquee Style) */
+.logo-psp-style {
+  display: flex;
+  flex-direction: column;
+}
+.psp-main {
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #38bdf8;
+  text-shadow: 0 0 14px rgba(56, 189, 248, 0.7);
+  line-height: 1.6;
+}
+.psp-sub {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  color: #7dd3fc;
+  text-transform: uppercase;
+  margin-top: 3px;
+  text-shadow: 0 0 6px rgba(125, 211, 252, 0.4);
+}
+
+/* 3. AVE PHOENIX REGEN (Features pixel art phoenix thumbnail + flame typography) */
+.logo-phoenix-marquee {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.phoenix-wheel-thumb {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.9));
+}
+.phoenix-title-block {
+  display: flex;
+  flex-direction: column;
+}
+.phoenix-main-text {
+  font-family: var(--font-pixel);
+  font-size: 0.95rem;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  color: #fb923c;
+  text-shadow: 0 0 12px rgba(251, 146, 60, 0.8);
+  line-height: 1.6;
+}
+.phoenix-sub-text {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  color: #fef08a;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* 4. FIGHTING GAMES (Capcom / SNK Versus Arcade Marquee) */
+.logo-thomson-style {
+  display: flex;
+  flex-direction: column;
+}
+.thomson-main {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.fight-badge {
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  background: #dc2626;
+  color: #ffffff;
+  padding: 0.15rem 0.35rem;
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.8);
+}
+.thomson-text {
+  font-family: var(--font-pixel);
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(192, 132, 252, 0.6);
+}
+.thomson-sub {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  color: #d8b4fe;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* 5. HARDWARE & SKILLS (Microchip Cyber Industrial Styling) */
+.logo-hardware-style {
+  display: flex;
+  flex-direction: column;
+}
+.hw-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hw-bracket {
+  color: #38bdf8;
+  font-weight: 800;
+  font-size: 1.8rem;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+}
+.hw-text {
+  font-family: var(--font-pixel);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #f1f5f9;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+.hw-sub {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  color: #fde68a;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* 6. CONTACT & HELP (Classic Red Arcade Hotline Marquee) */
+.logo-tiger-style {
+  display: flex;
+  flex-direction: column;
+}
+.tiger-main-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.tiger-main {
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  font-weight: 400;
+  font-style: normal;
+  color: #ef4444;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 14px rgba(239, 68, 68, 0.8);
+}
+.tiger-sub {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+.tiger-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  color: #fca5a5;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   5. CONTROLES INFERIORES RETRO (Exact Layout Mandated by User)
+   │ [CONTROLES INFERIORES]  [▲/▼ SCROLL PARA CAMBIAR]  [ENTER/CLIC: INSPECCIONAR] [MUTE SFX]│
+   ========================================================================== */
+.arcade-bottom-controls {
+  height: 46px;
+  background: linear-gradient(180deg, #111827 0%, #070a12 100%);
+  border-top: 2px solid #28374e;
+  position: relative;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.9);
+}
+
+.bottom-ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+/* Real cabinet control panel: ball-top joystick + Sanwa-style arcade buttons.
+   This is the single most recognizable childhood-arcade detail and the
+   original design had nothing physical to grab onto. */
+.control-panel-visual {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding-right: 1.1rem;
+  margin-right: 0.35rem;
+  border-right: 1.5px solid #263449;
+}
+
+.mini-joystick {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.joystick-shaft {
+  position: absolute;
+  bottom: 2px;
+  width: 6px;
+  height: 16px;
+  background: linear-gradient(180deg, #9ca3af, #4b5563);
+  border-radius: 2px;
+}
+
+.joystick-ball {
+  position: absolute;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #ff6b81 0%, #dc2626 55%, #7f1d1d 100%);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  animation: joystickWiggle 3.4s ease-in-out infinite;
+}
+
+@keyframes joystickWiggle {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-2px, 0) rotate(-6deg); }
+  50% { transform: translate(0, -1px) rotate(0deg); }
+  75% { transform: translate(2px, 0) rotate(6deg); }
+}
+
+.mini-button {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+}
+
+.btn-red {
+  background: radial-gradient(circle at 32% 28%, #fca5a5, #ef4444 55%, #7f1d1d 100%);
+}
+
+.btn-blue {
+  background: radial-gradient(circle at 32% 28%, #93c5fd, #3b82f6 55%, #1e3a8a 100%);
+}
+
+/* 3D Convex Arcade Key Badges (Sanwa arcade button feel) */
+.bottom-key-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #0f172a;
+  border: 1.5px solid #334155;
+  border-bottom: 3px solid #64748b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  color: #f8fafc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: all 0.1s ease;
+}
+
+.bottom-key-badge:hover {
+  border-color: #fbbf24;
+}
+
+.bottom-key-badge kbd {
+  color: #fbbf24;
+  font-weight: 800;
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+}
+
+.bottom-right-branding {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   6. RESPONSIVE FALLBACK — PANTALLAS < 1024px (TABLET / MÓVIL)
+   El chasis arcade (rail curvo, ruleta de sistemas, bezel CRT) está
+   diseñado para densidad de escritorio. En vez de comprimir ese layout
+   hasta la ilegibilidad, se sustituye por una pantalla retro de aviso
+   que invita a abrir el portfolio en un dispositivo más ancho.
+   ========================================================================== */
+.arcade-mobile-fallback {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .arcade-viewport-env {
+    display: none;
+  }
+
+  .arcade-mobile-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100vw;
+    height: 100vh;
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--arcade-black);
+  }
+
+  .mobile-fallback-icon {
+    font-family: var(--font-pixel);
+    font-size: 1.5rem;
+    color: var(--neon-amber);
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.7);
+  }
+
+  .mobile-fallback-title {
+    font-family: var(--font-pixel);
+    font-size: 0.85rem;
+    line-height: 1.8;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+    max-width: 32ch;
+  }
+
+  .mobile-fallback-msg {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #94a3b8;
+    max-width: 40ch;
+  }
+}
