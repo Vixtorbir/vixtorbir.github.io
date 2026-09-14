@@ -126,7 +126,7 @@ export const arcadeSystems = [
     }
   },
   {
-    verticalTitle: "02. THE FABLE OF THE ECLIPSE & LOOPIE ENGINE",
+    verticalTitle: "02. THE FABLE OF THE ECLIPSE // LOOPIE",
     badgeText: "C++ GAME & ENGINE // 18 DEVS",
     themeColor: "#38bdf8",
     // Real assets: Official LoopieEngine logo + MiniKnight character!

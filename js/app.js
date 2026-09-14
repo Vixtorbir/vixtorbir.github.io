@@ -10,7 +10,7 @@
 
 import { arcadeSystems, uiText, onAssetLoad } from './arcadeSystems.js';
 import { initCanvasRenderer, renderScreenArtwork } from './canvasRenderer.js';
-import { playArcadeTick, playCoinSound, toggleAudioSFX } from './audioManager.js';
+import { playArcadeTick, playCoinSound, playArcadeStartSound, toggleAudioSFX } from './audioManager.js';
 
 let currentLang = 'es';
 let activeSystemIndex = 0;
@@ -123,6 +123,31 @@ function setLanguage(lang) {
   localStorage.setItem('victor_portfolio_lang', lang);
 }
 
+let chassisPulseTimer = null;
+
+function pulseChassis() {
+  const chassis = document.querySelector('.arcade-viewport-env');
+  if (!chassis) return;
+  chassis.classList.remove('chassis-pulse');
+  void chassis.offsetWidth; // reinicia la animacion si se pulsa en rafaga
+  chassis.classList.add('chassis-pulse');
+  // Timeout en vez de animationend: con prefers-reduced-motion la animacion
+  // es none y el evento nunca llega, dejando la clase pegada.
+  clearTimeout(chassisPulseTimer);
+  chassisPulseTimer = setTimeout(() => chassis.classList.remove('chassis-pulse'), 500);
+}
+
+function goToMainMenu() {
+  if (activeSystemIndex === 0) {
+    playCoinSound();
+  } else {
+    activeSystemIndex = 0;
+    playArcadeStartSound();
+    updateLogosView();
+  }
+  pulseChassis();
+}
+
 function handleToggleAudioSFX() {
   const active = toggleAudioSFX();
   const label = document.getElementById('sfx-label');
@@ -134,6 +159,7 @@ window.playCoinSound = playCoinSound;
 window.setLanguage = setLanguage;
 window.toggleAudioSFX = handleToggleAudioSFX;
 window.selectSystem = selectSystem;
+window.goToMainMenu = goToMainMenu;
 
 // ---------------------------------------------------------
 // INITIALIZATION
