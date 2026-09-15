@@ -38,6 +38,8 @@ const fableGameplay3 = preload('assets/fable_gameplay_3.png'); // Templo de puzl
 const fableGameplay4 = preload('assets/fable_gameplay_4.png'); // Bosque con setas luminosas
 const miniKnightImg = preload('assets/mini_knight.png');
 const phoenixImg = preload('assets/phoenix_pixel_art.png');
+const phoenixBossImg = preload('assets/ave_phoenix_boss.png');
+const phoenixIconImg = preload('assets/ave_phoenix_icon.png');
 
 function ready(img) {
   return img.complete && img.naturalWidth > 0;
@@ -477,7 +479,7 @@ function drawFableScene(ctx, w, h, t) {
 }
 
 // ---------------------------------------------------------------------------
-// ESCENA 2 — AVE PHOENIX REGEN (starfield continuo + formacion)
+// ESCENA 2 — AVE PHOENIX REGEN (attract mode: caza vs boss, starfield continuo)
 // ---------------------------------------------------------------------------
 const STARS = [];
 for (let i = 0; i < 160; i++) {
@@ -489,82 +491,200 @@ for (let i = 0; i < 160; i++) {
     phase: Math.random() * Math.PI * 2
   });
 }
-const PHOENIX_LINES = [
-  'HEAP ALLOCATION: 0 B/FRAME (ZERO-GC OBJECT POOLING)',
-  'GAME MODES: STORY (FAMILY TRIBUTE) + INFINITE ARCADE WAVES',
-  'BOSS FSM: MULTI-PHASE ARCHITECTURE'
-];
+// Ráfagas y chispas pre-alojadas: la posición se deriva de t (cero allocs/frame)
+const PHOENIX_SHOTS = [];
+for (let i = 0; i < 6; i++) {
+  PHOENIX_SHOTS.push({ offset: i / 6, lane: i % 2 === 0 ? -1 : 1 });
+}
+const PHOENIX_SPARKS = [];
+for (let i = 0; i < 10; i++) {
+  PHOENIX_SPARKS.push({ angle: (i / 10) * Math.PI * 2, phase: Math.random() * Math.PI * 2, len: 0.6 + Math.random() * 0.6 });
+}
+const PHOENIX_TYPE = { title: 24, sub: 14, label: 13.5 };
+const PHOENIX_LABEL = '\u{1F4F1} PLAYABLE BUILD // MOBILE OPTIMIZED';
+const phoenixCache = { w: 0, h: 0, bg: null };
+
+// Caza del jugador vectorial (fallback si el icono no ha cargado)
+function drawPhoenixShipFallback(ctx, x, y, size) {
+  ctx.fillStyle = '#e2e8f0';
+  ctx.beginPath();
+  ctx.moveTo(x + size * 0.6, y);
+  ctx.lineTo(x - size * 0.4, y - size * 0.32);
+  ctx.lineTo(x - size * 0.2, y);
+  ctx.lineTo(x - size * 0.4, y + size * 0.32);
+  ctx.closePath();
+  ctx.fill();
+}
 
 function drawPhoenixScene(ctx, w, h, t) {
   const u = unit(w, h);
-  ctx.fillStyle = '#02040a';
+  if (phoenixCache.w !== w || phoenixCache.h !== h) {
+    phoenixCache.w = w; phoenixCache.h = h;
+    const bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#05070f');
+    bg.addColorStop(1, '#02040a');
+    phoenixCache.bg = bg;
+  }
+  ctx.fillStyle = phoenixCache.bg;
   ctx.fillRect(0, 0, w, h);
 
-  // Nebulosa tenue
+  // Nebulosa cósmica sutil
   ctx.fillStyle = 'rgba(56, 189, 248, 0.05)';
   ctx.beginPath();
   ctx.ellipse(w * 0.7, h * 0.35, w * 0.35, h * 0.3, 0.3, 0, Math.PI * 2);
   ctx.fill();
+  ctx.fillStyle = 'rgba(249, 115, 22, 0.04)';
+  ctx.beginPath();
+  ctx.ellipse(w * 0.78, h * 0.55, w * 0.28, h * 0.32, -0.4, 0, Math.PI * 2);
+  ctx.fill();
 
+  // Starfield horizontal continuo
   ctx.fillStyle = '#ffffff';
   for (let i = 0; i < STARS.length; i++) {
     const s = STARS[i];
     const x = ((s.x - t * s.speed) % 1 + 1) % 1;
-    const twinkle = 0.55 + 0.45 * Math.sin(t * 3 + s.phase);
-    ctx.globalAlpha = twinkle;
+    ctx.globalAlpha = 0.55 + 0.45 * Math.sin(t * 3 + s.phase);
     ctx.fillRect(x * w, s.y * h, s.size * u, s.size * u);
   }
   ctx.globalAlpha = 1;
 
-  // Formacion: lider + dos escoltas atras
+  // --- Boss a la derecha con escoltas en cuña -----------------------------
+  const bossSize = Math.min(w * 0.3, h * 0.6);
+  const bx = w * 0.76;
+  const by = h * 0.5 + Math.sin(t * 1.4) * 8 * u;
+  const bossImg = ready(phoenixBossImg) ? phoenixBossImg : phoenixImg;
   if (ready(phoenixImg)) {
-    const lead = Math.min(w * 0.24, h * 0.34);
-    const wing = lead * 0.62;
-    const cx = w * 0.62;
-    const cy = h * 0.42 + Math.sin(t * 1.8) * 6 * u;
+    const wing = bossSize * 0.32;
     ctx.save();
-    ctx.shadowColor = 'rgba(249, 115, 22, 0.9)';
-    ctx.shadowBlur = 20 * u;
-    drawContain(ctx, phoenixImg, cx + lead * 0.35, cy - wing / 2 - lead * 0.55 + Math.sin(t * 2.4 + 1) * 4 * u, wing, wing, true);
-    drawContain(ctx, phoenixImg, cx + lead * 0.35, cy - wing / 2 + lead * 0.55 + Math.sin(t * 2.4 + 2) * 4 * u, wing, wing, true);
-    drawContain(ctx, phoenixImg, cx - lead / 2, cy - lead / 2, lead, lead, true);
+    ctx.shadowColor = 'rgba(249, 115, 22, 0.7)';
+    ctx.shadowBlur = 12 * u;
+    drawContain(ctx, phoenixImg, bx + bossSize * 0.28, by - bossSize * 0.62 + Math.sin(t * 2.4 + 1) * 5 * u, wing, wing, true);
+    drawContain(ctx, phoenixImg, bx + bossSize * 0.28, by + bossSize * 0.3 + Math.sin(t * 2.4 + 2) * 5 * u, wing, wing, true);
     ctx.restore();
-
-    // Estelas de propulsion
-    ctx.strokeStyle = 'rgba(251, 146, 60, 0.5)';
-    ctx.lineWidth = 2 * u;
-    ctx.beginPath();
-    for (let k = 0; k < 3; k++) {
-      const ty = cy - 10 * u + k * 10 * u;
-      const len = (40 + 25 * Math.sin(t * 9 + k)) * u;
-      ctx.moveTo(cx + lead * 0.5, ty);
-      ctx.lineTo(cx + lead * 0.5 + len, ty);
-    }
-    ctx.stroke();
+  }
+  // Estelas de propulsión del boss (salen por detrás, hacia la derecha)
+  ctx.strokeStyle = 'rgba(251, 146, 60, 0.55)';
+  ctx.lineWidth = 2 * u;
+  ctx.beginPath();
+  for (let k = 0; k < 3; k++) {
+    const ty = by - 12 * u + k * 12 * u;
+    const len = (46 + 28 * Math.sin(t * 9 + k)) * u;
+    ctx.moveTo(bx + bossSize * 0.3, ty);
+    ctx.lineTo(bx + bossSize * 0.3 + len, ty);
+  }
+  ctx.stroke();
+  if (ready(bossImg)) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(249, 115, 22, 0.95)';
+    ctx.shadowBlur = 26 * u;
+    drawContain(ctx, bossImg, bx - bossSize / 2, by - bossSize / 2, bossSize, bossSize, bossImg === phoenixImg);
+    ctx.restore();
   }
 
-  // Panel de telemetria
-  const px = w * 0.04;
-  const py = h * 0.66;
-  const pw = w * 0.56;
-  const ph = h * 0.2;
-  drawPanel(ctx, px, py, pw, ph, 'rgba(3, 6, 13, 0.8)', 'rgba(56, 189, 248, 0.5)');
-  font(ctx, 8 * u, FONT_PIXEL);
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#fb923c';
-  ctx.fillText('AVE PHOENIX REGEN // UNITY C#', px + 10 * u, py + 16 * u);
-  font(ctx, 9.5 * u, FONT_MONO, '600');
-  ctx.fillStyle = '#7dd3fc';
-  for (let i = 0; i < PHOENIX_LINES.length; i++) {
-    ctx.fillText('> ' + PHOENIX_LINES[i], px + 10 * u, py + 36 * u + i * 17 * u);
+  // --- Caza del jugador a la izquierda ------------------------------------
+  const shipSize = Math.min(w * 0.14, h * 0.26);
+  const sx = w * 0.16;
+  const sy = h * 0.52 + Math.sin(t * 2.2) * 16 * u;
+  // Propulsor de plasma cyan parpadeante (detrás del caza)
+  const flame = (0.7 + 0.3 * Math.sin(t * 26)) * shipSize * 0.5;
+  ctx.save();
+  ctx.shadowColor = '#22d3ee';
+  ctx.shadowBlur = 16 * u;
+  ctx.fillStyle = 'rgba(34, 211, 238, 0.85)';
+  ctx.beginPath();
+  ctx.moveTo(sx - shipSize * 0.42, sy - shipSize * 0.08);
+  ctx.lineTo(sx - shipSize * 0.42 - flame, sy);
+  ctx.lineTo(sx - shipSize * 0.42, sy + shipSize * 0.08);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+  if (ready(phoenixIconImg)) {
+    // El icono mira hacia arriba: se rota 90 grados para apuntar a la derecha
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.rotate(Math.PI / 2);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+    ctx.shadowBlur = 14 * u;
+    drawContain(ctx, phoenixIconImg, -shipSize / 2, -shipSize / 2, shipSize, shipSize, false);
+    ctx.restore();
+  } else {
+    drawPhoenixShipFallback(ctx, sx, sy, shipSize);
   }
 
+  // --- Ráfagas láser gemelas hacia la derecha -----------------------------
+  const shotStart = sx + shipSize * 0.5;
+  const shotEnd = bx - bossSize * 0.35;
+  const shotLen = 26 * u;
+  ctx.save();
+  ctx.shadowColor = '#38bdf8';
+  ctx.shadowBlur = 10 * u;
+  ctx.strokeStyle = '#7dd3fc';
+  ctx.lineWidth = 3 * u;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (let i = 0; i < PHOENIX_SHOTS.length; i++) {
+    const sh = PHOENIX_SHOTS[i];
+    const p = (t * 0.9 + sh.offset) % 1;
+    const x = shotStart + (shotEnd - shotStart) * p;
+    const y = sy + sh.lane * shipSize * 0.22;
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + shotLen, y);
+  }
+  ctx.stroke();
+  ctx.restore();
+
+  // Chispas de impacto sobre el boss
+  const impactX = shotEnd + shotLen;
+  ctx.strokeStyle = 'rgba(125, 211, 252, 0.9)';
+  ctx.lineWidth = 1.5 * u;
+  ctx.beginPath();
+  for (let i = 0; i < PHOENIX_SPARKS.length; i++) {
+    const sp = PHOENIX_SPARKS[i];
+    const life = (t * 3 + sp.phase) % 1;
+    const r = life * 18 * u * sp.len;
+    const cy = sy + (i % 2 === 0 ? -1 : 1) * shipSize * 0.22;
+    ctx.moveTo(impactX + Math.cos(sp.angle) * r * 0.4, cy + Math.sin(sp.angle) * r * 0.4);
+    ctx.lineTo(impactX + Math.cos(sp.angle) * r, cy + Math.sin(sp.angle) * r);
+  }
+  ctx.stroke();
+
+  // --- Contador retro 1UP (superior derecha) ------------------------------
   font(ctx, 9 * u, FONT_PIXEL);
   ctx.fillStyle = blink(t, 1) ? '#fde047' : 'rgba(253, 224, 71, 0.3)';
   ctx.textAlign = 'right';
-  ctx.fillText('1UP  ' + String(Math.floor(t * 137) % 999999).padStart(6, '0'), w * 0.96, h * 0.09);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText('1UP  004273', w * 0.96, h * 0.09);
+
+  // --- Placa modular PLAYABLE BUILD (inferior derecha) --------------------
+  font(ctx, px(PHOENIX_TYPE.label, u), FONT_ARCADE, '700');
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const labelW = ctx.measureText(PHOENIX_LABEL).width + 24 * u;
+  const labelX = w * 0.96 - labelW / 2;
+  const labelY = h - h * 0.14 + 16 * u;
+  drawPanel(ctx, labelX - labelW / 2, labelY - 11 * u, labelW, 22 * u, 'rgba(5, 10, 22, 0.78)', 'rgba(251, 146, 60, 0.55)');
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillText(PHOENIX_LABEL, labelX, labelY);
+
+  // --- Cabecera arcade minimalista (superior izquierda) -------------------
+  const hx = 16; // alineado con .screen-top-badge (left: 16px)
+  const hy = Math.max(48, Math.round(h * 0.08));
+  const pad = Math.round(10 * u);
+  font(ctx, px(PHOENIX_TYPE.title, u), FONT_ARCADE, '800');
+  const titleW = ctx.measureText('AVE PHOENIX REGEN').width;
+  font(ctx, px(PHOENIX_TYPE.sub, u), FONT_MONO, '600');
+  const subW = ctx.measureText('RETRO SPACE SHMUP // UNITY C#').width;
+  const hw = Math.max(titleW, subW) + pad * 2;
+  const hh = 66 * u;
+  drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 22, 0.85)', 'rgba(251, 146, 60, 0.4)');
   ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  font(ctx, px(PHOENIX_TYPE.title, u), FONT_ARCADE, '800');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('AVE PHOENIX REGEN', hx + pad, hy + hh * 0.46);
+  font(ctx, px(PHOENIX_TYPE.sub, u), FONT_MONO, '600');
+  ctx.fillStyle = '#fb923c';
+  ctx.fillText('RETRO SPACE SHMUP // UNITY C#', hx + pad, hy + hh * 0.8);
 }
 
 // ---------------------------------------------------------------------------
@@ -1023,13 +1143,13 @@ export const arcadeSystems = [
         role: "Solo Game Developer & Programmer",
         stack: "Unity C# / UnityEngine.Pool / Decoupled FSM",
         focus: "Zero-GC Object Pooling, Boss FSM Multifase & Modo Historia",
-        status: "Juego completo jugable en Unity"
+        status: "Build Jugable // Optimizado para Móvil"
       },
       en: {
         role: "Solo Game Developer & Programmer",
         stack: "Unity C# / UnityEngine.Pool / Decoupled FSM",
         focus: "Zero-GC Object Pooling, Multi-phase Boss FSM & Story Mode",
-        status: "Complete playable Unity title"
+        status: "Playable Build // Mobile Optimized"
       }
     },
     drawScene: drawPhoenixScene
