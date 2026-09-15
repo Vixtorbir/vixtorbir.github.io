@@ -31,7 +31,11 @@ function preload(src) {
 }
 
 const portraitImg = preload('assets/portrait_victor.png');
-const fableArtImg = preload('assets/fable_eclipse_art.png');
+const fableIntroImg = preload('assets/fable_intro_title.png');  // Portada oficial artística
+const fableGameplay2 = preload('assets/fable_gameplay_2.png'); // Escena del río con HUD de vida
+const fableGameplay1 = preload('assets/fable_gameplay_1.png'); // Cañón de lava volcánica
+const fableGameplay3 = preload('assets/fable_gameplay_3.png'); // Templo de puzles elementales
+const fableGameplay4 = preload('assets/fable_gameplay_4.png'); // Bosque con setas luminosas
 const miniKnightImg = preload('assets/mini_knight.png');
 const phoenixImg = preload('assets/phoenix_pixel_art.png');
 
@@ -159,6 +163,19 @@ function drawContain(ctx, img, x, y, boxW, boxH, pixelated) {
   ctx.drawImage(img, dx, dy, dw, dh);
   ctx.imageSmoothingEnabled = true;
   return { x: dx, y: dy, w: dw, h: dh };
+}
+
+// Dibuja una imagen rellenando la caja (cover), recortando el exceso
+function drawCover(ctx, img, x, y, boxW, boxH) {
+  const ratio = Math.max(boxW / img.naturalWidth, boxH / img.naturalHeight);
+  const dw = img.naturalWidth * ratio;
+  const dh = img.naturalHeight * ratio;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, boxW, boxH);
+  ctx.clip();
+  ctx.drawImage(img, x + (boxW - dw) / 2, y + (boxH - dh) / 2, dw, dh);
+  ctx.restore();
 }
 
 // ---------------------------------------------------------------------------
@@ -342,102 +359,118 @@ function drawPlayerOneScene(ctx, w, h, t) {
 }
 
 // ---------------------------------------------------------------------------
-// ESCENA 1 — THE FABLE OF THE ECLIPSE // LOOPIE ENGINE (osciloscopio FMOD)
+// ESCENA 1 — THE FABLE OF THE ECLIPSE (attract mode: portada + gameplay)
 // ---------------------------------------------------------------------------
-const fableCache = { w: 0, h: 0, vignette: null };
+// Slideshow continuo de 5 diapositivas. Orden y tiempos pre-calculados fuera
+// del bucle: cero asignaciones por frame.
+const FABLE_SLIDES = [fableIntroImg, fableGameplay2, fableGameplay1, fableGameplay3, fableGameplay4];
+const FABLE_SLIDE_DUR = 4.5;   // segundos por diapositiva
+const FABLE_FADE_DUR = 0.8;    // fundido cruzado al final de cada una
+const FABLE_TYPE = { title: 20, sub: 12, label: 12 };
+const fableReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const fableCache = { w: 0, h: 0, warm: null, edge: null };
+
+function smoothstep(x) {
+  return x * x * (3 - 2 * x);
+}
+
+// Dibuja una diapositiva ya cargada; el fallback es un fondo plano oscuro.
+function drawFableSlide(ctx, index, w, h, u) {
+  const img = FABLE_SLIDES[index];
+  if (index === 0) {
+    // Portada: contenida sobre fondo oscuro con viñeta cálida
+    ctx.fillStyle = '#0a0612';
+    ctx.fillRect(0, 0, w, h);
+    if (ready(img)) drawContain(ctx, img, w * 0.03, h * 0.03, w * 0.94, h * 0.94, false);
+    ctx.fillStyle = fableCache.warm;
+    ctx.fillRect(0, 0, w, h);
+    return;
+  }
+  if (ready(img)) {
+    drawCover(ctx, img, 0, 0, w, h);
+  } else {
+    ctx.fillStyle = '#0a0612';
+    ctx.fillRect(0, 0, w, h);
+  }
+  ctx.fillStyle = fableCache.edge;
+  ctx.fillRect(0, 0, w, h);
+}
 
 function drawFableScene(ctx, w, h, t) {
   const u = unit(w, h);
   if (fableCache.w !== w || fableCache.h !== h) {
     fableCache.w = w; fableCache.h = h;
-    const v = ctx.createLinearGradient(0, 0, 0, h);
-    v.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
-    v.addColorStop(0.55, 'rgba(0, 0, 0, 0)');
-    v.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
-    fableCache.vignette = v;
+    const cx = w / 2, cy = h / 2;
+    const rad = Math.hypot(cx, cy);
+    const warm = ctx.createRadialGradient(cx, cy, rad * 0.35, cx, cy, rad);
+    warm.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    warm.addColorStop(0.7, 'rgba(40, 14, 4, 0.35)');
+    warm.addColorStop(1, 'rgba(12, 4, 2, 0.85)');
+    fableCache.warm = warm;
+    const edge = ctx.createRadialGradient(cx, cy, rad * 0.45, cx, cy, rad);
+    edge.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    edge.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+    fableCache.edge = edge;
   }
 
-  if (ready(fableArtImg)) {
-    ctx.drawImage(fableArtImg, 0, 0, w, h);
-  } else {
-    ctx.fillStyle = '#1f1035';
-    ctx.fillRect(0, 0, w, h);
-    drawJaggedMountains(ctx, w, h, 0.52, '#2b0f19', 40);
-    drawJaggedMountains(ctx, w, h, 0.70, '#120509', 55);
+  // --- Slideshow automático con fundido cruzado ---------------------------
+  const count = FABLE_SLIDES.length;
+  const current = Math.floor(t / FABLE_SLIDE_DUR) % count;
+  const local = t % FABLE_SLIDE_DUR;
+  const fadeStart = FABLE_SLIDE_DUR - FABLE_FADE_DUR;
+  drawFableSlide(ctx, current, w, h, u);
+  if (local > fadeStart) {
+    const mix = smoothstep((local - fadeStart) / FABLE_FADE_DUR);
+    ctx.save();
+    ctx.globalAlpha = mix;
+    drawFableSlide(ctx, (current + 1) % count, w, h, u);
+    ctx.restore();
   }
-  ctx.fillStyle = fableCache.vignette;
-  ctx.fillRect(0, 0, w, h);
 
-  // Panel de osciloscopio FMOD (banda inferior)
-  const panelH = h * 0.26;
-  const panelY = h - panelH - h * 0.05;
-  const panelX = w * 0.3;
-  const panelW = w * 0.66;
-  drawPanel(ctx, panelX, panelY, panelW, panelH, 'rgba(3, 6, 13, 0.78)', 'rgba(251, 191, 36, 0.55)');
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(panelX, panelY, panelW, panelH);
-  ctx.clip();
-  ctx.strokeStyle = 'rgba(251, 191, 36, 0.12)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  for (let gx = panelX; gx < panelX + panelW; gx += 18 * u) { ctx.moveTo(gx, panelY); ctx.lineTo(gx, panelY + panelH); }
-  for (let gy = panelY; gy < panelY + panelH; gy += 18 * u) { ctx.moveTo(panelX, gy); ctx.lineTo(panelX + panelW, gy); }
-  ctx.stroke();
-
-  const mid = panelY + panelH * 0.55;
-  const waves = [
-    { amp: panelH * 0.22, freq: 0.045, speed: 5.2, color: '#fbbf24', width: 2.2 },
-    { amp: panelH * 0.12, freq: 0.09, speed: 8.1, color: 'rgba(253, 224, 71, 0.75)', width: 1.4 },
-    { amp: panelH * 0.07, freq: 0.16, speed: 12.5, color: 'rgba(245, 158, 11, 0.45)', width: 1 }
-  ];
-  for (let k = 0; k < waves.length; k++) {
-    const wv = waves[k];
-    ctx.strokeStyle = wv.color;
-    ctx.lineWidth = wv.width;
-    ctx.shadowColor = wv.color;
-    ctx.shadowBlur = k === 0 ? 8 : 0;
-    ctx.beginPath();
-    for (let x = 0; x <= panelW; x += 3) {
-      const env = 0.65 + 0.35 * Math.sin(x * 0.012 + t * 1.7);
-      const y = mid + Math.sin(x * wv.freq - t * wv.speed) * wv.amp * env;
-      if (x === 0) ctx.moveTo(panelX + x, y); else ctx.lineTo(panelX + x, y);
-    }
-    ctx.stroke();
+  // --- Mini-Knight presidiendo la derecha ---------------------------------
+  const kw = w * 0.25;
+  const kh = h * 0.6;
+  const kx = w * 0.72;
+  const bob = fableReducedMotion.matches ? 0 : Math.sin(t * 2) * 4 * u;
+  const ky = h - kh - h * 0.14 + bob;
+  if (ready(miniKnightImg)) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+    ctx.shadowBlur = 22 * u;
+    ctx.shadowOffsetY = 6 * u;
+    drawContain(ctx, miniKnightImg, kx, ky, kw, kh, false);
+    ctx.restore();
   }
-  ctx.shadowBlur = 0;
-  ctx.restore();
+  // Rótulo del estudio bajo el sprite (píldora oscura para legibilidad)
+  font(ctx, px(FABLE_TYPE.label, u), FONT_ARCADE, '700');
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const labelX = kx + kw / 2;
+  const labelY = h - h * 0.14 + 16 * u + bob * 0.5;
+  const labelW = ctx.measureText('MINI-KNIGHT STUDIO').width + 24 * u;
+  drawPanel(ctx, labelX - labelW / 2, labelY - 11 * u, labelW, 22 * u, 'rgba(5, 10, 22, 0.78)', 'rgba(251, 191, 36, 0.45)');
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillText('MINI-KNIGHT STUDIO', labelX, labelY);
 
-  font(ctx, 8 * u, FONT_PIXEL);
+  // --- Cabecera arcade minimalista (superior izquierda) -------------------
+  const hx = w * 0.04;
+  const hy = h * 0.06;
+  const pad = 14 * u;
+  font(ctx, px(FABLE_TYPE.title, u), FONT_ARCADE, '800');
+  const titleW = ctx.measureText('THE FABLE OF THE ECLIPSE').width;
+  font(ctx, px(FABLE_TYPE.sub, u), FONT_MONO, '600');
+  const subW = ctx.measureText('3D ACTION-ADVENTURE // CUSTOM C++ ENGINE').width;
+  const hw = Math.max(titleW, subW) + pad * 2;
+  const hh = 58 * u;
+  drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 22, 0.8)', 'rgba(56, 189, 248, 0.35)');
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#fbbf24';
-  ctx.fillText('FMOD CORE // SPATIAL AUDIO BUS', panelX + 10 * u, panelY + 14 * u);
-  font(ctx, 8.5 * u, FONT_MONO, '600');
-  ctx.fillStyle = 'rgba(254, 240, 138, 0.85)';
-  ctx.textAlign = 'right';
-  ctx.fillText(`COMMIT e3b2d96 // ${blink(t, 1) ? 'REC' : '   '} ${(44.1).toFixed(1)}kHz`, panelX + panelW - 10 * u, panelY + 14 * u);
-
-  // Sprite del MiniKnight en primer plano
-  if (ready(miniKnightImg)) {
-    const kh = h * 0.5;
-    const bob = Math.sin(t * 2.2) * 3 * u;
-    drawContain(ctx, miniKnightImg, w * 0.04, h - kh - h * 0.11 + bob, w * 0.24, kh, false);
-  }
-
-  // Telemetria del motor (panel oscuro para leerse sobre el artwork claro)
-  const tx = w * 0.04;
-  const ty = h * 0.13;
-  const tw = w * 0.62;
-  const th = h * 0.13;
-  drawPanel(ctx, tx, ty, tw, th, 'rgba(3, 6, 13, 0.78)', 'rgba(56, 189, 248, 0.5)');
-  font(ctx, 9.5 * u, FONT_ARCADE, '700');
-  ctx.textAlign = 'left';
+  font(ctx, px(FABLE_TYPE.title, u), FONT_ARCADE, '800');
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('LOOPIE ENGINE (C++17, OPENGL 3.3, NATIVE FMOD) // ZERO MEMORY LEAKS', tx + 10 * u, ty + th * 0.42);
-  font(ctx, 8.5 * u, FONT_MONO, '600');
-  ctx.fillStyle = '#7dd3fc';
-  ctx.fillText('THE FABLE OF THE ECLIPSE // 3D ACTION RPG // MONO C# BRIDGE // HUD FSM', tx + 10 * u, ty + th * 0.78);
+  ctx.fillText('THE FABLE OF THE ECLIPSE', hx + pad, hy + hh * 0.46);
+  font(ctx, px(FABLE_TYPE.sub, u), FONT_MONO, '600');
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('3D ACTION-ADVENTURE // CUSTOM C++ ENGINE', hx + pad, hy + hh * 0.8);
 }
 
 // ---------------------------------------------------------------------------
@@ -964,13 +997,13 @@ export const arcadeSystems = [
         role: "Engine & Gameplay Systems Programmer",
         stack: "C++17/20 / FMOD Studio & Core / Mono C# / OpenGL 3.3",
         focus: "Audio Nativo (FMOD), Puente Mono C# & Máquinas de Estado HUD",
-        status: "3D Action RPG + Motor C++ propio (LoopieEngine)"
+        status: "Lanzado en Itch.io // Motor C++ Propio"
       },
       en: {
         role: "Engine & Gameplay Systems Programmer",
         stack: "C++17/20 / FMOD Studio & Core / Mono C# / OpenGL 3.3",
         focus: "Native Audio (FMOD), Mono C# Bridge & HUD State Machines",
-        status: "3D Action RPG + Custom C++ Engine (LoopieEngine)"
+        status: "Released on Itch.io // Custom C++ Engine"
       }
     },
     drawScene: drawFableScene
