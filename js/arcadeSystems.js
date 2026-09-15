@@ -1072,353 +1072,203 @@ function drawHardwareScene(ctx, w, h, t) {
 }
 
 // ---------------------------------------------------------------------------
-// ESCENA 5 — CONTACT & HELP // WORLD MAP (minimapa táctico + leyenda)
+// ESCENA 5 — CONTACT & HELP (radar retro arcade + leyenda de contacto)
 // ---------------------------------------------------------------------------
-// Mitad izquierda: minimapa de navegación (sector Barcelona) con marcador de
-// jugador, objetivo de misión y compás. Mitad derecha: leyenda del mapa con
-// los datos de contacto. Todo pre-alojado: cero asignaciones por frame.
-const MAP_STREETS = [];
-(function buildStreets() {
-  // Trazado urbano pseudo-aleatorio pero estable (semilla fija) en coords 0..1
-  let seed = 1337;
-  const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  for (let i = 0; i < 14; i++) {
-    const vertical = i % 2 === 0;
-    const a = 0.06 + rnd() * 0.88;
-    const b0 = rnd() * 0.5;
-    const b1 = b0 + 0.25 + rnd() * 0.5;
-    MAP_STREETS.push(vertical ? { x0: a, y0: b0, x1: a + (rnd() - 0.5) * 0.08, y1: Math.min(b1, 0.98) }
-                              : { x0: b0, y0: a, x1: Math.min(b1, 0.98), y1: a + (rnd() - 0.5) * 0.08 });
-  }
-})();
-const MAP_POIS = [
-  { x: 0.22, y: 0.30, phase: 0.0 },
-  { x: 0.74, y: 0.72, phase: 2.1 },
-  { x: 0.30, y: 0.80, phase: 4.2 }
-];
-const MAP_PLAYER = { x: 0.42, y: 0.58 };
-const MAP_QUEST = { x: 0.64, y: 0.36 };
+// Mitad izquierda: radar vectorial de fósforo con baliza en Barcelona.
+// Mitad derecha: leyenda del minimapa con los datos de contacto esenciales.
+// Cadenas pre-formateadas por idioma: cero asignaciones por frame.
 const CONTACT_TXT = {
   es: {
-    sub: 'BASE: BARCELONA // DISPONIBLE PARA PRÁCTICAS CITM-UPC',
-    legend: '[ LEYENDA DEL MAPA // INTEL DE CONTACTO ]',
-    status: '[ ESTADO: LISTO PARA RECLUTAMIENTO ]',
-    quest: '[ MISIÓN PRINCIPAL: GAMEPLAY PROGRAMMER ]',
-    player: 'JUGADOR 1 // VÍCTOR',
+    legend: '[ LEYENDA DEL MAPA // CONTACTO ]',
     entries: [
-      ['[ MISIÓN PRINCIPAL ]', 'Convenio de Prácticas Universitarias (CITM - UPC)'],
-      ['[ PUNTO DE SPAWN / UBICACIÓN ]', 'Barcelona, España (BCN) · Presencial, Híbrido o Remoto'],
-      ['[ COMM LINK / CORREO ]', 'victorcarhor@gmail.com'],
-      ['[ LÍNEA DIRECTA / TELÉFONO ]', '+34 623 187 320'],
-      ['[ REPO HUB / GITHUB ]', 'github.com/Vixtorbir'],
-      ['[ RED / LINKEDIN ]', 'linkedin.com/in/victor-cardenas-gamedev']
-    ],
-    await: '>> ESPERANDO TRANSMISIÓN... [ENTER: ABRIR FICHA]'
+      ['ESTADO', 'DISPONIBLE PARA PRÁCTICAS'],
+      ['BASE', 'BARCELONA, SPAIN (BCN)'],
+      ['EMAIL', 'victorcarhor@gmail.com'],
+      ['TELÉFONO', '+34 623 187 320'],
+      ['GITHUB', 'github.com/Vixtorbir'],
+      ['LINKEDIN', 'linkedin.com/in/victor-cardenas-gamedev']
+    ]
   },
   en: {
-    sub: 'SPAWN: BARCELONA // AVAILABLE FOR CITM-UPC INTERNSHIP',
-    legend: '[ MAP LEGEND // CONTACT INTEL ]',
-    status: '[ STATUS: READY FOR RECRUITMENT ]',
-    quest: '[ MAIN QUEST: GAMEPLAY PROGRAMMER ]',
-    player: 'PLAYER 1 // VÍCTOR',
+    legend: '[ MAP LEGEND // CONTACT ]',
     entries: [
-      ['[ MAIN QUEST ]', 'University Internship Agreement (CITM - UPC)'],
-      ['[ SPAWN POINT / LOCATION ]', 'Barcelona, Spain (BCN) · On-site, Hybrid or Remote'],
-      ['[ COMM LINK / EMAIL ]', 'victorcarhor@gmail.com'],
-      ['[ DIRECT LINE / PHONE ]', '+34 623 187 320'],
-      ['[ REPO HUB / GITHUB ]', 'github.com/Vixtorbir'],
-      ['[ NETWORK / LINKEDIN ]', 'linkedin.com/in/victor-cardenas-gamedev']
-    ],
-    await: '>> AWAITING TRANSMISSION... [ENTER: OPEN SPECS]'
+      ['STATUS', 'AVAILABLE FOR INTERNSHIP'],
+      ['BASE', 'BARCELONA, SPAIN (BCN)'],
+      ['EMAIL', 'victorcarhor@gmail.com'],
+      ['PHONE', '+34 623 187 320'],
+      ['GITHUB', 'github.com/Vixtorbir'],
+      ['LINKEDIN', 'linkedin.com/in/victor-cardenas-gamedev']
+    ]
   }
 };
-const CONTACT_TYPE = { title: 24, sub: 14, legend: 11, label: 9, value: 10.5, tiny: 8 };
-const contactCache = { w: 0, h: 0, bg: null, mapBg: null, mapSize: 0 };
-
-// Glifos vectoriales de la leyenda (uno por entrada), dibujados en (cx, cy)
-function drawLegendGlyph(ctx, kind, cx, cy, s, color) {
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  switch (kind) {
-    case 0: // ◆ misión
-      ctx.moveTo(cx, cy - s); ctx.lineTo(cx + s * 0.75, cy); ctx.lineTo(cx, cy + s); ctx.lineTo(cx - s * 0.75, cy);
-      ctx.closePath(); ctx.fill(); break;
-    case 1: // 📍 pin
-      ctx.arc(cx, cy - s * 0.3, s * 0.55, Math.PI * 0.8, Math.PI * 2.2);
-      ctx.lineTo(cx, cy + s); ctx.closePath(); ctx.fill(); break;
-    case 2: // ✉ correo
-      ctx.rect(cx - s, cy - s * 0.65, s * 2, s * 1.3); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx - s, cy - s * 0.65); ctx.lineTo(cx, cy + s * 0.15); ctx.lineTo(cx + s, cy - s * 0.65); ctx.stroke(); break;
-    case 3: // ☎ teléfono
-      ctx.moveTo(cx - s * 0.8, cy - s * 0.4); ctx.lineTo(cx - s * 0.2, cy - s * 0.9); ctx.lineTo(cx + s * 0.2, cy - s * 0.2);
-      ctx.lineTo(cx - s * 0.1, cy + s * 0.1); ctx.lineTo(cx + s * 0.4, cy + s * 0.6); ctx.lineTo(cx + s * 0.9, cy + s * 0.3);
-      ctx.lineTo(cx + s * 0.5, cy + s); ctx.lineTo(cx - s * 0.2, cy + s * 0.6); ctx.lineTo(cx - s * 0.8, cy + s * 0.1);
-      ctx.closePath(); ctx.fill(); break;
-    case 4: // ◈ repo hub (hexágono con núcleo)
-      for (let k = 0; k < 6; k++) {
-        const a = Math.PI / 3 * k - Math.PI / 6;
-        if (k === 0) ctx.moveTo(cx + Math.cos(a) * s, cy + Math.sin(a) * s); else ctx.lineTo(cx + Math.cos(a) * s, cy + Math.sin(a) * s);
-      }
-      ctx.closePath(); ctx.stroke();
-      ctx.beginPath(); ctx.arc(cx, cy, s * 0.35, 0, Math.PI * 2); ctx.fill(); break;
-    default: // 🌐 red
-      ctx.arc(cx, cy, s, 0, Math.PI * 2); ctx.stroke();
-      ctx.beginPath(); ctx.ellipse(cx, cy, s * 0.45, s, 0, 0, Math.PI * 2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx - s, cy); ctx.lineTo(cx + s, cy); ctx.stroke(); break;
-  }
-}
+const CONTACT_TYPE = { title: 24, sub: 14, legend: 12, label: 9.5, value: 12, tiny: 8.5 };
+// Posición de la baliza BCN dentro del radar (fracción del radio)
+const CONTACT_BCN = { x: 0.22, y: 0.14 };
+const contactCache = { w: 0, h: 0, bg: null };
 
 function drawContactScene(ctx, w, h, t) {
   const u = unit(w, h);
   const isEn = typeof document !== 'undefined' && document.documentElement.lang === 'en';
   const txt = isEn ? CONTACT_TXT.en : CONTACT_TXT.es;
 
-  // Geometría del minimapa (cuadrado) y de la leyenda
-  const top = h * 0.26;
-  const bottom = h * 0.92;
-  const ms = Math.min(w * 0.45, bottom - top);
-  const mx = 16;
-  const my = top + (bottom - top - ms) / 2;
-  const lx = mx + ms + 16 * u;
-  const lw = w - 16 - lx;
-
   if (contactCache.w !== w || contactCache.h !== h) {
     contactCache.w = w; contactCache.h = h;
     const bg = ctx.createLinearGradient(0, 0, 0, h);
-    bg.addColorStop(0, '#0a0610');
+    bg.addColorStop(0, '#0b0710');
     bg.addColorStop(1, '#03040a');
     contactCache.bg = bg;
-    const mapBg = ctx.createRadialGradient(mx + ms / 2, my + ms / 2, ms * 0.1, mx + ms / 2, my + ms / 2, ms * 0.75);
-    mapBg.addColorStop(0, 'rgba(56, 189, 248, 0.10)');
-    mapBg.addColorStop(1, 'rgba(3, 6, 13, 0.95)');
-    contactCache.mapBg = mapBg;
   }
   ctx.fillStyle = contactCache.bg;
   ctx.fillRect(0, 0, w, h);
   drawFineGrid(ctx, w, h, 40 * u, 'rgba(244, 63, 94, 0.05)');
 
   // =====================================================================
-  // MINIMAPA TÁCTICO — SECTOR: BARCELONA
+  // RADAR RETRO ARCADE (mitad izquierda)
   // =====================================================================
-  ctx.save();
-  ctx.shadowColor = 'rgba(56, 189, 248, 0.5)';
-  ctx.shadowBlur = 14 * u;
-  ctx.fillStyle = contactCache.mapBg;
-  pathRoundRect(ctx, mx, my, ms, ms, 8 * u);
-  ctx.fill();
-  ctx.restore();
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
-  ctx.lineWidth = 1.5 * u;
-  pathRoundRect(ctx, mx + 0.75 * u, my + 0.75 * u, ms - 1.5 * u, ms - 1.5 * u, 8 * u);
-  ctx.stroke();
-  drawCornerBrackets(ctx, mx - 4, my - 4, ms + 8, ms + 8, 14 * u, '#38bdf8', 2);
+  const top = h * 0.26;
+  const bottom = h * 0.92;
+  const rr = Math.min(w * 0.2, (bottom - top) * 0.42);
+  const rx = 16 + w * 0.23;
+  const ry = top + (bottom - top) / 2;
 
-  ctx.save();
-  pathRoundRect(ctx, mx + 3 * u, my + 3 * u, ms - 6 * u, ms - 6 * u, 6 * u);
-  ctx.clip();
-
-  // Retícula táctica
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.10)';
+  // Anillos de distancia y círculo exterior
   ctx.lineWidth = 1;
-  ctx.beginPath();
-  for (let k = 1; k < 8; k++) {
-    const g = ms * k / 8;
-    ctx.moveTo(mx + g, my); ctx.lineTo(mx + g, my + ms);
-    ctx.moveTo(mx, my + g); ctx.lineTo(mx + ms, my + g);
-  }
-  ctx.stroke();
-
-  // Trazado urbano / topográfico
-  ctx.strokeStyle = 'rgba(125, 211, 252, 0.22)';
-  ctx.lineWidth = 2 * u;
-  ctx.beginPath();
-  for (let i = 0; i < MAP_STREETS.length; i++) {
-    const s = MAP_STREETS[i];
-    ctx.moveTo(mx + s.x0 * ms, my + s.y0 * ms);
-    ctx.lineTo(mx + s.x1 * ms, my + s.y1 * ms);
-  }
-  ctx.stroke();
-
-  // Barrido de escaneo continuo (cono rotatorio suave)
-  const cx = mx + ms / 2;
-  const cy = my + ms / 2;
-  const sweep = t * 0.9;
-  ctx.fillStyle = 'rgba(56, 189, 248, 0.10)';
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.arc(cx, cy, ms, sweep - 0.7, sweep);
-  ctx.closePath();
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx + Math.cos(sweep) * ms, cy + Math.sin(sweep) * ms);
-  ctx.stroke();
-
-  // Anillos de compás
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
-  ctx.beginPath();
-  ctx.arc(cx, cy, ms * 0.46, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.setLineDash([3 * u, 5 * u]);
-  ctx.beginPath();
-  ctx.arc(cx, cy, ms * 0.30, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  // POIs secundarios (parpadeo desfasado)
-  ctx.fillStyle = '#fda4af';
-  for (let i = 0; i < MAP_POIS.length; i++) {
-    const p = MAP_POIS[i];
-    ctx.globalAlpha = 0.35 + 0.5 * (0.5 + 0.5 * Math.sin(t * 2.2 + p.phase));
-    ctx.fillRect(mx + p.x * ms - 2 * u, my + p.y * ms - 2 * u, 4 * u, 4 * u);
-  }
-  ctx.globalAlpha = 1;
-
-  // Marcador de misión principal (rombo dorado)
-  const qx = mx + MAP_QUEST.x * ms;
-  const qy = my + MAP_QUEST.y * ms + Math.sin(t * 2.4) * 3 * u;
-  const qPulse = 0.5 + 0.5 * Math.sin(t * 3.2);
-  ctx.save();
-  ctx.shadowColor = '#fbbf24';
-  ctx.shadowBlur = (6 + 10 * qPulse) * u;
-  ctx.fillStyle = '#fbbf24';
-  ctx.beginPath();
-  ctx.moveTo(qx, qy - 8 * u); ctx.lineTo(qx + 6 * u, qy); ctx.lineTo(qx, qy + 8 * u); ctx.lineTo(qx - 6 * u, qy);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-  ctx.strokeStyle = 'rgba(251, 191, 36, 0.7)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(qx, qy, 14 * u + 3 * u * qPulse, 0, Math.PI * 2);
-  ctx.stroke();
-  font(ctx, px(CONTACT_TYPE.tiny, u), FONT_MONO, '700');
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = blink(t, 1.4) ? '#fde68a' : 'rgba(253, 230, 138, 0.55)';
-  ctx.fillText(txt.quest, qx, qy - 20 * u);
-
-  // Marcador de jugador (spawn point) con ondas de ping sonar
-  const pxm = mx + MAP_PLAYER.x * ms;
-  const pym = my + MAP_PLAYER.y * ms;
-  for (let k = 0; k < 3; k++) {
-    const phase = ((t * 0.75 + k / 3) % 1);
-    ctx.strokeStyle = '#38bdf8';
-    ctx.globalAlpha = 0.6 * (1 - phase);
-    ctx.lineWidth = 1.5;
+  for (let k = 1; k <= 3; k++) {
+    ctx.strokeStyle = 'rgba(244, 63, 94, 0.22)';
     ctx.beginPath();
-    ctx.arc(pxm, pym, (6 + 30 * phase) * u, 0, Math.PI * 2);
+    ctx.arc(rx, ry, rr * k / 3, 0, Math.PI * 2);
     ctx.stroke();
   }
-  ctx.globalAlpha = 1;
-  const heading = Math.sin(t * 3.0) * 0.18 - Math.PI / 2;
-  ctx.save();
-  ctx.translate(pxm, pym);
-  ctx.rotate(heading);
-  ctx.shadowColor = '#38bdf8';
-  ctx.shadowBlur = 10 * u;
-  ctx.fillStyle = '#38bdf8';
+  ctx.strokeStyle = 'rgba(244, 63, 94, 0.7)';
+  ctx.lineWidth = 1.5 * u;
   ctx.beginPath();
-  ctx.moveTo(9 * u, 0); ctx.lineTo(-7 * u, 6 * u); ctx.lineTo(-4 * u, 0); ctx.lineTo(-7 * u, -6 * u);
-  ctx.closePath();
-  ctx.fill();
+  ctx.arc(rx, ry, rr, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Retícula en cruz
+  ctx.strokeStyle = 'rgba(244, 63, 94, 0.3)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(rx - rr, ry); ctx.lineTo(rx + rr, ry);
+  ctx.moveTo(rx, ry - rr); ctx.lineTo(rx, ry + rr);
+  ctx.stroke();
+
+  // Haz de barrido con estela de fósforo (3 cuñas decrecientes)
+  const sweep = t * 1.5;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(rx, ry, rr, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.fillStyle = '#f43f5e';
+  for (let k = 0; k < 3; k++) {
+    ctx.globalAlpha = 0.16 - k * 0.05;
+    ctx.beginPath();
+    ctx.moveTo(rx, ry);
+    ctx.arc(rx, ry, rr, sweep - 0.35 * (k + 1), sweep - 0.35 * k);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = '#fb7185';
+  ctx.lineWidth = 2 * u;
+  ctx.beginPath();
+  ctx.moveTo(rx, ry);
+  ctx.lineTo(rx + Math.cos(sweep) * rr, ry + Math.sin(sweep) * rr);
+  ctx.stroke();
   ctx.restore();
-  font(ctx, px(CONTACT_TYPE.tiny, u), FONT_ARCADE, '700');
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#e0f2fe';
-  ctx.fillText(txt.player, pxm + 14 * u, pym + 4 * u);
 
-  ctx.restore(); // fin clip minimapa
-
-  // Marcas cardinales sobre el bisel
+  // Marcas cardinales
   font(ctx, px(CONTACT_TYPE.tiny + 1, u), FONT_ARCADE, '800');
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#38bdf8';
-  ctx.fillText('N', cx, my + 10 * u);
-  ctx.fillStyle = 'rgba(224, 242, 254, 0.7)';
-  ctx.fillText('S', cx, my + ms - 10 * u);
-  ctx.fillText('E', mx + ms - 10 * u, cy);
-  ctx.fillText('W', mx + 10 * u, cy);
+  ctx.fillText('N', rx, ry - rr - 11 * u);
+  ctx.fillStyle = 'rgba(253, 164, 175, 0.85)';
+  ctx.fillText('S', rx, ry + rr + 11 * u);
+  ctx.fillText('E', rx + rr + 11 * u, ry);
+  ctx.fillText('W', rx - rr - 11 * u, ry);
 
-  // Telemetría de navegación
-  font(ctx, px(CONTACT_TYPE.tiny, u), FONT_MONO, '600');
-  ctx.textBaseline = 'alphabetic';
+  // Baliza de Barcelona
+  const bx = rx + rr * CONTACT_BCN.x;
+  const by = ry + rr * CONTACT_BCN.y;
+  const pulse = 0.5 + 0.5 * Math.sin(t * 4);
+  ctx.strokeStyle = '#fbbf24';
+  ctx.globalAlpha = 0.6 * (1 - pulse);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(bx, by, (6 + 12 * pulse) * u, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.save();
+  ctx.fillStyle = '#fbbf24';
+  ctx.shadowColor = '#fbbf24';
+  ctx.shadowBlur = (6 + 8 * pulse) * u;
+  ctx.beginPath();
+  ctx.arc(bx, by, 3.5 * u, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  font(ctx, px(CONTACT_TYPE.tiny, u), FONT_PIXEL);
   ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(186, 230, 253, 0.85)';
-  ctx.fillText('SECTOR: BARCELONA', mx + 12 * u, my + 20 * u);
-  ctx.fillText('41.3851° N, 2.1734° E', mx + 12 * u, my + ms - 12 * u);
-  ctx.textAlign = 'right';
-  ctx.fillText('ZOOM: 1.0x', mx + ms - 12 * u, my + 20 * u);
-  ctx.fillStyle = blink(t, 1.6) ? '#34d399' : 'rgba(52, 211, 153, 0.5)';
-  ctx.fillText('GPS: SIGNAL LOCKED', mx + ms - 12 * u, my + ms - 12 * u);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#fde68a';
+  ctx.fillText('BCN', bx + 9 * u, by - 6 * u);
+  font(ctx, px(CONTACT_TYPE.tiny, u), FONT_MONO, '600');
+  ctx.fillStyle = 'rgba(253, 230, 138, 0.8)';
+  ctx.fillText('41.38° N, 2.17° E', bx + 9 * u, by + 8 * u);
 
   // =====================================================================
-  // LEYENDA DEL MAPA — CONTACT INTEL
+  // LEYENDA DEL MINIMAPA (mitad derecha)
   // =====================================================================
-  const ly = my;
-  const lh = ms;
-  drawPanel(ctx, lx, ly, lw, lh, 'rgba(5, 8, 16, 0.9)', 'rgba(244, 63, 94, 0.6)');
-  drawCornerBrackets(ctx, lx - 4, ly - 4, lw + 8, lh + 8, 14 * u, '#f43f5e', 2);
-  const pad = 14 * u;
+  const lx = w * 0.5;
+  const ly = top;
+  const lw = w - 16 - lx;
+  const lh = bottom - top;
+  drawPanel(ctx, lx, ly, lw, lh, 'rgba(4, 7, 15, 0.85)', 'rgba(244, 63, 94, 0.45)');
+  drawCornerAccents(ctx, lx, ly, lw, lh, 10 * u, 'rgba(244, 63, 94, 0.9)');
+  const pad = 16 * u;
   font(ctx, px(CONTACT_TYPE.legend, u), FONT_ARCADE, '800');
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#fb7185';
-  ctx.fillText(txt.legend, lx + pad, ly + 22 * u);
-  font(ctx, px(CONTACT_TYPE.tiny, u), FONT_MONO, '700');
-  ctx.fillStyle = blink(t, 1.2) ? '#34d399' : 'rgba(52, 211, 153, 0.55)';
-  ctx.fillText(txt.status, lx + pad, ly + 38 * u);
-  ctx.strokeStyle = 'rgba(244, 63, 94, 0.4)';
+  ctx.fillText(txt.legend, lx + pad, ly + 24 * u);
+  ctx.strokeStyle = 'rgba(244, 63, 94, 0.35)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(lx + pad, ly + 46 * u);
-  ctx.lineTo(lx + lw - pad, ly + 46 * u);
+  ctx.moveTo(lx + pad, ly + 34 * u);
+  ctx.lineTo(lx + lw - pad, ly + 34 * u);
   ctx.stroke();
 
   const entries = txt.entries;
-  const listTop = ly + 54 * u;
-  const listH = lh - 54 * u - 30 * u;
-  const rowH = listH / entries.length;
+  const listTop = ly + 44 * u;
+  const rowH = (lh - 44 * u - 26 * u) / entries.length;
   for (let i = 0; i < entries.length; i++) {
     const y = listTop + i * rowH;
-    const color = i === 0 ? '#fbbf24' : '#38bdf8';
-    drawLegendGlyph(ctx, i, lx + pad + 8 * u, y + rowH * 0.45, 6 * u, color);
     font(ctx, px(CONTACT_TYPE.label, u), FONT_MONO, '700');
-    ctx.fillStyle = color;
-    ctx.fillText(entries[i][0], lx + pad + 24 * u, y + rowH * 0.36);
-    font(ctx, px(CONTACT_TYPE.value, u), FONT_MONO, '600');
-    ctx.fillStyle = i === 0 ? '#fde68a' : '#ffffff';
-    ctx.fillText(entries[i][1], lx + pad + 24 * u, y + rowH * 0.36 + 14 * u);
-    if (i < entries.length - 1) {
-      ctx.strokeStyle = 'rgba(244, 63, 94, 0.15)';
-      ctx.beginPath();
-      ctx.moveTo(lx + pad, y + rowH - 1);
-      ctx.lineTo(lx + lw - pad, y + rowH - 1);
-      ctx.stroke();
-    }
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText(entries[i][0], lx + pad, y + rowH * 0.38);
+    font(ctx, px(CONTACT_TYPE.value, u), FONT_MONO, i === 0 ? '700' : '600');
+    ctx.fillStyle = i === 0 ? '#fde047' : '#ffffff';
+    ctx.fillText(entries[i][1], lx + pad, y + rowH * 0.38 + 17 * u);
   }
 
-  // Línea de espera de señal
-  font(ctx, px(CONTACT_TYPE.tiny, u), FONT_MONO, '700');
-  ctx.fillStyle = blink(t, 0.9) ? '#f43f5e' : 'rgba(244, 63, 94, 0.45)';
-  ctx.fillText(txt.await, lx + pad, ly + lh - 12 * u);
+  // Cursor de terminal
+  if (blink(t, 1.0)) {
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillRect(lx + pad, ly + lh - 18 * u, 7 * u, 11 * u);
+  }
 
   // =====================================================================
-  // CABECERA MODULAR (superior izquierda)
+  // CABECERA (superior izquierda)
   // =====================================================================
   const hx = 16; // alineado con .screen-top-badge (left: 16px)
   const hy = Math.max(48, Math.round(h * 0.08));
   const hpad = Math.round(10 * u);
-  const titleStr = 'CONTACT & HELP // WORLD MAP';
+  const titleStr = 'CONTACT & HELP';
+  const subStr = 'COMM LINK // BARCELONA (BCN)';
   font(ctx, px(CONTACT_TYPE.title, u), FONT_ARCADE, '800');
   const titleW = ctx.measureText(titleStr).width;
   font(ctx, px(CONTACT_TYPE.sub, u), FONT_MONO, '600');
-  const subW = ctx.measureText(txt.sub).width;
+  const subW = ctx.measureText(subStr).width;
   const hw = Math.max(titleW, subW) + hpad * 2;
   const hh = 66 * u;
   drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 24, 0.9)', 'rgba(244, 63, 94, 0.45)');
@@ -1429,8 +1279,8 @@ function drawContactScene(ctx, w, h, t) {
   ctx.fillStyle = '#ffffff';
   ctx.fillText(titleStr, hx + hpad, hy + hh * 0.46);
   font(ctx, px(CONTACT_TYPE.sub, u), FONT_MONO, '600');
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillText(txt.sub, hx + hpad, hy + hh * 0.8);
+  ctx.fillStyle = '#fb7185';
+  ctx.fillText(subStr, hx + hpad, hy + hh * 0.8);
 }
 
 // ---------------------------------------------------------------------------
