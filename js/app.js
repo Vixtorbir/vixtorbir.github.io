@@ -50,6 +50,10 @@ function updateLeftDisplay() {
   if (metaFocus) metaFocus.textContent = meta.focus;
   if (metaStatus) metaStatus.textContent = meta.status;
 
+  // Decal de la pantalla: refleja el estado del sistema activo en el idioma actual
+  const decal = document.getElementById('screen-decal-text');
+  if (decal) decal.textContent = meta.status;
+
   // La 4a fila puede renombrarse por sistema (p. ej. "Base :" en Player 1)
   const statusLabel = document.querySelector('[data-i18n="meta_status_lbl"]');
   if (statusLabel) statusLabel.textContent = meta.statusLabel || uiText[currentLang].meta_status_lbl;

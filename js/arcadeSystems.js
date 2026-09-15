@@ -366,7 +366,7 @@ function drawPlayerOneScene(ctx, w, h, t) {
 const FABLE_SLIDES = [fableIntroImg, fableGameplay2, fableGameplay1, fableGameplay3, fableGameplay4];
 const FABLE_SLIDE_DUR = 4.5;   // segundos por diapositiva
 const FABLE_FADE_DUR = 0.8;    // fundido cruzado al final de cada una
-const FABLE_TYPE = { title: 20, sub: 12, label: 12 };
+const FABLE_TYPE = { title: 24, sub: 14, label: 13.5 };
 const fableReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const fableCache = { w: 0, h: 0, warm: null, edge: null };
 
@@ -378,10 +378,13 @@ function smoothstep(x) {
 function drawFableSlide(ctx, index, w, h, u) {
   const img = FABLE_SLIDES[index];
   if (index === 0) {
-    // Portada: contenida sobre fondo oscuro con viñeta cálida
-    ctx.fillStyle = '#0a0612';
-    ctx.fillRect(0, 0, w, h);
-    if (ready(img)) drawContain(ctx, img, w * 0.03, h * 0.03, w * 0.94, h * 0.94, false);
+    // Portada: a pantalla completa (cover) con viñeta cálida
+    if (ready(img)) {
+      drawCover(ctx, img, 0, 0, w, h);
+    } else {
+      ctx.fillStyle = '#0a0612';
+      ctx.fillRect(0, 0, w, h);
+    }
     ctx.fillStyle = fableCache.warm;
     ctx.fillRect(0, 0, w, h);
     return;
@@ -428,9 +431,9 @@ function drawFableScene(ctx, w, h, t) {
   }
 
   // --- Mini-Knight presidiendo la derecha ---------------------------------
-  const kw = w * 0.25;
-  const kh = h * 0.6;
-  const kx = w * 0.72;
+  const kw = w * 0.29;
+  const kh = h * 0.68;
+  const kx = w * 0.69;
   const bob = fableReducedMotion.matches ? 0 : Math.sin(t * 2) * 4 * u;
   const ky = h - kh - h * 0.14 + bob;
   if (ready(miniKnightImg)) {
@@ -461,7 +464,7 @@ function drawFableScene(ctx, w, h, t) {
   font(ctx, px(FABLE_TYPE.sub, u), FONT_MONO, '600');
   const subW = ctx.measureText('3D ACTION-ADVENTURE // CUSTOM C++ ENGINE').width;
   const hw = Math.max(titleW, subW) + pad * 2;
-  const hh = 58 * u;
+  const hh = 66 * u;
   drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 22, 0.8)', 'rgba(56, 189, 248, 0.35)');
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
