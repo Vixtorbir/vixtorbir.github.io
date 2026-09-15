@@ -123,3 +123,58 @@ export function playArcadeStartSound() {
     });
   } catch (e) {}
 }
+
+// ---------------------------------------------------------------------------
+// SERVICE MENU (Modal de diagnóstico) — apertura / cierre
+// Tonos square filtrados (lowpass) con rampas lineales: micro fade-in de 5 ms
+// y fade-out hasta 0.0001 antes de stop() para evitar clicks/pops.
+// ---------------------------------------------------------------------------
+function playFilteredTone(ctx, { freqStart, freqEnd, startAt, duration, peak, cutoff, type = 'square' }) {
+  const osc = ctx.createOscillator();
+  const filter = ctx.createBiquadFilter();
+  const gain = ctx.createGain();
+
+  osc.type = type;
+  osc.frequency.setValueAtTime(freqStart, startAt);
+  if (freqEnd !== freqStart) {
+    osc.frequency.exponentialRampToValueAtTime(freqEnd, startAt + duration * 0.6);
+  }
+
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(cutoff, startAt);
+  filter.Q.setValueAtTime(0.9, startAt);
+
+  gain.gain.setValueAtTime(0.0001, startAt);
+  gain.gain.linearRampToValueAtTime(peak, startAt + 0.005);
+  gain.gain.setValueAtTime(peak, startAt + duration * 0.55);
+  gain.gain.linearRampToValueAtTime(0.0001, startAt + duration);
+
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(startAt);
+  osc.stop(startAt + duration + 0.01);
+}
+
+// Apertura: dos notas ascendentes cortas (A4 -> E5) + zumbido grave de relé
+export function playModalOpenSound() {
+  if (!isAudioActive) return;
+  try {
+    const ctx = ensureContext();
+    const t = ctx.currentTime;
+    playFilteredTone(ctx, { freqStart: 440, freqEnd: 440, startAt: t, duration: 0.07, peak: 0.05, cutoff: 1800 });
+    playFilteredTone(ctx, { freqStart: 659.25, freqEnd: 659.25, startAt: t + 0.075, duration: 0.11, peak: 0.055, cutoff: 2200 });
+    playFilteredTone(ctx, { freqStart: 90, freqEnd: 70, startAt: t, duration: 0.16, peak: 0.035, cutoff: 500, type: 'triangle' });
+  } catch (e) {}
+}
+
+// Cierre: nota descendente (E5 -> A4) breve y apagada
+export function playModalCloseSound() {
+  if (!isAudioActive) return;
+  try {
+    const ctx = ensureContext();
+    const t = ctx.currentTime;
+    playFilteredTone(ctx, { freqStart: 659.25, freqEnd: 440, startAt: t, duration: 0.12, peak: 0.045, cutoff: 1600 });
+    playFilteredTone(ctx, { freqStart: 120, freqEnd: 60, startAt: t + 0.02, duration: 0.12, peak: 0.03, cutoff: 400, type: 'triangle' });
+  } catch (e) {}
+}

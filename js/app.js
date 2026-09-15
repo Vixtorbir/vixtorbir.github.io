@@ -11,6 +11,7 @@
 import { arcadeSystems, uiText, onAssetLoad } from './arcadeSystems.js';
 import { initCanvasRenderer, renderScreenArtwork, resizeCanvas, startRenderLoop } from './canvasRenderer.js';
 import { playArcadeTick, playCoinSound, playArcadeStartSound, toggleAudioSFX } from './audioManager.js';
+import { initSpecModal, openSpecModal, isSpecModalOpen, refreshSpecModal } from './specModal.js';
 
 let currentLang = 'es';
 let activeSystemIndex = 0;
@@ -133,7 +134,14 @@ function setLanguage(lang) {
   }
 
   updateLeftDisplay();
+  refreshSpecModal(lang);
   localStorage.setItem('victor_portfolio_lang', lang);
+}
+
+// Service Menu: abre la ficha técnica del sistema activo
+function inspectSystem(trigger) {
+  if (isSpecModalOpen()) return;
+  openSpecModal(activeSystemIndex, currentLang, trigger);
 }
 
 let chassisPulseTimer = null;
@@ -173,6 +181,7 @@ window.setLanguage = setLanguage;
 window.toggleAudioSFX = handleToggleAudioSFX;
 window.selectSystem = selectSystem;
 window.goToMainMenu = goToMainMenu;
+window.inspectSystem = inspectSystem;
 
 // ---------------------------------------------------------
 // INITIALIZATION
@@ -195,6 +204,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   startRenderLoop();
 
+  // Service Menu (modal de diagnóstico): disparadores de apertura
+  initSpecModal({ onLanguageChange: setLanguage });
+  const screenViewport = document.querySelector('.scifi-screen-viewport');
+  if (screenViewport) {
+    screenViewport.addEventListener('click', () => inspectSystem(screenViewport));
+    screenViewport.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        inspectSystem(screenViewport);
+      }
+    });
+  }
+  const inspectBtn = document.getElementById('inspect-btn');
+  if (inspectBtn) inspectBtn.addEventListener('click', () => inspectSystem(inspectBtn));
+
   // Resize canvas when window resizes
   window.addEventListener('resize', () => {
     resizeCanvas();
@@ -202,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Mouse Wheel navigation anywhere on screen
   window.addEventListener('wheel', (e) => {
-    if (isThrottled) return;
+    if (isThrottled || isSpecModalOpen()) return;
     isThrottled = true;
 
     if (e.deltaY > 0) {
@@ -218,12 +242,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Keyboard Navigation (Arrow keys, W / S)
   window.addEventListener('keydown', (e) => {
+    if (isSpecModalOpen()) return;
+
     if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
       e.preventDefault();
       navigateSystem(1);
     } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
       e.preventDefault();
       navigateSystem(-1);
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      // ENTER / ESPACIO global: no interceptar si el foco está sobre un control
+      // (botones de idioma, mute, CV, enlaces...) para no romper su activación
+      const el = document.activeElement;
+      const tag = el?.tagName;
+      const isControl = tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || el?.isContentEditable;
+      if (isControl && el !== document.body) return;
+      e.preventDefault();
+      inspectSystem(document.querySelector('.scifi-screen-viewport'));
     }
   });
 });
