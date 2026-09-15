@@ -817,10 +817,22 @@ function drawDojoScene(ctx, w, h, t) {
 }
 
 // ---------------------------------------------------------------------------
-// ESCENA 4 — HARDWARE & SKILLS (vitrina de cartuchos ROM)
+// ESCENA 4 — GAMEPLAY SKILLS & TOOLS (skill loadout flotante)
 // ---------------------------------------------------------------------------
-// Dos estantes: lenguajes (cartuchos horizontales) y herramientas & audio
-// (cartuchos verticales). Solo icono oficial + nombre: lectura instantánea.
+// Dos estantes de cartas de habilidad flotando sobre polvo estelar arcade.
+// Solo icono oficial + nombre: el desglose técnico vive en el modal.
+// Todo el estado se pre-aloja aquí: cero asignaciones por frame.
+const SKILL_PARTICLES = [];
+for (let i = 0; i < 40; i++) {
+  SKILL_PARTICLES.push({
+    x: Math.random(),
+    y: Math.random(),
+    speedX: 0.012 + Math.random() * 0.03,
+    speedY: (Math.random() - 0.5) * 0.008,
+    size: Math.random() < 0.25 ? 2.2 : 1.3,
+    phase: Math.random() * Math.PI * 2
+  });
+}
 const HW_LANGS = [
   { name: 'C++', color: '#38bdf8', img: iconCppImg },
   { name: 'C#', color: '#c084fc', img: iconCsharpImg },
@@ -833,8 +845,8 @@ const HW_TOOLS = [
   { name: 'WWISE', color: '#38bdf8', img: iconWwiseImg },
   { name: 'GIT / GITHUB', color: '#fb923c', img: iconGitImg }
 ];
-const HW_TYPE = { title: 24, sub: 14, shelf: 12, langName: 30, toolName: 11.5 };
-const HW_CHASSIS = 'rgba(10, 16, 32, 0.95)';
+const HW_TYPE = { title: 24, sub: 14, shelf: 12, langName: 28, toolName: 12.5 };
+const HW_CARD_FILL = 'rgba(8, 14, 28, 0.92)';
 const hwCache = { w: 0, h: 0, bg: null };
 
 function pathRoundRect(ctx, x, y, w, h, r) {
@@ -847,12 +859,13 @@ function pathRoundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-// Chasis común: cuerpo redondeado con glow neón, muesca de agarre y pines dorados
-function drawCartridgeChassis(ctx, x, y, cw, ch, color, u) {
+// Carta de habilidad: chasis redondeado con glow pulsante, muesca de agarre,
+// LED de estado y pines dorados de contacto en la base.
+function drawSkillCard(ctx, x, y, cw, ch, color, pulse, u) {
   ctx.save();
   ctx.shadowColor = color;
-  ctx.shadowBlur = 14 * u;
-  ctx.fillStyle = HW_CHASSIS;
+  ctx.shadowBlur = (8 + 10 * pulse) * u;
+  ctx.fillStyle = HW_CARD_FILL;
   pathRoundRect(ctx, x, y, cw, ch, 6 * u);
   ctx.fill();
   ctx.restore();
@@ -871,7 +884,15 @@ function drawCartridgeChassis(ctx, x, y, cw, ch, color, u) {
   ctx.stroke();
   ctx.globalAlpha = 1;
 
-  // Pines dorados de contacto en la base
+  // LED activo (esquina superior derecha)
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.55 + 0.45 * pulse;
+  ctx.beginPath();
+  ctx.arc(x + cw - 9 * u, y + 9 * u, 2 * u, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Pines dorados de contacto
   const pinW = 4 * u;
   const pinGap = 3 * u;
   const pinH = 7 * u;
@@ -893,7 +914,7 @@ function drawShelfLabel(ctx, text, color, y, w, u) {
   ctx.fillText(text, 16, y);
   const tw = ctx.measureText(text).width;
   ctx.strokeStyle = color;
-  ctx.globalAlpha = 0.45;
+  ctx.globalAlpha = 0.35;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(16 + tw + 12 * u, y + 0.5);
@@ -902,86 +923,112 @@ function drawShelfLabel(ctx, text, color, y, w, u) {
   ctx.globalAlpha = 1;
 }
 
+// Remates angulares en las cuatro esquinas de un panel
+function drawCornerAccents(ctx, x, y, w, h, len, color) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(x, y + len); ctx.lineTo(x, y); ctx.lineTo(x + len, y);
+  ctx.moveTo(x + w - len, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + len);
+  ctx.moveTo(x + w, y + h - len); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w - len, y + h);
+  ctx.moveTo(x + len, y + h); ctx.lineTo(x, y + h); ctx.lineTo(x, y + h - len);
+  ctx.stroke();
+}
+
 function drawHardwareScene(ctx, w, h, t) {
   const u = unit(w, h);
   if (hwCache.w !== w || hwCache.h !== h) {
     hwCache.w = w; hwCache.h = h;
     const bg = ctx.createLinearGradient(0, 0, 0, h);
-    bg.addColorStop(0, '#0b1424');
-    bg.addColorStop(0.55, '#050a14');
+    bg.addColorStop(0, '#060c18');
     bg.addColorStop(1, '#02040a');
     hwCache.bg = bg;
   }
   ctx.fillStyle = hwCache.bg;
   ctx.fillRect(0, 0, w, h);
-  drawFineGrid(ctx, w, h, 40 * u, 'rgba(56, 189, 248, 0.05)');
+  drawFineGrid(ctx, w, h, 40 * u, 'rgba(56, 189, 248, 0.04)');
 
-  // --- Telemetría parpadeante (superior derecha) --------------------------
+  // Polvo estelar / energía arcade en suspensión
+  ctx.fillStyle = '#7dd3fc';
+  for (let i = 0; i < SKILL_PARTICLES.length; i++) {
+    const p = SKILL_PARTICLES[i];
+    const x = ((p.x + t * p.speedX) % 1 + 1) % 1;
+    const y = ((p.y + t * p.speedY) % 1 + 1) % 1;
+    ctx.globalAlpha = 0.35 + 0.45 * Math.sin(t * 2.5 + p.phase);
+    ctx.fillRect(x * w, y * h, p.size * u, p.size * u);
+  }
+  ctx.globalAlpha = 1;
+
+  // --- Telemetría retro (superior derecha) --------------------------------
   font(ctx, 9 * u, FONT_PIXEL);
   ctx.textAlign = 'right';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = blink(t, 1.2) ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)';
-  ctx.fillText('[ VERIFIED TECH STACK ]', w - 16, h * 0.09);
+  ctx.fillText('[ LOADOUT: 8/8 EQUIPPED ]', w - 16, h * 0.09);
 
-  // --- Estante 1: LENGUAJES (cartuchos horizontales) ----------------------
+  // --- Estante 1: LENGUAJES DE PROGRAMACIÓN (cartas horizontales) ---------
   const gap = 16 * u;
-  const shelf1Y = h * 0.285;
-  drawShelfLabel(ctx, 'LENGUAJES', '#38bdf8', shelf1Y, w, u);
+  drawShelfLabel(ctx, '[ LENGUAJES DE PROGRAMACIÓN ]', '#38bdf8', h * 0.285, w, u);
   const row1Y = h * 0.325;
   const row1H = h * 0.20;
   const cw1 = (w - 32 - gap * 2) / 3;
   for (let i = 0; i < HW_LANGS.length; i++) {
     const c = HW_LANGS[i];
     const x = 16 + i * (cw1 + gap);
-    drawCartridgeChassis(ctx, x, row1Y, cw1, row1H, c.color, u);
-    const icon = row1H * 0.5;
-    const iy = row1Y + row1H * 0.5 - icon / 2 - 2 * u;
-    if (ready(c.img)) drawContain(ctx, c.img, x + 18 * u, iy, icon, icon, false);
+    const bob = Math.sin(t * 2.2 + i * 0.85) * 5 * u;
+    const pulse = 0.5 + 0.5 * Math.sin(t * 2.6 + i * 1.1);
+    const y = row1Y + bob;
+    drawSkillCard(ctx, x, y, cw1, row1H, c.color, pulse, u);
+    const icon = 38 * u;
+    if (ready(c.img)) drawContain(ctx, c.img, x + 18 * u, y + row1H * 0.5 - icon / 2 - 2 * u, icon, icon, false);
     font(ctx, px(HW_TYPE.langName, u), FONT_ARCADE, '800');
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(c.name, x + cw1 - 20 * u, row1Y + row1H * 0.5 - 2 * u);
+    ctx.fillText(c.name, x + cw1 - 20 * u, y + row1H * 0.5 - 2 * u);
   }
 
-  // --- Estante 2: HERRAMIENTAS & AUDIO (cartuchos verticales) -------------
-  const shelf2Y = h * 0.585;
-  drawShelfLabel(ctx, 'HERRAMIENTAS & AUDIO', '#c084fc', shelf2Y, w, u);
+  // --- Estante 2: MOTORES, HERRAMIENTAS & AUDIO (cartas verticales) -------
+  drawShelfLabel(ctx, '[ MOTORES, HERRAMIENTAS & AUDIO ]', '#c084fc', h * 0.585, w, u);
   const row2Y = h * 0.625;
   const row2H = h * 0.255;
   const cw2 = (w - 32 - gap * 4) / 5;
   for (let i = 0; i < HW_TOOLS.length; i++) {
     const c = HW_TOOLS[i];
     const x = 16 + i * (cw2 + gap);
-    drawCartridgeChassis(ctx, x, row2Y, cw2, row2H, c.color, u);
-    const icon = Math.min(cw2 * 0.42, row2H * 0.4);
-    if (ready(c.img)) drawContain(ctx, c.img, x + (cw2 - icon) / 2, row2Y + row2H * 0.2, icon, icon, false);
+    const bob = Math.sin(t * 2.0 + (i + 3) * 0.75) * 4.5 * u;
+    const pulse = 0.5 + 0.5 * Math.sin(t * 2.4 + (i + 3) * 0.9);
+    const y = row2Y + bob;
+    drawSkillCard(ctx, x, y, cw2, row2H, c.color, pulse, u);
+    const icon = Math.min(42 * u, cw2 * 0.45);
+    if (ready(c.img)) drawContain(ctx, c.img, x + (cw2 - icon) / 2, y + row2H * 0.18, icon, icon, false);
     font(ctx, px(HW_TYPE.toolName, u), FONT_ARCADE, '700');
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(c.name, x + cw2 / 2, row2Y + row2H * 0.76);
+    ctx.fillText(c.name, x + cw2 / 2, y + row2H * 0.75);
   }
 
-  // --- Cabecera arcade minimalista (superior izquierda) -------------------
+  // --- Cabecera modular (superior izquierda) ------------------------------
   const hx = 16; // alineado con .screen-top-badge (left: 16px)
   const hy = Math.max(48, Math.round(h * 0.08));
   const pad = Math.round(10 * u);
   font(ctx, px(HW_TYPE.title, u), FONT_ARCADE, '800');
-  const titleW = ctx.measureText('HARDWARE & SKILLS').width;
+  const titleW = ctx.measureText('GAMEPLAY SKILLS & TOOLS').width;
   font(ctx, px(HW_TYPE.sub, u), FONT_MONO, '600');
-  const subW = ctx.measureText('CORE TECH STACK & TOOLS // x86_64').width;
+  const subW = ctx.measureText('GAME PROGRAMMING // C++, C# & ENGINES').width;
   const hw = Math.max(titleW, subW) + pad * 2;
   const hh = 66 * u;
-  drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 22, 0.88)', 'rgba(56, 189, 248, 0.4)');
+  drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 24, 0.9)', 'rgba(56, 189, 248, 0.4)');
+  drawCornerAccents(ctx, hx, hy, hw, hh, 8 * u, 'rgba(56, 189, 248, 0.9)');
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   font(ctx, px(HW_TYPE.title, u), FONT_ARCADE, '800');
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('HARDWARE & SKILLS', hx + pad, hy + hh * 0.46);
+  ctx.fillText('GAMEPLAY SKILLS & TOOLS', hx + pad, hy + hh * 0.46);
   font(ctx, px(HW_TYPE.sub, u), FONT_MONO, '600');
   ctx.fillStyle = '#38bdf8';
-  ctx.fillText('CORE TECH STACK & TOOLS // x86_64', hx + pad, hy + hh * 0.8);
+  ctx.fillText('GAME PROGRAMMING // C++, C# & ENGINES', hx + pad, hy + hh * 0.8);
 }
 
 // ---------------------------------------------------------------------------
@@ -1214,10 +1261,10 @@ export const arcadeSystems = [
     drawScene: drawDojoScene
   },
   {
-    verticalTitle: "05. HARDWARE & SKILLS // C++ ENGINE",
+    verticalTitle: "05. GAMEPLAY SKILLS // C++ & TOOLS",
     trayTag: "x86_64 // C++ CORE",
     trayBrand: "SKILL",
-    badgeText: "SKILLS // MEMORY HIERARCHY",
+    badgeText: "SKILLS // GAMEPLAY LOADOUT",
     themeColor: "#38bdf8",
     hardwareHtml: hardwareBox(`<span class="hw-icon text-sky-400">${SVG_CHIP}</span>`, 'x86_64 // C++ CORE'),
     meta: {
@@ -1225,13 +1272,13 @@ export const arcadeSystems = [
         role: "Systems & Engine Architect",
         stack: "C++17/20, C#, OpenGL 3.3, FMOD Core, Unity, Unreal, Git",
         focus: "Cache Locality, Heap/Stack Memory Profiling & Multithreading",
-        status: "Competencias Técnicas // Lenguajes, Motores & Audio"
+        status: "Competencias de Gameplay // C++, Motores & Audio"
       },
       en: {
         role: "Systems & Engine Architect",
         stack: "C++17/20, C#, OpenGL 3.3, FMOD Core, Unity, Unreal, Git",
         focus: "Cache Locality, Heap/Stack Memory Profiling & Multithreading",
-        status: "Technical Skills // Languages, Engines & Audio"
+        status: "Gameplay Skills // C++, Engines & Audio"
       }
     },
     drawScene: drawHardwareScene
