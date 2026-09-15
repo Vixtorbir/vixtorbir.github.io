@@ -817,11 +817,11 @@ function drawDojoScene(ctx, w, h, t) {
 }
 
 // ---------------------------------------------------------------------------
-// ESCENA 4 — GAMEPLAY SKILLS & TOOLS (skill loadout flotante)
+// ESCENA 4 — GAMEPLAY SKILLS & TOOLS (cartas perk roguelike flotantes)
 // ---------------------------------------------------------------------------
-// Dos estantes de cartas de habilidad flotando sobre polvo estelar arcade.
-// Solo icono oficial + nombre: el desglose técnico vive en el modal.
-// Todo el estado se pre-aloja aquí: cero asignaciones por frame.
+// Dos estantes de cartas de habilidad estilo Hades / Slay the Spire flotando
+// sobre polvo estelar arcade. Solo icono oficial + nombre: el desglose técnico
+// vive en el modal. Todo el estado se pre-aloja aquí: cero allocs por frame.
 const SKILL_PARTICLES = [];
 for (let i = 0; i < 40; i++) {
   SKILL_PARTICLES.push({
@@ -846,8 +846,16 @@ const HW_TOOLS = [
   { name: 'GIT / GITHUB', color: '#fb923c', img: iconGitImg }
 ];
 const HW_TYPE = { title: 24, sub: 14, shelf: 12, langName: 28, toolName: 12.5 };
-const HW_CARD_FILL = 'rgba(8, 14, 28, 0.92)';
-const hwCache = { w: 0, h: 0, bg: null };
+// Gradientes de carta cacheados por altura de fila (se dibujan en espacio local
+// de la carta con translate, así una sola instancia sirve para toda la fila).
+const hwCache = { w: 0, h: 0, bg: null, card1: null, card2: null };
+
+function makeCardGradient(ctx, ch) {
+  const g = ctx.createLinearGradient(0, 0, 0, ch);
+  g.addColorStop(0, 'rgba(12, 18, 34, 0.95)');
+  g.addColorStop(1, 'rgba(6, 10, 20, 0.96)');
+  return g;
+}
 
 function pathRoundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -859,51 +867,56 @@ function pathRoundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-// Carta de habilidad: chasis redondeado con glow pulsante, muesca de agarre,
-// LED de estado y pines dorados de contacto en la base.
-function drawSkillCard(ctx, x, y, cw, ch, color, pulse, u) {
+// Dibuja un rombo estilizado (gema de perk roguelike)
+function drawRoguelikeGem(ctx, cx, cy, size, color, pulse) {
   ctx.save();
+  ctx.fillStyle = color;
   ctx.shadowColor = color;
-  ctx.shadowBlur = (8 + 10 * pulse) * u;
-  ctx.fillStyle = HW_CARD_FILL;
-  pathRoundRect(ctx, x, y, cw, ch, 6 * u);
+  ctx.shadowBlur = 6 * pulse;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - size);
+  ctx.lineTo(cx + size * 0.75, cy);
+  ctx.lineTo(cx, cy + size);
+  ctx.lineTo(cx - size * 0.75, cy);
+  ctx.closePath();
   ctx.fill();
   ctx.restore();
+}
+
+// Carta de habilidad roguelike (sin pines ni muescas de cartucho)
+function drawSkillCard(ctx, x, y, cw, ch, color, pulse, u, fill) {
+  // Fondo degradado con sombra neón (gradiente en espacio local de la carta)
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.shadowColor = color;
+  ctx.shadowBlur = (8 + 12 * pulse) * u;
+  ctx.fillStyle = fill;
+  pathRoundRect(ctx, 0, 0, cw, ch, 6 * u);
+  ctx.fill();
+  ctx.restore();
+
+  // Borde exterior con color temático neón
   ctx.strokeStyle = color;
   ctx.lineWidth = 1.5 * u;
   pathRoundRect(ctx, x + 0.75 * u, y + 0.75 * u, cw - 1.5 * u, ch - 1.5 * u, 6 * u);
   ctx.stroke();
 
-  // Muesca superior de agarre
-  const notchW = Math.min(cw * 0.42, 80 * u);
-  pathRoundRect(ctx, x + (cw - notchW) / 2, y + 4 * u, notchW, 6 * u, 3 * u);
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  ctx.fill();
-  ctx.globalAlpha = 0.45;
-  ctx.lineWidth = 1;
+  // Borde interior biselado (inset frame roguelike)
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.lineWidth = 1 * u;
+  pathRoundRect(ctx, x + 4 * u, y + 4 * u, cw - 8 * u, ch - 8 * u, 4 * u);
   ctx.stroke();
-  ctx.globalAlpha = 1;
 
-  // LED activo (esquina superior derecha)
+  // Gema de rareza roguelike en cabecera superior central
+  drawRoguelikeGem(ctx, x + cw / 2, y + 7 * u, 3.5 * u, color, pulse);
+
+  // Micro-indicador LED de sincronización en esquina superior derecha
   ctx.fillStyle = color;
-  ctx.globalAlpha = 0.55 + 0.45 * pulse;
+  ctx.globalAlpha = 0.5 + 0.5 * pulse;
   ctx.beginPath();
-  ctx.arc(x + cw - 9 * u, y + 9 * u, 2 * u, 0, Math.PI * 2);
+  ctx.arc(x + cw - 9 * u, y + 9 * u, 1.8 * u, 0, Math.PI * 2);
   ctx.fill();
   ctx.globalAlpha = 1;
-
-  // Pines dorados de contacto
-  const pinW = 4 * u;
-  const pinGap = 3 * u;
-  const pinH = 7 * u;
-  const pinsW = Math.min(cw - 24 * u, 120 * u);
-  const count = Math.floor((pinsW + pinGap) / (pinW + pinGap));
-  const startX = x + (cw - (count * pinW + (count - 1) * pinGap)) / 2;
-  const pinY = y + ch - pinH - 5 * u;
-  ctx.fillStyle = 'rgba(251, 191, 36, 0.9)';
-  for (let i = 0; i < count; i++) {
-    ctx.fillRect(startX + i * (pinW + pinGap), pinY, pinW, pinH);
-  }
 }
 
 function drawShelfLabel(ctx, text, color, y, w, u) {
@@ -937,18 +950,24 @@ function drawCornerAccents(ctx, x, y, w, h, len, color) {
 
 function drawHardwareScene(ctx, w, h, t) {
   const u = unit(w, h);
+  const isEn = typeof document !== 'undefined' && document.documentElement.lang === 'en';
+
+  const row1H = h * 0.20;
+  const row2H = h * 0.255;
   if (hwCache.w !== w || hwCache.h !== h) {
     hwCache.w = w; hwCache.h = h;
     const bg = ctx.createLinearGradient(0, 0, 0, h);
     bg.addColorStop(0, '#060c18');
     bg.addColorStop(1, '#02040a');
     hwCache.bg = bg;
+    hwCache.card1 = makeCardGradient(ctx, row1H);
+    hwCache.card2 = makeCardGradient(ctx, row2H);
   }
   ctx.fillStyle = hwCache.bg;
   ctx.fillRect(0, 0, w, h);
   drawFineGrid(ctx, w, h, 40 * u, 'rgba(56, 189, 248, 0.04)');
 
-  // Polvo estelar / energía arcade en suspensión
+  // Partículas arcade en suspensión
   ctx.fillStyle = '#7dd3fc';
   for (let i = 0; i < SKILL_PARTICLES.length; i++) {
     const p = SKILL_PARTICLES[i];
@@ -959,18 +978,18 @@ function drawHardwareScene(ctx, w, h, t) {
   }
   ctx.globalAlpha = 1;
 
-  // --- Telemetría retro (superior derecha) --------------------------------
+  // --- Telemetría retro (superior derecha) bilingüe ---
   font(ctx, 9 * u, FONT_PIXEL);
   ctx.textAlign = 'right';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = blink(t, 1.2) ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)';
-  ctx.fillText('[ LOADOUT: 8/8 EQUIPPED ]', w - 16, h * 0.09);
+  ctx.fillText(isEn ? '[ LOADOUT: 8/8 EQUIPPED ]' : '[ EQUIPAMIENTO: 8/8 HABILIDADES ]', w - 16, h * 0.09);
 
-  // --- Estante 1: LENGUAJES DE PROGRAMACIÓN (cartas horizontales) ---------
+  // --- Estante 1: LENGUAJES (cartas horizontales) ---
   const gap = 16 * u;
-  drawShelfLabel(ctx, '[ LENGUAJES DE PROGRAMACIÓN ]', '#38bdf8', h * 0.285, w, u);
+  const labelLangs = isEn ? '[ PROGRAMMING LANGUAGES ]' : '[ LENGUAJES DE PROGRAMACIÓN ]';
+  drawShelfLabel(ctx, labelLangs, '#38bdf8', h * 0.285, w, u);
   const row1Y = h * 0.325;
-  const row1H = h * 0.20;
   const cw1 = (w - 32 - gap * 2) / 3;
   for (let i = 0; i < HW_LANGS.length; i++) {
     const c = HW_LANGS[i];
@@ -978,20 +997,28 @@ function drawHardwareScene(ctx, w, h, t) {
     const bob = Math.sin(t * 2.2 + i * 0.85) * 5 * u;
     const pulse = 0.5 + 0.5 * Math.sin(t * 2.6 + i * 1.1);
     const y = row1Y + bob;
-    drawSkillCard(ctx, x, y, cw1, row1H, c.color, pulse, u);
-    const icon = 38 * u;
-    if (ready(c.img)) drawContain(ctx, c.img, x + 18 * u, y + row1H * 0.5 - icon / 2 - 2 * u, icon, icon, false);
+    drawSkillCard(ctx, x, y, cw1, row1H, c.color, pulse, u, hwCache.card1);
+
+    // Marco interior tenue para el icono
+    const iconBoxSize = row1H - 16 * u;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    pathRoundRect(ctx, x + 8 * u, y + 8 * u, iconBoxSize, iconBoxSize, 4 * u);
+    ctx.fill();
+
+    const icon = 36 * u;
+    if (ready(c.img)) drawContain(ctx, c.img, x + 8 * u + (iconBoxSize - icon) / 2, y + 8 * u + (iconBoxSize - icon) / 2, icon, icon, false);
+
     font(ctx, px(HW_TYPE.langName, u), FONT_ARCADE, '800');
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(c.name, x + cw1 - 20 * u, y + row1H * 0.5 - 2 * u);
+    ctx.fillText(c.name, x + cw1 - 18 * u, y + row1H * 0.52);
   }
 
-  // --- Estante 2: MOTORES, HERRAMIENTAS & AUDIO (cartas verticales) -------
-  drawShelfLabel(ctx, '[ MOTORES, HERRAMIENTAS & AUDIO ]', '#c084fc', h * 0.585, w, u);
+  // --- Estante 2: HERRAMIENTAS & AUDIO (cartas verticales) ---
+  const labelTools = isEn ? '[ TOOLS & AUDIO ]' : '[ HERRAMIENTAS & AUDIO ]';
+  drawShelfLabel(ctx, labelTools, '#c084fc', h * 0.585, w, u);
   const row2Y = h * 0.625;
-  const row2H = h * 0.255;
   const cw2 = (w - 32 - gap * 4) / 5;
   for (let i = 0; i < HW_TOOLS.length; i++) {
     const c = HW_TOOLS[i];
@@ -999,36 +1026,49 @@ function drawHardwareScene(ctx, w, h, t) {
     const bob = Math.sin(t * 2.0 + (i + 3) * 0.75) * 4.5 * u;
     const pulse = 0.5 + 0.5 * Math.sin(t * 2.4 + (i + 3) * 0.9);
     const y = row2Y + bob;
-    drawSkillCard(ctx, x, y, cw2, row2H, c.color, pulse, u);
-    const icon = Math.min(42 * u, cw2 * 0.45);
-    if (ready(c.img)) drawContain(ctx, c.img, x + (cw2 - icon) / 2, y + row2H * 0.18, icon, icon, false);
+    drawSkillCard(ctx, x, y, cw2, row2H, c.color, pulse, u, hwCache.card2);
+
+    // Marco superior para el icono de la herramienta
+    const iconAreaH = row2H * 0.55;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    pathRoundRect(ctx, x + 6 * u, y + 14 * u, cw2 - 12 * u, iconAreaH - 12 * u, 4 * u);
+    ctx.fill();
+
+    const icon = Math.min(38 * u, (cw2 - 16 * u) * 0.85);
+    if (ready(c.img)) drawContain(ctx, c.img, x + (cw2 - icon) / 2, y + 14 * u + (iconAreaH - 12 * u - icon) / 2, icon, icon, false);
+
+    // Nombre de la herramienta centrado en la mitad inferior
     font(ctx, px(HW_TYPE.toolName, u), FONT_ARCADE, '700');
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(c.name, x + cw2 / 2, y + row2H * 0.75);
+    ctx.fillText(c.name, x + cw2 / 2, y + row2H * 0.77);
   }
 
-  // --- Cabecera modular (superior izquierda) ------------------------------
+  // --- Cabecera modular (superior izquierda) con AUDIO y traducción ---
   const hx = 16; // alineado con .screen-top-badge (left: 16px)
   const hy = Math.max(48, Math.round(h * 0.08));
   const pad = Math.round(10 * u);
+  const titleStr = 'GAMEPLAY SKILLS & TOOLS';
+  const subStr = isEn ? 'GAME PROGRAMMING // C++, C# & AUDIO' : 'PROGRAMACIÓN DE GAMEPLAY // C++, C# & AUDIO';
+
   font(ctx, px(HW_TYPE.title, u), FONT_ARCADE, '800');
-  const titleW = ctx.measureText('GAMEPLAY SKILLS & TOOLS').width;
+  const titleW = ctx.measureText(titleStr).width;
   font(ctx, px(HW_TYPE.sub, u), FONT_MONO, '600');
-  const subW = ctx.measureText('GAME PROGRAMMING // C++, C# & ENGINES').width;
+  const subW = ctx.measureText(subStr).width;
   const hw = Math.max(titleW, subW) + pad * 2;
   const hh = 66 * u;
+
   drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 24, 0.9)', 'rgba(56, 189, 248, 0.4)');
   drawCornerAccents(ctx, hx, hy, hw, hh, 8 * u, 'rgba(56, 189, 248, 0.9)');
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   font(ctx, px(HW_TYPE.title, u), FONT_ARCADE, '800');
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('GAMEPLAY SKILLS & TOOLS', hx + pad, hy + hh * 0.46);
+  ctx.fillText(titleStr, hx + pad, hy + hh * 0.46);
   font(ctx, px(HW_TYPE.sub, u), FONT_MONO, '600');
   ctx.fillStyle = '#38bdf8';
-  ctx.fillText('GAME PROGRAMMING // C++, C# & ENGINES', hx + pad, hy + hh * 0.8);
+  ctx.fillText(subStr, hx + pad, hy + hh * 0.8);
 }
 
 // ---------------------------------------------------------------------------
@@ -1261,7 +1301,7 @@ export const arcadeSystems = [
     drawScene: drawDojoScene
   },
   {
-    verticalTitle: "05. GAMEPLAY SKILLS // C++ & TOOLS",
+    verticalTitle: "05. GAMEPLAY SKILLS // C++, AUDIO & TOOLS",
     trayTag: "x86_64 // C++ CORE",
     trayBrand: "SKILL",
     badgeText: "SKILLS // GAMEPLAY LOADOUT",
@@ -1272,13 +1312,13 @@ export const arcadeSystems = [
         role: "Systems & Engine Architect",
         stack: "C++17/20, C#, OpenGL 3.3, FMOD Core, Unity, Unreal, Git",
         focus: "Cache Locality, Heap/Stack Memory Profiling & Multithreading",
-        status: "Competencias de Gameplay // C++, Motores & Audio"
+        status: "Competencias de Gameplay // C++, Audio & Herramientas"
       },
       en: {
         role: "Systems & Engine Architect",
         stack: "C++17/20, C#, OpenGL 3.3, FMOD Core, Unity, Unreal, Git",
         focus: "Cache Locality, Heap/Stack Memory Profiling & Multithreading",
-        status: "Gameplay Skills // C++, Engines & Audio"
+        status: "Gameplay Skills // C++, Audio & Tools"
       }
     },
     drawScene: drawHardwareScene
