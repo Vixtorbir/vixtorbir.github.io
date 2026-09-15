@@ -42,6 +42,15 @@ const playerShipImg = preload('assets/ave_player_ship.png');
 const enemyBirdImg = preload('assets/ave_enemy_bird.png');
 const phoenixBossImg = preload('assets/ave_phoenix_boss.png');
 const phoenixIconImg = preload('assets/ave_phoenix_icon.png');
+// Iconos oficiales de la vitrina HARDWARE & SKILLS (SVG con tamaño intrínseco)
+const iconCppImg = preload('assets/icons/cpp.svg');
+const iconCsharpImg = preload('assets/icons/csharp.svg');
+const iconCImg = preload('assets/icons/c.svg');
+const iconUnrealImg = preload('assets/icons/unreal.svg');
+const iconUnityImg = preload('assets/icons/unity.svg');
+const iconFmodImg = preload('assets/icons/fmod.svg');
+const iconWwiseImg = preload('assets/icons/wwise.svg');
+const iconGitImg = preload('assets/icons/git.svg');
 
 function ready(img) {
   return img.complete && img.naturalWidth > 0;
@@ -808,142 +817,171 @@ function drawDojoScene(ctx, w, h, t) {
 }
 
 // ---------------------------------------------------------------------------
-// ESCENA 4 — HARDWARE & SKILLS (jerarquia de memoria + nodos)
+// ESCENA 4 — HARDWARE & SKILLS (vitrina de cartuchos ROM)
 // ---------------------------------------------------------------------------
-const MEM_STAGES = [
-  { title: 'CPU CACHE', sub: 'L1 / L2 · CACHE LOCALITY', color: '#38bdf8' },
-  { title: 'RAM', sub: 'DATA-ORIENTED LAYOUT', color: '#a855f7' },
-  { title: 'GPU PIPELINE', sub: '60 FPS · OPENGL 3.3', color: '#fbbf24' }
+// Dos estantes: lenguajes (cartuchos horizontales) y herramientas & audio
+// (cartuchos verticales). Solo icono oficial + nombre: lectura instantánea.
+const HW_LANGS = [
+  { name: 'C++', color: '#38bdf8', img: iconCppImg },
+  { name: 'C#', color: '#c084fc', img: iconCsharpImg },
+  { name: 'C', color: '#60a5fa', img: iconCImg }
 ];
-const SKILL_NODES = [
-  { name: 'C++17/20', color: '#38bdf8' },
-  { name: 'C#', color: '#a855f7' },
-  { name: 'OPENGL 3.3', color: '#34d399' },
-  { name: 'FMOD CORE', color: '#f43f5e' },
-  { name: 'UNITY', color: '#f8fafc' },
-  { name: 'UNREAL', color: '#fbbf24' },
-  { name: 'GIT', color: '#fb923c' }
+const HW_TOOLS = [
+  { name: 'UNREAL ENGINE', color: '#f8fafc', img: iconUnrealImg },
+  { name: 'UNITY', color: '#ffffff', img: iconUnityImg },
+  { name: 'FMOD', color: '#f43f5e', img: iconFmodImg },
+  { name: 'WWISE', color: '#38bdf8', img: iconWwiseImg },
+  { name: 'GIT / GITHUB', color: '#fb923c', img: iconGitImg }
 ];
+const HW_TYPE = { title: 24, sub: 14, shelf: 12, langName: 30, toolName: 11.5 };
+const HW_CHASSIS = 'rgba(10, 16, 32, 0.95)';
+const hwCache = { w: 0, h: 0, bg: null };
+
+function pathRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// Chasis común: cuerpo redondeado con glow neón, muesca de agarre y pines dorados
+function drawCartridgeChassis(ctx, x, y, cw, ch, color, u) {
+  ctx.save();
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 14 * u;
+  ctx.fillStyle = HW_CHASSIS;
+  pathRoundRect(ctx, x, y, cw, ch, 6 * u);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5 * u;
+  pathRoundRect(ctx, x + 0.75 * u, y + 0.75 * u, cw - 1.5 * u, ch - 1.5 * u, 6 * u);
+  ctx.stroke();
+
+  // Muesca superior de agarre
+  const notchW = Math.min(cw * 0.42, 80 * u);
+  pathRoundRect(ctx, x + (cw - notchW) / 2, y + 4 * u, notchW, 6 * u, 3 * u);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  ctx.fill();
+  ctx.globalAlpha = 0.45;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // Pines dorados de contacto en la base
+  const pinW = 4 * u;
+  const pinGap = 3 * u;
+  const pinH = 7 * u;
+  const pinsW = Math.min(cw - 24 * u, 120 * u);
+  const count = Math.floor((pinsW + pinGap) / (pinW + pinGap));
+  const startX = x + (cw - (count * pinW + (count - 1) * pinGap)) / 2;
+  const pinY = y + ch - pinH - 5 * u;
+  ctx.fillStyle = 'rgba(251, 191, 36, 0.9)';
+  for (let i = 0; i < count; i++) {
+    ctx.fillRect(startX + i * (pinW + pinGap), pinY, pinW, pinH);
+  }
+}
+
+function drawShelfLabel(ctx, text, color, y, w, u) {
+  font(ctx, px(HW_TYPE.shelf, u), FONT_ARCADE, '700');
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.fillText(text, 16, y);
+  const tw = ctx.measureText(text).width;
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.45;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(16 + tw + 12 * u, y + 0.5);
+  ctx.lineTo(w - 16, y + 0.5);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
 
 function drawHardwareScene(ctx, w, h, t) {
   const u = unit(w, h);
-  ctx.fillStyle = '#020617';
+  if (hwCache.w !== w || hwCache.h !== h) {
+    hwCache.w = w; hwCache.h = h;
+    const bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#0b1424');
+    bg.addColorStop(0.55, '#050a14');
+    bg.addColorStop(1, '#02040a');
+    hwCache.bg = bg;
+  }
+  ctx.fillStyle = hwCache.bg;
   ctx.fillRect(0, 0, w, h);
   drawFineGrid(ctx, w, h, 40 * u, 'rgba(56, 189, 248, 0.05)');
 
-  font(ctx, 8 * u, FONT_PIXEL);
+  // --- Telemetría parpadeante (superior derecha) --------------------------
+  font(ctx, 9 * u, FONT_PIXEL);
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = blink(t, 1.2) ? '#fbbf24' : 'rgba(251, 191, 36, 0.3)';
+  ctx.fillText('[ VERIFIED TECH STACK ]', w - 16, h * 0.09);
+
+  // --- Estante 1: LENGUAJES (cartuchos horizontales) ----------------------
+  const gap = 16 * u;
+  const shelf1Y = h * 0.285;
+  drawShelfLabel(ctx, 'LENGUAJES', '#38bdf8', shelf1Y, w, u);
+  const row1Y = h * 0.325;
+  const row1H = h * 0.20;
+  const cw1 = (w - 32 - gap * 2) / 3;
+  for (let i = 0; i < HW_LANGS.length; i++) {
+    const c = HW_LANGS[i];
+    const x = 16 + i * (cw1 + gap);
+    drawCartridgeChassis(ctx, x, row1Y, cw1, row1H, c.color, u);
+    const icon = row1H * 0.5;
+    const iy = row1Y + row1H * 0.5 - icon / 2 - 2 * u;
+    if (ready(c.img)) drawContain(ctx, c.img, x + 18 * u, iy, icon, icon, false);
+    font(ctx, px(HW_TYPE.langName, u), FONT_ARCADE, '800');
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(c.name, x + cw1 - 20 * u, row1Y + row1H * 0.5 - 2 * u);
+  }
+
+  // --- Estante 2: HERRAMIENTAS & AUDIO (cartuchos verticales) -------------
+  const shelf2Y = h * 0.585;
+  drawShelfLabel(ctx, 'HERRAMIENTAS & AUDIO', '#c084fc', shelf2Y, w, u);
+  const row2Y = h * 0.625;
+  const row2H = h * 0.255;
+  const cw2 = (w - 32 - gap * 4) / 5;
+  for (let i = 0; i < HW_TOOLS.length; i++) {
+    const c = HW_TOOLS[i];
+    const x = 16 + i * (cw2 + gap);
+    drawCartridgeChassis(ctx, x, row2Y, cw2, row2H, c.color, u);
+    const icon = Math.min(cw2 * 0.42, row2H * 0.4);
+    if (ready(c.img)) drawContain(ctx, c.img, x + (cw2 - icon) / 2, row2Y + row2H * 0.2, icon, icon, false);
+    font(ctx, px(HW_TYPE.toolName, u), FONT_ARCADE, '700');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(c.name, x + cw2 / 2, row2Y + row2H * 0.76);
+  }
+
+  // --- Cabecera arcade minimalista (superior izquierda) -------------------
+  const hx = 16; // alineado con .screen-top-badge (left: 16px)
+  const hy = Math.max(48, Math.round(h * 0.08));
+  const pad = Math.round(10 * u);
+  font(ctx, px(HW_TYPE.title, u), FONT_ARCADE, '800');
+  const titleW = ctx.measureText('HARDWARE & SKILLS').width;
+  font(ctx, px(HW_TYPE.sub, u), FONT_MONO, '600');
+  const subW = ctx.measureText('CORE TECH STACK & TOOLS // x86_64').width;
+  const hw = Math.max(titleW, subW) + pad * 2;
+  const hh = 66 * u;
+  drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 22, 0.88)', 'rgba(56, 189, 248, 0.4)');
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
+  font(ctx, px(HW_TYPE.title, u), FONT_ARCADE, '800');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('HARDWARE & SKILLS', hx + pad, hy + hh * 0.46);
+  font(ctx, px(HW_TYPE.sub, u), FONT_MONO, '600');
   ctx.fillStyle = '#38bdf8';
-  ctx.fillText('MEMORY HIERARCHY // x86_64', w * 0.04, h * 0.15);
-
-  // Etapas de memoria
-  const stageW = w * 0.24;
-  const stageH = h * 0.2;
-  const gap = (w * 0.92 - stageW * 3) / 2;
-  const sy = h * 0.2;
-  for (let i = 0; i < MEM_STAGES.length; i++) {
-    const st = MEM_STAGES[i];
-    const sx = w * 0.04 + i * (stageW + gap);
-    const pulse = 0.5 + 0.5 * Math.sin(t * 2.5 - i * 1.1);
-    ctx.save();
-    ctx.shadowColor = st.color;
-    ctx.shadowBlur = (6 + 10 * pulse) * u;
-    drawPanel(ctx, sx, sy, stageW, stageH, 'rgba(15, 23, 42, 0.92)', st.color);
-    ctx.restore();
-    ctx.strokeStyle = st.color;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(sx + 0.5, sy + 0.5, stageW - 1, stageH - 1);
-    font(ctx, 12 * u, FONT_ARCADE, '800');
-    ctx.fillStyle = st.color;
-    ctx.textAlign = 'center';
-    ctx.fillText(st.title, sx + stageW / 2, sy + stageH * 0.45);
-    font(ctx, 7.5 * u, FONT_MONO, '600');
-    ctx.fillStyle = '#cbd5e1';
-    ctx.fillText(st.sub, sx + stageW / 2, sy + stageH * 0.75);
-
-    if (i < MEM_STAGES.length - 1) {
-      const ax = sx + stageW;
-      const ay = sy + stageH / 2;
-      ctx.strokeStyle = 'rgba(226, 232, 240, 0.75)';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6 * u, 5 * u]);
-      ctx.lineDashOffset = -t * 40;
-      ctx.beginPath();
-      ctx.moveTo(ax + 4, ay);
-      ctx.lineTo(ax + gap - 8, ay);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = '#e2e8f0';
-      ctx.beginPath();
-      ctx.moveTo(ax + gap - 8, ay - 6 * u);
-      ctx.lineTo(ax + gap, ay);
-      ctx.lineTo(ax + gap - 8, ay + 6 * u);
-      ctx.closePath();
-      ctx.fill();
-    }
-  }
-
-  // Nodos de tecnologia (arco inferior conectado)
-  const ny = h * 0.7;
-  const spanX = w * 0.86;
-  const startX = w * 0.07;
-  const step = spanX / (SKILL_NODES.length - 1);
-  ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  for (let i = 0; i < SKILL_NODES.length; i++) {
-    const nx = startX + i * step;
-    const arc = Math.sin((i / (SKILL_NODES.length - 1)) * Math.PI) * h * 0.08;
-    const y = ny - arc;
-    if (i === 0) ctx.moveTo(nx, y); else ctx.lineTo(nx, y);
-  }
-  ctx.stroke();
-  // bus hacia la RAM
-  ctx.strokeStyle = 'rgba(168, 85, 247, 0.35)';
-  ctx.setLineDash([3 * u, 6 * u]);
-  ctx.lineDashOffset = t * 30;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.5, sy + stageH);
-  ctx.lineTo(w * 0.5, ny - h * 0.08 - 18 * u);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  for (let i = 0; i < SKILL_NODES.length; i++) {
-    const node = SKILL_NODES[i];
-    const nx = startX + i * step;
-    const arc = Math.sin((i / (SKILL_NODES.length - 1)) * Math.PI) * h * 0.08;
-    const y = ny - arc;
-    const pulse = 0.5 + 0.5 * Math.sin(t * 3 + i * 0.9);
-    const r = (15 + 3 * pulse) * u;
-    ctx.save();
-    ctx.shadowColor = node.color;
-    ctx.shadowBlur = (8 + 14 * pulse) * u;
-    ctx.fillStyle = '#0f172a';
-    ctx.strokeStyle = node.color;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    for (let a = 0; a < 6; a++) {
-      const ang = (a * Math.PI) / 3 + t * 0.25;
-      const px = nx + r * Math.cos(ang);
-      const py = y + r * Math.sin(ang);
-      if (a === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-    font(ctx, 8.5 * u, FONT_ARCADE, '800');
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.fillText(node.name, nx, y + r + 14 * u);
-  }
-
-  font(ctx, 8.5 * u, FONT_MONO, '600');
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.9)';
-  ctx.textAlign = 'center';
-  ctx.fillText('HEAP / STACK PROFILING · MULTITHREADING · RAII · ZERO-ALLOCATION LOOPS', w * 0.5, h * 0.93);
-  ctx.textAlign = 'left';
+  ctx.fillText('CORE TECH STACK & TOOLS // x86_64', hx + pad, hy + hh * 0.8);
 }
 
 // ---------------------------------------------------------------------------
@@ -1187,13 +1225,13 @@ export const arcadeSystems = [
         role: "Systems & Engine Architect",
         stack: "C++17/20, C#, OpenGL 3.3, FMOD Core, Unity, Unreal, Git",
         focus: "Cache Locality, Heap/Stack Memory Profiling & Multithreading",
-        status: "Competencias técnicas validadas en producción"
+        status: "Competencias Técnicas // Lenguajes, Motores & Audio"
       },
       en: {
         role: "Systems & Engine Architect",
         stack: "C++17/20, C#, OpenGL 3.3, FMOD Core, Unity, Unreal, Git",
         focus: "Cache Locality, Heap/Stack Memory Profiling & Multithreading",
-        status: "Technical competencies validated in production"
+        status: "Technical Skills // Languages, Engines & Audio"
       }
     },
     drawScene: drawHardwareScene
