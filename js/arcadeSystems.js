@@ -1081,27 +1081,27 @@ const CONTACT_TXT = {
   es: {
     legend: '[ LEYENDA DEL MAPA // CONTACTO ]',
     entries: [
-      ['ESTADO', 'DISPONIBLE PARA PRÁCTICAS'],
-      ['BASE', 'BARCELONA, SPAIN (BCN)'],
-      ['EMAIL', 'victorcarhor@gmail.com'],
-      ['TELÉFONO', '+34 623 187 320'],
-      ['GITHUB', 'github.com/Vixtorbir'],
-      ['LINKEDIN', 'linkedin.com/in/victor-cardenas-gamedev']
+      ['[ ESTADO ]', 'DISPONIBLE PARA PRÁCTICAS'],
+      ['[ BASE ]', 'BARCELONA, SPAIN (BCN)'],
+      ['[ EMAIL ]', 'victorcarhor@gmail.com'],
+      ['[ TELÉFONO ]', '+34 623 187 320'],
+      ['[ GITHUB ]', 'github.com/Vixtorbir'],
+      ['[ LINKEDIN ]', 'linkedin.com/in/victor-cardenas-gamedev']
     ]
   },
   en: {
     legend: '[ MAP LEGEND // CONTACT ]',
     entries: [
-      ['STATUS', 'AVAILABLE FOR INTERNSHIP'],
-      ['BASE', 'BARCELONA, SPAIN (BCN)'],
-      ['EMAIL', 'victorcarhor@gmail.com'],
-      ['PHONE', '+34 623 187 320'],
-      ['GITHUB', 'github.com/Vixtorbir'],
-      ['LINKEDIN', 'linkedin.com/in/victor-cardenas-gamedev']
+      ['[ STATUS ]', 'AVAILABLE FOR INTERNSHIP'],
+      ['[ BASE ]', 'BARCELONA, SPAIN (BCN)'],
+      ['[ EMAIL ]', 'victorcarhor@gmail.com'],
+      ['[ PHONE ]', '+34 623 187 320'],
+      ['[ GITHUB ]', 'github.com/Vixtorbir'],
+      ['[ LINKEDIN ]', 'linkedin.com/in/victor-cardenas-gamedev']
     ]
   }
 };
-const CONTACT_TYPE = { title: 24, sub: 14, legend: 12, label: 9.5, value: 12, tiny: 8.5 };
+const CONTACT_TYPE = { title: 24, sub: 14, legend: 13, label: 11, value: 13.5, tiny: 8.5 };
 // Posición de la baliza BCN dentro del radar (fracción del radio)
 const CONTACT_BCN = { x: 0.22, y: 0.14 };
 const contactCache = { w: 0, h: 0, bg: null };
@@ -1220,9 +1220,9 @@ function drawContactScene(ctx, w, h, t) {
   // LEYENDA DEL MINIMAPA (mitad derecha)
   // =====================================================================
   const lx = w * 0.5;
-  const ly = top;
+  const ly = Math.max(48, Math.round(h * 0.08)); // alineada con la cabecera
   const lw = w - 16 - lx;
-  const lh = bottom - top;
+  const lh = bottom - ly;
   drawPanel(ctx, lx, ly, lw, lh, 'rgba(4, 7, 15, 0.85)', 'rgba(244, 63, 94, 0.45)');
   drawCornerAccents(ctx, lx, ly, lw, lh, 10 * u, 'rgba(244, 63, 94, 0.9)');
   const pad = 16 * u;
@@ -1230,17 +1230,17 @@ function drawContactScene(ctx, w, h, t) {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#fb7185';
-  ctx.fillText(txt.legend, lx + pad, ly + 24 * u);
+  ctx.fillText(txt.legend, lx + pad, ly + 26 * u);
   ctx.strokeStyle = 'rgba(244, 63, 94, 0.35)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(lx + pad, ly + 34 * u);
-  ctx.lineTo(lx + lw - pad, ly + 34 * u);
+  ctx.moveTo(lx + pad, ly + 37 * u);
+  ctx.lineTo(lx + lw - pad, ly + 37 * u);
   ctx.stroke();
 
   const entries = txt.entries;
-  const listTop = ly + 44 * u;
-  const rowH = (lh - 44 * u - 26 * u) / entries.length;
+  const listTop = ly + 48 * u;
+  const rowH = (lh - 48 * u - 28 * u) / entries.length;
   for (let i = 0; i < entries.length; i++) {
     const y = listTop + i * rowH;
     font(ctx, px(CONTACT_TYPE.label, u), FONT_MONO, '700');
@@ -1248,7 +1248,7 @@ function drawContactScene(ctx, w, h, t) {
     ctx.fillText(entries[i][0], lx + pad, y + rowH * 0.38);
     font(ctx, px(CONTACT_TYPE.value, u), FONT_MONO, i === 0 ? '700' : '600');
     ctx.fillStyle = i === 0 ? '#fde047' : '#ffffff';
-    ctx.fillText(entries[i][1], lx + pad, y + rowH * 0.38 + 17 * u);
+    ctx.fillText(entries[i][1], lx + pad, y + rowH * 0.38 + 20 * u);
   }
 
   // Cursor de terminal
