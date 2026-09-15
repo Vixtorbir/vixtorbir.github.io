@@ -156,8 +156,9 @@ function playFilteredTone(ctx, { freqStart, freqEnd, startAt, duration, peak, cu
   osc.stop(startAt + duration + 0.01);
 }
 
-// Apertura: dos notas ascendentes cortas (A4 -> E5) + zumbido grave de relé
-export function playModalOpenSound() {
+// INSPECCIONAR: dos notas ascendentes cortas (A4 -> E5) + zumbido grave de relé,
+// suena durante el fundido del chasis antes de navegar a project.html
+export function playInspectSound() {
   if (!isAudioActive) return;
   try {
     const ctx = ensureContext();
@@ -165,16 +166,5 @@ export function playModalOpenSound() {
     playFilteredTone(ctx, { freqStart: 440, freqEnd: 440, startAt: t, duration: 0.07, peak: 0.05, cutoff: 1800 });
     playFilteredTone(ctx, { freqStart: 659.25, freqEnd: 659.25, startAt: t + 0.075, duration: 0.11, peak: 0.055, cutoff: 2200 });
     playFilteredTone(ctx, { freqStart: 90, freqEnd: 70, startAt: t, duration: 0.16, peak: 0.035, cutoff: 500, type: 'triangle' });
-  } catch (e) {}
-}
-
-// Cierre: nota descendente (E5 -> A4) breve y apagada
-export function playModalCloseSound() {
-  if (!isAudioActive) return;
-  try {
-    const ctx = ensureContext();
-    const t = ctx.currentTime;
-    playFilteredTone(ctx, { freqStart: 659.25, freqEnd: 440, startAt: t, duration: 0.12, peak: 0.045, cutoff: 1600 });
-    playFilteredTone(ctx, { freqStart: 120, freqEnd: 60, startAt: t + 0.02, duration: 0.12, peak: 0.03, cutoff: 400, type: 'triangle' });
   } catch (e) {}
 }

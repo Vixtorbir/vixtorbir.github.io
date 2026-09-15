@@ -29,7 +29,7 @@
   </script>
   
   <!-- Arcade Cabinet Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=2.4">
+  <link rel="stylesheet" href="styles.css?v=2.5">
 </head>
 <body>
 
@@ -166,7 +166,7 @@
           </div>
 
           <!-- Inner Screen Viewport (Zero-filter, 100% crisp media!) -->
-          <div class="scifi-screen-viewport" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="spec-modal" aria-label="Inspeccionar ficha técnica del sistema seleccionado / Inspect selected system spec sheet">
+          <div class="scifi-screen-viewport" role="button" tabindex="0" aria-label="Inspeccionar ficha técnica del sistema seleccionado / Inspect selected system spec sheet">
             
             <!-- Top-Left Arcade Badge -->
             <div class="screen-top-badge">
@@ -179,7 +179,7 @@
               <canvas id="media-canvas" class="w-full h-full block"></canvas>
             </div>
 
-            <!-- Interactive CTA: click / Enter opens the spec sheet (Phase 2) -->
+            <!-- Interactive CTA: click / Enter navigates to project.html (Phase 2) -->
             <div class="screen-inspect-cta" data-i18n="screen_inspect_cta">[ ↵ CLIC / ENTER: INSPECCIONAR ]</div>
 
             <!-- Authentic Arcade Decal Strip -->
@@ -364,7 +364,7 @@
           <span class="sanwa-btn sanwa-blue" aria-hidden="true">↕</span>
           <span class="panel-action-label" data-i18n="bottom_scroll">SCROLL PARA CAMBIAR</span>
         </div>
-        <button class="panel-action" id="inspect-btn" type="button" aria-haspopup="dialog" aria-controls="spec-modal" title="Inspeccionar ficha técnica / Inspect spec sheet">
+        <button class="panel-action" id="inspect-btn" type="button" title="Inspeccionar ficha técnica / Inspect spec sheet">
           <span class="sanwa-btn sanwa-yellow" aria-hidden="true">↵</span>
           <span class="panel-action-label" data-i18n="bottom_inspect">INSPECCIONAR</span>
         </button>
@@ -389,19 +389,8 @@
     <p class="mobile-fallback-msg" data-i18n="mobile_fallback_msg">Este cabinet arcade necesita una pantalla de 1024px de ancho o más para mostrarse sin recortes. Abre este portfolio en un ordenador de escritorio o portátil.</p>
   </div>
 
-  <!-- ===================================================================
-       SERVICE MENU // DIAGNOSTIC MODE — Modal de ficha técnica (Fase 2)
-       Contenido renderizado por js/specModal.js desde js/specContent.js.
-       =================================================================== -->
-  <div id="spec-modal" class="spec-modal" hidden aria-hidden="true">
-    <div class="spec-backdrop" aria-hidden="true"></div>
-    <div class="spec-dialog" role="dialog" aria-modal="true" aria-labelledby="spec-modal-title" tabindex="-1">
-      <!-- Se rellena dinámicamente -->
-    </div>
-  </div>
-
   <!-- Arcade Logic Engine (ES Modules, sin build step) -->
-  <script type="module" src="js/app.js?v=2.4"></script>
+  <script type="module" src="js/app.js?v=2.5"></script>
 
 </body>
 </html>

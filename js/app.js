@@ -6,16 +6,20 @@
  * y audio (audioManager): mantiene el estado de idioma/sistema activo,
  * actualiza el DOM y conecta los eventos de teclado, rueda del ratón y
  * los handlers invocados desde los atributos onclick de index.html.
+ * INSPECCIONAR navega a la ficha técnica dedicada (project.html?system=N).
  */
 
 import { arcadeSystems, uiText, onAssetLoad } from './arcadeSystems.js';
 import { initCanvasRenderer, renderScreenArtwork, resizeCanvas, startRenderLoop } from './canvasRenderer.js';
-import { playArcadeTick, playCoinSound, playArcadeStartSound, toggleAudioSFX } from './audioManager.js';
-import { initSpecModal, openSpecModal, isSpecModalOpen, refreshSpecModal } from './specModal.js';
+import { playArcadeTick, playCoinSound, playArcadeStartSound, playInspectSound, toggleAudioSFX } from './audioManager.js';
+
+const LANG_KEY = 'victor_portfolio_lang';
+const SYSTEM_KEY = 'victor_portfolio_system';
 
 let currentLang = 'es';
 let activeSystemIndex = 0;
 let isThrottled = false;
+let isLeaving = false; // true mientras se transiciona hacia project.html
 
 // Update the Left Side Info (Vertical title, Screen Badge, Hardware Box, Clear Metadata List)
 function updateLeftDisplay() {
@@ -98,6 +102,7 @@ function updateLogosView() {
 function navigateSystem(delta) {
   const total = arcadeSystems.length;
   activeSystemIndex = (activeSystemIndex + delta + total) % total;
+  localStorage.setItem(SYSTEM_KEY, String(activeSystemIndex));
   playArcadeTick();
   updateLogosView();
 }
@@ -105,6 +110,7 @@ function navigateSystem(delta) {
 function selectSystem(index) {
   if (activeSystemIndex === index) return;
   activeSystemIndex = index;
+  localStorage.setItem(SYSTEM_KEY, String(activeSystemIndex));
   playArcadeTick();
   updateLogosView();
 }
@@ -134,14 +140,27 @@ function setLanguage(lang) {
   }
 
   updateLeftDisplay();
-  refreshSpecModal(lang);
-  localStorage.setItem('victor_portfolio_lang', lang);
+  localStorage.setItem(LANG_KEY, lang);
 }
 
-// Service Menu: abre la ficha técnica del sistema activo
-function inspectSystem(trigger) {
-  if (isSpecModalOpen()) return;
-  openSpecModal(activeSystemIndex, currentLang, trigger);
+// INSPECCIONAR: navega a la ficha técnica dedicada (project.html?system=N).
+// Breve fundido del chasis antes de cambiar de página para que la transición
+// se sienta como un "zoom" a la pantalla y no como un corte seco.
+function inspectSystem() {
+  if (isLeaving) return;
+  isLeaving = true;
+  localStorage.setItem(SYSTEM_KEY, String(activeSystemIndex));
+  playInspectSound();
+
+  const target = 'project.html?system=' + activeSystemIndex;
+  const chassis = document.querySelector('.arcade-viewport-env');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!chassis || reduced) {
+    window.location.href = target;
+    return;
+  }
+  chassis.classList.add('is-leaving');
+  setTimeout(() => { window.location.href = target; }, 220);
 }
 
 let chassisPulseTimer = null;
@@ -193,31 +212,49 @@ document.addEventListener('DOMContentLoaded', () => {
   // Repaint the active scene whenever a lazily-loaded scene asset finishes loading
   onAssetLoad(() => renderScreenArtwork(activeSystemIndex));
 
-  const savedLang = localStorage.getItem('victor_portfolio_lang');
+  const savedLang = localStorage.getItem(LANG_KEY);
   if (savedLang && (savedLang === 'en' || savedLang === 'es')) {
     setLanguage(savedLang);
   } else {
     setLanguage('es');
   }
 
+  // Sistema inicial: `?system=N` (retorno desde project.html) > último visitado > 0
+  const total = arcadeSystems.length;
+  const param = Number.parseInt(new URLSearchParams(window.location.search).get('system') ?? '', 10);
+  const saved = Number.parseInt(localStorage.getItem(SYSTEM_KEY) ?? '', 10);
+  if (Number.isInteger(param) && param >= 0 && param < total) {
+    activeSystemIndex = param;
+    // Limpia la query para que un refresco no "fije" el sistema
+    history.replaceState(null, '', window.location.pathname);
+  } else if (Number.isInteger(saved) && saved >= 0 && saved < total) {
+    activeSystemIndex = saved;
+  }
+
   updateLogosView();
 
   startRenderLoop();
 
-  // Service Menu (modal de diagnóstico): disparadores de apertura
-  initSpecModal({ onLanguageChange: setLanguage });
+  // INSPECCIONAR: pantalla (clic / Enter / Espacio) y botón amarillo del panel
   const screenViewport = document.querySelector('.scifi-screen-viewport');
   if (screenViewport) {
-    screenViewport.addEventListener('click', () => inspectSystem(screenViewport));
+    screenViewport.addEventListener('click', () => inspectSystem());
     screenViewport.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        inspectSystem(screenViewport);
+        inspectSystem();
       }
     });
   }
   const inspectBtn = document.getElementById('inspect-btn');
-  if (inspectBtn) inspectBtn.addEventListener('click', () => inspectSystem(inspectBtn));
+  if (inspectBtn) inspectBtn.addEventListener('click', () => inspectSystem());
+
+  // Al volver con el botón "atrás" desde el bfcache, restaura el chasis
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    isLeaving = false;
+    document.querySelector('.arcade-viewport-env')?.classList.remove('is-leaving');
+  });
 
   // Resize canvas when window resizes
   window.addEventListener('resize', () => {
@@ -226,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Mouse Wheel navigation anywhere on screen
   window.addEventListener('wheel', (e) => {
-    if (isThrottled || isSpecModalOpen()) return;
+    if (isThrottled || isLeaving) return;
     isThrottled = true;
 
     if (e.deltaY > 0) {
@@ -242,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Keyboard Navigation (Arrow keys, W / S)
   window.addEventListener('keydown', (e) => {
-    if (isSpecModalOpen()) return;
+    if (isLeaving) return;
 
     if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
       e.preventDefault();
@@ -258,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isControl = tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || el?.isContentEditable;
       if (isControl && el !== document.body) return;
       e.preventDefault();
-      inspectSystem(document.querySelector('.scifi-screen-viewport'));
+      inspectSystem();
     }
   });
 });

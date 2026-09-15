@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha técnica — Víctor Cárdenas (Vixtorbir)</title>
+  <meta name="description" content="Case studies técnicos (STAR) de Víctor Cárdenas — Gameplay & Audio Programmer (C++ / C#): FMOD nativo, puente Mono, Zero-GC ObjectPool y máquinas de estados.">
+
+  <!-- Tipografía: Chakra Petch (títulos) · Inter (párrafos) · JetBrains Mono (datos y código) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="project.css?v=1.0">
+</head>
+<body>
+
+  <a class="skip-link" href="#cs-main">Saltar al contenido / Skip to content</a>
+
+  <!-- ===================================================================
+       BARRA SUPERIOR FIJA: volver al cabinet · idioma · GitHub · CV
+       =================================================================== -->
+  <header class="cs-topbar" id="cs-topbar">
+    <div class="cs-topbar-inner">
+      <a class="cs-back" id="cs-back" href="index.html" aria-label="Volver al cabinet arcade (Esc)">
+        <span id="cs-back-label">[ ← VOLVER AL CABINET / ESC ]</span>
+      </a>
+
+      <div class="cs-topbar-right">
+        <div class="cs-lang" role="group" aria-label="Idioma de la ficha" id="cs-lang">
+          <button type="button" class="cs-lang-btn" data-lang="en" aria-pressed="false">EN</button>
+          <button type="button" class="cs-lang-btn" data-lang="es" aria-pressed="true">ES</button>
+        </div>
+        <a class="cs-topbar-link" id="cs-github" href="https://github.com/Vixtorbir" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+          <span id="cs-github-label">GITHUB</span>
+        </a>
+        <a class="cs-topbar-link cs-topbar-link--accent" id="cs-cv" href="assets/Victor_Cardenas_CV.pdf" download="Victor_Cardenas_CV.pdf">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11v6m0 0-2.5-2.5M12 17l2.5-2.5"/></svg>
+          <span id="cs-cv-label">CV (PDF)</span>
+        </a>
+      </div>
+    </div>
+    <div class="cs-topbar-accent" aria-hidden="true"></div>
+  </header>
+
+  <!-- ===================================================================
+       CONTENIDO: renderizado por js/project.js desde js/specContent.js
+       =================================================================== -->
+  <main class="cs-page" id="cs-main" tabindex="-1">
+
+    <!-- 1. Hero -->
+    <section class="cs-hero" id="cs-hero" aria-labelledby="cs-title">
+      <p class="cs-kicker"><span id="cs-kicker"></span><span class="cs-kicker-sep" aria-hidden="true">·</span><span class="cs-code" id="cs-code"></span></p>
+      <h1 class="cs-title" id="cs-title"></h1>
+      <p class="cs-subtitle" id="cs-subtitle"></p>
+      <ul class="cs-badges" id="cs-badges" aria-label="Tech badges"></ul>
+      <div class="cs-actions" id="cs-actions"></div>
+    </section>
+
+    <!-- 2. Métricas clave -->
+    <section class="cs-block" id="cs-metrics-section" aria-labelledby="cs-metrics-h">
+      <h2 class="cs-block-h" id="cs-metrics-h"></h2>
+      <div class="cs-metrics" id="cs-metrics"></div>
+    </section>
+
+    <!-- 3. Galería -->
+    <section class="cs-block" id="cs-gallery-section" aria-labelledby="cs-gallery-h" hidden>
+      <h2 class="cs-block-h" id="cs-gallery-h"></h2>
+      <div class="cs-gallery" id="cs-gallery"></div>
+    </section>
+
+    <!-- 4. Desglose técnico STAR -->
+    <section class="cs-block" id="cs-breakdown-section" aria-labelledby="cs-breakdown-h">
+      <h2 class="cs-block-h" id="cs-breakdown-h"></h2>
+      <div class="cs-sections" id="cs-sections"></div>
+    </section>
+
+    <!-- 5. Pie técnico: navegación + contacto -->
+    <footer class="cs-footer">
+      <nav class="cs-pager" id="cs-pager" aria-label="Project navigation"></nav>
+
+      <div class="cs-contact" id="cs-contact">
+        <div class="cs-contact-text">
+          <h2 class="cs-contact-title" id="cs-contact-title"></h2>
+          <p class="cs-contact-body" id="cs-contact-body"></p>
+        </div>
+        <div class="cs-contact-actions" id="cs-contact-actions"></div>
+      </div>
+
+      <div class="cs-footer-line">
+        <span class="cs-hint" id="cs-hint"></span>
+        <span class="cs-footer-brand" id="cs-footer-brand"></span>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="cs-toast" id="cs-toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/project.js?v=1.0"></script>
+</body>
+</html>

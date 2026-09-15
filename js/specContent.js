@@ -1,12 +1,18 @@
 /**
- * specContent.js — Fichas técnicas bilingües del Service Menu (Modal de Diagnóstico)
+ * specContent.js — Fichas técnicas bilingües (case studies STAR) de project.html
  * VÍCTOR CÁRDENAS (Vixtorbir) — Arcade Portfolio
  *
  * Datos puros, sin lógica de DOM. Cada entrada del array `specSheets` se
- * corresponde por índice con `arcadeSystems` (0 = Player 1 ... 5 = Contact).
+ * corresponde por índice con `arcadeSystems` (0 = Player 1 ... 5 = Contact)
+ * y con el parámetro `project.html?system=N`.
  * Todo el texto es {es, en}. Fuente de verdad: PORTFOLIO_CONTENT.md.
  *
- * Tipos de bloque admitidos por el renderer (specModal.js):
+ * Campos por ficha:
+ *   code, accent, title, subtitle, badges[], metrics[], gallery[], sections[], actions[]
+ *   gallery: [{ src, alt:{es,en}, caption:{es,en} }]  — rutas relativas a /assets
+ *   sections: [{ label:{es,en}, blocks:[...] }]        — desglose STAR secuencial
+ *
+ * Tipos de bloque admitidos por el renderer (project.js):
  *   { type: 'p',     text: {es,en} }
  *   { type: 'h',     text: {es,en} }
  *   { type: 'list',  items: [ {es,en}, ... ] }
@@ -185,7 +191,12 @@ export const specSheets = [
       { value: '0 B/frame', label: { es: 'Heap en combate (Unity)', en: 'Heap in combat (Unity)' } },
       { value: 'B2 FCE', label: { es: 'Inglés · Cambridge 2022', en: 'English · Cambridge 2022' } }
     ],
-    tabs: [
+    gallery: [
+      { src: 'assets/portrait_victor.png', alt: { es: 'Retrato de Víctor Cárdenas', en: 'Portrait of Víctor Cárdenas' }, caption: { es: 'Víctor Cárdenas Hormigo — Gameplay & Audio Programmer', en: 'Víctor Cárdenas Hormigo — Gameplay & Audio Programmer' } },
+      { src: 'assets/loopie_logo.png', alt: { es: 'Logotipo de LoopieEngine', en: 'LoopieEngine logo' }, caption: { es: 'LoopieEngine — motor C++ propio (Mini Knight Studio)', en: 'LoopieEngine — custom C++ engine (Mini Knight Studio)' } },
+      { src: 'assets/ave_phoenix_icon.png', alt: { es: 'Icono de Ave Phoenix Regen', en: 'Ave Phoenix Regen icon' }, caption: { es: 'Ave Phoenix Regen — proyecto Unity C# en solitario', en: 'Ave Phoenix Regen — solo Unity C# project' } }
+    ],
+    sections: [
       {
         label: { es: 'PERFIL', en: 'PROFILE' },
         blocks: [
@@ -276,7 +287,15 @@ export const specSheets = [
       { value: '17', label: { es: 'InternalCalls de audio C++→C#', en: 'Audio InternalCalls C++→C#' } },
       { value: '127K+', label: { es: 'Líneas por escena fusionada', en: 'Lines per merged scene' } }
     ],
-    tabs: [
+    gallery: [
+      { src: 'assets/fable_gameplay_1.png', alt: { es: 'Captura de gameplay de The Fable of the Eclipse', en: 'The Fable of the Eclipse gameplay screenshot' }, caption: { es: 'Gameplay in-engine — música por escena y fuentes 3D (FMOD)', en: 'In-engine gameplay — per-scene music and 3D sources (FMOD)' } },
+      { src: 'assets/fable_gameplay_2.png', alt: { es: 'Captura de gameplay de The Fable of the Eclipse', en: 'The Fable of the Eclipse gameplay screenshot' }, caption: { es: 'HUD de salud (HealthHUD / HealthSlot) y HUD de habilidades', en: 'Health HUD (HealthHUD / HealthSlot) and skills HUD' } },
+      { src: 'assets/fable_gameplay_3.png', alt: { es: 'Captura de gameplay de The Fable of the Eclipse', en: 'The Fable of the Eclipse gameplay screenshot' }, caption: { es: 'Exploración y puzles — popups modales (UIPopupManager)', en: 'Exploration and puzzles — modal popups (UIPopupManager)' } },
+      { src: 'assets/fable_gameplay_4.png', alt: { es: 'Captura de gameplay de The Fable of the Eclipse', en: 'The Fable of the Eclipse gameplay screenshot' }, caption: { es: 'Escena de producción renderizada por LoopieEngine (OpenGL)', en: 'Production scene rendered by LoopieEngine (OpenGL)' } },
+      { src: 'assets/fable_eclipse_art.png', alt: { es: 'Arte promocional de The Fable of the Eclipse', en: 'The Fable of the Eclipse key art' }, caption: { es: 'Key art — release v1.0 (junio 2026)', en: 'Key art — v1.0 release (June 2026)' } },
+      { src: 'assets/fable_intro_title.png', alt: { es: 'Pantalla de título de The Fable of the Eclipse', en: 'The Fable of the Eclipse title screen' }, caption: { es: 'Pantalla de título — Mini Knight Studio', en: 'Title screen — Mini Knight Studio' } }
+    ],
+    sections: [
       {
         label: { es: '[S] SITUACIÓN', en: '[S] SITUATION' },
         blocks: [
@@ -407,7 +426,13 @@ export const specSheets = [
       { value: '~5.3K', label: { es: 'Líneas C# · 44 scripts', en: 'C# lines · 44 scripts' } },
       { value: '4 FSM', label: { es: 'Flujo · Escudo · Jefe · Diálogo', en: 'Flow · Shield · Boss · Dialogue' } }
     ],
-    tabs: [
+    gallery: [
+      { src: 'assets/ave_phoenix_boss.png', alt: { es: 'Jefe final de Ave Phoenix Regen', en: 'Ave Phoenix Regen final boss' }, caption: { es: 'Jefe multifase — BossController + IBossState', en: 'Multi-phase boss — BossController + IBossState' } },
+      { src: 'assets/ave_player_ship.png', alt: { es: 'Nave del jugador de Ave Phoenix Regen', en: 'Ave Phoenix Regen player ship' }, caption: { es: 'Nave del jugador — PlayerShooting sobre ObjectPool<Bullet>', en: 'Player ship — PlayerShooting on ObjectPool<Bullet>' } },
+      { src: 'assets/ave_enemy_bird.png', alt: { es: 'Enemigo de oleada de Ave Phoenix Regen', en: 'Ave Phoenix Regen wave enemy' }, caption: { es: 'Enemigo de oleada — un pool por prefab (WaveManager)', en: 'Wave enemy — one pool per prefab (WaveManager)' } },
+      { src: 'assets/phoenix_pixel_art.png', alt: { es: 'Pixel art del fénix', en: 'Phoenix pixel art' }, caption: { es: 'Pixel art del fénix — identidad visual del proyecto', en: 'Phoenix pixel art — project visual identity' } }
+    ],
+    sections: [
       {
         label: { es: '[S] SITUACIÓN', en: '[S] SITUATION' },
         blocks: [
@@ -512,7 +537,8 @@ export const specSheets = [
       { value: 'C++ / C#', label: { es: 'Unreal y Unity', en: 'Unreal and Unity' } },
       { value: '2026', label: { es: 'Roadmap en curso', en: 'Roadmap in progress' } }
     ],
-    tabs: [
+    gallery: [],
+    sections: [
       {
         label: { es: 'ROADMAP I+D', en: 'R&D ROADMAP' },
         blocks: [
@@ -552,7 +578,8 @@ export const specSheets = [
       { value: '2', label: { es: 'Middleware de audio', en: 'Audio middleware' } },
       { value: '18', label: { es: 'Devs en el mayor equipo Git', en: 'Devs in largest Git team' } }
     ],
-    tabs: [
+    gallery: [],
+    sections: [
       {
         label: { es: 'PERKS', en: 'PERKS' },
         blocks: [
@@ -617,7 +644,8 @@ export const specSheets = [
       { value: 'ES · CA · EN', label: { es: 'Nativo · nativo · B2', en: 'Native · native · B2' } },
       { value: '< 24 h', label: { es: 'Respuesta habitual por email', en: 'Typical email response' } }
     ],
-    tabs: [
+    gallery: [],
+    sections: [
       {
         label: { es: 'CANALES', en: 'CHANNELS' },
         blocks: [
@@ -649,34 +677,56 @@ export const specSheets = [
   }
 ];
 
-// Textos de UI propios del modal
-export const modalText = {
+// Textos de UI propios de project.html
+export const pageText = {
   es: {
-    service: 'SERVICE MENU // DIAGNOSTIC MODE',
-    close: '[ ✕ CERRAR / ESC ]',
-    closeAria: 'Cerrar ficha técnica (Esc)',
+    docTitle: 'Ficha técnica',
+    back: '[ ← VOLVER AL CABINET / ESC ]',
+    backAria: 'Volver al cabinet arcade (Esc)',
     langAria: 'Idioma de la ficha',
-    dialogAria: 'Ficha técnica del sistema seleccionado',
-    tabsAria: 'Secciones de la ficha',
-    telemetry: 'TELEMETRÍA',
+    github: 'GITHUB',
+    cv: 'CV (PDF)',
+    kicker: 'FICHA TÉCNICA // CASE STUDY',
     metrics: 'MÉTRICAS CLAVE',
-    actions: 'ACCIONES',
+    gallery: 'GALERÍA',
+    breakdown: 'DESGLOSE TÉCNICO',
+    actions: 'ENLACES',
+    copy: 'COPIAR CÓDIGO',
+    copied: '¡COPIADO!',
     copyFail: 'ERROR AL COPIAR',
-    hint: '[ TAB ] NAVEGAR   ·   [ ◄ ► ] PESTAÑAS   ·   [ ESC ] CERRAR',
-    footer: 'VÍCTOR CÁRDENAS · CITM - UPC · BARCELONA'
+    prev: 'SISTEMA ANTERIOR',
+    next: 'SIGUIENTE SISTEMA',
+    contactTitle: '¿Hablamos?',
+    contactBody: 'Disponible para Convenio de Prácticas Universitarias (CITM - UPC) como Gameplay / Audio Programmer. Respuesta habitual en menos de 24 h.',
+    contactEmail: 'COPIAR EMAIL',
+    contactLinkedin: 'LINKEDIN',
+    hint: '[ ESC / ⌫ ] CABINET   ·   [ ◄ ► ] CAMBIAR SISTEMA   ·   [ TAB ] NAVEGAR',
+    footer: 'VÍCTOR CÁRDENAS · CITM - UPC · BARCELONA',
+    notFound: 'Sistema no encontrado. Volviendo al cabinet…'
   },
   en: {
-    service: 'SERVICE MENU // DIAGNOSTIC MODE',
-    close: '[ ✕ CLOSE / ESC ]',
-    closeAria: 'Close spec sheet (Esc)',
+    docTitle: 'Spec sheet',
+    back: '[ ← BACK TO CABINET / ESC ]',
+    backAria: 'Back to the arcade cabinet (Esc)',
     langAria: 'Spec sheet language',
-    dialogAria: 'Technical spec sheet of the selected system',
-    tabsAria: 'Spec sheet sections',
-    telemetry: 'TELEMETRY',
+    github: 'GITHUB',
+    cv: 'RESUME (PDF)',
+    kicker: 'SPEC SHEET // CASE STUDY',
     metrics: 'KEY METRICS',
-    actions: 'ACTIONS',
+    gallery: 'GALLERY',
+    breakdown: 'TECHNICAL BREAKDOWN',
+    actions: 'LINKS',
+    copy: 'COPY CODE',
+    copied: 'COPIED!',
     copyFail: 'COPY FAILED',
-    hint: '[ TAB ] NAVIGATE   ·   [ ◄ ► ] TABS   ·   [ ESC ] CLOSE',
-    footer: 'VÍCTOR CÁRDENAS · CITM - UPC · BARCELONA'
+    prev: 'PREVIOUS SYSTEM',
+    next: 'NEXT SYSTEM',
+    contactTitle: "Let's talk",
+    contactBody: 'Available for a University Internship Agreement (CITM - UPC) as a Gameplay / Audio Programmer. Typical reply within 24 h.',
+    contactEmail: 'COPY EMAIL',
+    contactLinkedin: 'LINKEDIN',
+    hint: '[ ESC / ⌫ ] CABINET   ·   [ ◄ ► ] SWITCH SYSTEM   ·   [ TAB ] NAVIGATE',
+    footer: 'VÍCTOR CÁRDENAS · CITM - UPC · BARCELONA',
+    notFound: 'System not found. Returning to the cabinet…'
   }
 };
