@@ -712,6 +712,11 @@ html, body {
   align-items: center;
   gap: 0.4rem;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.85), 0 0 8px rgba(251, 146, 60, 0.3);
+  /* Nunca invade el CTA de inspección de la izquierda */
+  max-width: calc(100% - 300px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ==========================================================================

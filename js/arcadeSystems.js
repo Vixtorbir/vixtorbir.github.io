@@ -1101,7 +1101,7 @@ const CONTACT_TXT = {
     ]
   }
 };
-const CONTACT_TYPE = { title: 24, sub: 14, legend: 13, label: 11, value: 13.5, tiny: 8.5 };
+const CONTACT_TYPE = { title: 24, sub: 14, legend: 14, label: 12, value: 15, tiny: 8.5 };
 // Posición de la baliza BCN dentro del radar (fracción del radio)
 const CONTACT_BCN = { x: 0.22, y: 0.14 };
 const contactCache = { w: 0, h: 0, bg: null };
@@ -1230,25 +1230,25 @@ function drawContactScene(ctx, w, h, t) {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#fb7185';
-  ctx.fillText(txt.legend, lx + pad, ly + 26 * u);
+  ctx.fillText(txt.legend, lx + pad, ly + 28 * u);
   ctx.strokeStyle = 'rgba(244, 63, 94, 0.35)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(lx + pad, ly + 37 * u);
-  ctx.lineTo(lx + lw - pad, ly + 37 * u);
+  ctx.moveTo(lx + pad, ly + 40 * u);
+  ctx.lineTo(lx + lw - pad, ly + 40 * u);
   ctx.stroke();
 
   const entries = txt.entries;
-  const listTop = ly + 48 * u;
-  const rowH = (lh - 48 * u - 28 * u) / entries.length;
+  const listTop = ly + 50 * u;
+  const rowH = (lh - 50 * u - 26 * u) / entries.length;
   for (let i = 0; i < entries.length; i++) {
     const y = listTop + i * rowH;
     font(ctx, px(CONTACT_TYPE.label, u), FONT_MONO, '700');
     ctx.fillStyle = '#38bdf8';
-    ctx.fillText(entries[i][0], lx + pad, y + rowH * 0.38);
+    ctx.fillText(entries[i][0], lx + pad, y + rowH * 0.36);
     font(ctx, px(CONTACT_TYPE.value, u), FONT_MONO, i === 0 ? '700' : '600');
     ctx.fillStyle = i === 0 ? '#fde047' : '#ffffff';
-    ctx.fillText(entries[i][1], lx + pad, y + rowH * 0.38 + 20 * u);
+    ctx.fillText(entries[i][1], lx + pad, y + rowH * 0.36 + 22 * u);
   }
 
   // Cursor de terminal
@@ -1445,13 +1445,13 @@ export const arcadeSystems = [
         role: "Gameplay & Systems Programmer",
         stack: "victorcarhor@gmail.com | +34 623 187 320",
         focus: "Convenio de Prácticas Universitarias (CITM - UPC)",
-        status: "Barcelona (BCN) · Presencial / Híbrido / Remoto // GitHub: Vixtorbir"
+        status: "Barcelona (BCN) · Presencial / Híbrido / Remoto"
       },
       en: {
         role: "Gameplay & Systems Programmer",
         stack: "victorcarhor@gmail.com | +34 623 187 320",
         focus: "University Internship Agreement (CITM - UPC)",
-        status: "Barcelona (BCN) · On-site / Hybrid / Remote // GitHub: Vixtorbir"
+        status: "Barcelona (BCN) · On-site / Hybrid / Remote"
       }
     },
     drawScene: drawContactScene
