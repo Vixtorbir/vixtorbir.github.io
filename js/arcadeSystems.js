@@ -38,6 +38,8 @@ const fableGameplay3 = preload('assets/fable_gameplay_3.png'); // Templo de puzl
 const fableGameplay4 = preload('assets/fable_gameplay_4.png'); // Bosque con setas luminosas
 const miniKnightImg = preload('assets/mini_knight.png');
 const phoenixImg = preload('assets/phoenix_pixel_art.png');
+const playerShipImg = preload('assets/ave_player_ship.png');
+const enemyBirdImg = preload('assets/ave_enemy_bird.png');
 const phoenixBossImg = preload('assets/ave_phoenix_boss.png');
 const phoenixIconImg = preload('assets/ave_phoenix_icon.png');
 
@@ -500,8 +502,7 @@ const PHOENIX_SPARKS = [];
 for (let i = 0; i < 10; i++) {
   PHOENIX_SPARKS.push({ angle: (i / 10) * Math.PI * 2, phase: Math.random() * Math.PI * 2, len: 0.6 + Math.random() * 0.6 });
 }
-const PHOENIX_TYPE = { title: 24, sub: 14, label: 13.5 };
-const PHOENIX_LABEL = '\u{1F4F1} PLAYABLE BUILD // MOBILE OPTIMIZED';
+const PHOENIX_TYPE = { title: 24, sub: 14 };
 const phoenixCache = { w: 0, h: 0, bg: null };
 
 // Caza del jugador vectorial (fallback si el icono no ha cargado)
@@ -548,18 +549,26 @@ function drawPhoenixScene(ctx, w, h, t) {
   }
   ctx.globalAlpha = 1;
 
-  // --- Boss a la derecha con escoltas en cuña -----------------------------
-  const bossSize = Math.min(w * 0.3, h * 0.6);
+  // --- Boss imponente a la derecha con escoltas en formación --------------
+  const bossSize = Math.min(w * 0.34, h * 0.68);
   const bx = w * 0.76;
-  const by = h * 0.5 + Math.sin(t * 1.4) * 8 * u;
+  const by = h * 0.48 + Math.sin(t * 1.5) * 8 * u;
   const bossImg = ready(phoenixBossImg) ? phoenixBossImg : phoenixImg;
-  if (ready(phoenixImg)) {
-    const wing = bossSize * 0.32;
+  if (ready(enemyBirdImg)) {
+    // El enemigo mira hacia abajo: se rota 90 grados para encarar al jugador
+    const wing = bossSize * 0.3;
     ctx.save();
-    ctx.shadowColor = 'rgba(249, 115, 22, 0.7)';
+    ctx.shadowColor = 'rgba(250, 204, 21, 0.6)';
     ctx.shadowBlur = 12 * u;
-    drawContain(ctx, phoenixImg, bx + bossSize * 0.28, by - bossSize * 0.62 + Math.sin(t * 2.4 + 1) * 5 * u, wing, wing, true);
-    drawContain(ctx, phoenixImg, bx + bossSize * 0.28, by + bossSize * 0.3 + Math.sin(t * 2.4 + 2) * 5 * u, wing, wing, true);
+    for (let k = 0; k < 2; k++) {
+      const ex = bx - bossSize * 0.42;
+      const ey = by + (k === 0 ? -bossSize * 0.44 : bossSize * 0.44) + Math.sin(t * 2.4 + k + 1) * 6 * u;
+      ctx.save();
+      ctx.translate(ex, ey);
+      ctx.rotate(Math.PI / 2);
+      drawContain(ctx, enemyBirdImg, -wing / 2, -wing / 2, wing, wing, true);
+      ctx.restore();
+    }
     ctx.restore();
   }
   // Estelas de propulsión del boss (salen por detrás, hacia la derecha)
@@ -582,9 +591,9 @@ function drawPhoenixScene(ctx, w, h, t) {
   }
 
   // --- Caza del jugador a la izquierda ------------------------------------
-  const shipSize = Math.min(w * 0.14, h * 0.26);
+  const shipSize = Math.min(w * 0.13, h * 0.24);
   const sx = w * 0.16;
-  const sy = h * 0.52 + Math.sin(t * 2.2) * 16 * u;
+  const sy = h * 0.52 + Math.sin(t * 2.2) * 14 * u;
   // Propulsor de plasma cyan parpadeante (detrás del caza)
   const flame = (0.7 + 0.3 * Math.sin(t * 26)) * shipSize * 0.5;
   ctx.save();
@@ -598,14 +607,14 @@ function drawPhoenixScene(ctx, w, h, t) {
   ctx.closePath();
   ctx.fill();
   ctx.restore();
-  if (ready(phoenixIconImg)) {
-    // El icono mira hacia arriba: se rota 90 grados para apuntar a la derecha
+  if (ready(playerShipImg)) {
+    // La nave mira hacia arriba: se rota 90 grados para apuntar a la derecha
     ctx.save();
     ctx.translate(sx, sy);
     ctx.rotate(Math.PI / 2);
     ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
     ctx.shadowBlur = 14 * u;
-    drawContain(ctx, phoenixIconImg, -shipSize / 2, -shipSize / 2, shipSize, shipSize, false);
+    drawContain(ctx, playerShipImg, -shipSize / 2, -shipSize / 2, shipSize, shipSize, true);
     ctx.restore();
   } else {
     drawPhoenixShipFallback(ctx, sx, sy, shipSize);
@@ -654,17 +663,6 @@ function drawPhoenixScene(ctx, w, h, t) {
   ctx.textAlign = 'right';
   ctx.textBaseline = 'alphabetic';
   ctx.fillText('1UP  004273', w * 0.96, h * 0.09);
-
-  // --- Placa modular PLAYABLE BUILD (inferior derecha) --------------------
-  font(ctx, px(PHOENIX_TYPE.label, u), FONT_ARCADE, '700');
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  const labelW = ctx.measureText(PHOENIX_LABEL).width + 24 * u;
-  const labelX = w * 0.96 - labelW / 2;
-  const labelY = h - h * 0.14 + 16 * u;
-  drawPanel(ctx, labelX - labelW / 2, labelY - 11 * u, labelW, 22 * u, 'rgba(5, 10, 22, 0.78)', 'rgba(251, 146, 60, 0.55)');
-  ctx.fillStyle = '#fbbf24';
-  ctx.fillText(PHOENIX_LABEL, labelX, labelY);
 
   // --- Cabecera arcade minimalista (superior izquierda) -------------------
   const hx = 16; // alineado con .screen-top-badge (left: 16px)
@@ -1137,7 +1135,7 @@ export const arcadeSystems = [
     trayBrand: "REGEN",
     badgeText: "UNITY // RETRO SHOOTER",
     themeColor: "#fb923c",
-    hardwareHtml: hardwareBox(`<img src="assets/phoenix_pixel_art.png" class="pixelated" alt="Ave Phoenix Pixel Art" />`, 'UNITY C# // ZERO-GC'),
+    hardwareHtml: hardwareBox(`<img src="assets/ave_phoenix_icon.png" alt="Ave Phoenix Icon" />`, 'UNITY C# // ZERO-GC'),
     meta: {
       es: {
         role: "Solo Game Developer & Programmer",
