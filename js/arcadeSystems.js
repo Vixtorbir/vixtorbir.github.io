@@ -456,16 +456,16 @@ function drawFableScene(ctx, w, h, t) {
   ctx.fillText('MINI-KNIGHT STUDIO', labelX, labelY);
 
   // --- Cabecera arcade minimalista (superior izquierda) -------------------
-  const hx = w * 0.04;
-  const hy = h * 0.06;
-  const pad = 14 * u;
+  const hx = 16; // alineado con .screen-top-badge (left: 16px)
+  const hy = Math.max(48, Math.round(h * 0.08));
+  const pad = Math.round(10 * u);
   font(ctx, px(FABLE_TYPE.title, u), FONT_ARCADE, '800');
   const titleW = ctx.measureText('THE FABLE OF THE ECLIPSE').width;
   font(ctx, px(FABLE_TYPE.sub, u), FONT_MONO, '600');
   const subW = ctx.measureText('3D ACTION-ADVENTURE // CUSTOM C++ ENGINE').width;
   const hw = Math.max(titleW, subW) + pad * 2;
   const hh = 66 * u;
-  drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 22, 0.8)', 'rgba(56, 189, 248, 0.35)');
+  drawPanel(ctx, hx, hy, hw, hh, 'rgba(5, 10, 22, 0.85)', 'rgba(56, 189, 248, 0.35)');
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   font(ctx, px(FABLE_TYPE.title, u), FONT_ARCADE, '800');
