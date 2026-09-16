@@ -355,16 +355,17 @@ document.addEventListener('DOMContentLoaded', () => {
     onDisconnected: () => showArcadeOSD(uiText[currentLang].osd_pad_disconnected)
   });
 
-  // Sistema inicial: `?system=N` (retorno desde project.html) > último visitado > 0
+  // Sistema inicial: al entrar en la web siempre Víctor Cárdenas (sistema 0).
+  // Solo al volver desde project.html (`?system=N`) se conserva el sistema
+  // que se estaba viendo. El último visitado (localStorage) lo usa project.js
+  // como respaldo, pero no decide la pantalla de entrada.
   const total = arcadeSystems.length;
   const param = Number.parseInt(new URLSearchParams(window.location.search).get('system') ?? '', 10);
-  const saved = Number.parseInt(localStorage.getItem(SYSTEM_KEY) ?? '', 10);
+  activeSystemIndex = 0;
   if (Number.isInteger(param) && param >= 0 && param < total) {
     activeSystemIndex = param;
     // Limpia la query para que un refresco no "fije" el sistema
     history.replaceState(null, '', window.location.pathname);
-  } else if (Number.isInteger(saved) && saved >= 0 && saved < total) {
-    activeSystemIndex = saved;
   }
 
   // Boton azul Sanwa: siguiente sistema (mismo detent que ArrowDown). Se
