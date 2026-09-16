@@ -1495,6 +1495,10 @@ export const uiText = {
     bottom_scroll: "SCROLL PARA CAMBIAR",
     bottom_inspect: "INSPECCIONAR",
     screen_inspect_cta: "[ ↵ CLIC / ENTER: INSPECCIONAR ]",
+    osd_pad_connected: "🎮 MANDO DETECTADO: ",
+    osd_pad_disconnected: "🎮 MANDO DESCONECTADO",
+    osd_sfx_on: "🔊 SFX ACTIVADO",
+    osd_sfx_off: "🔇 SFX SILENCIADO",
     mobile_fallback_title: "EXPERIENCIA OPTIMIZADA PARA ESCRITORIO",
     mobile_fallback_msg: "Este cabinet arcade necesita una pantalla de 1024px de ancho o más para mostrarse sin recortes. Abre este portfolio en un ordenador de escritorio o portátil."
   },
@@ -1509,6 +1513,10 @@ export const uiText = {
     bottom_scroll: "SCROLL TO NAVIGATE",
     bottom_inspect: "INSPECT / SELECT",
     screen_inspect_cta: "[ ↵ CLICK / ENTER: INSPECT ]",
+    osd_pad_connected: "🎮 GAMEPAD DETECTED: ",
+    osd_pad_disconnected: "🎮 GAMEPAD DISCONNECTED",
+    osd_sfx_on: "🔊 SFX ON",
+    osd_sfx_off: "🔇 SFX MUTED",
     mobile_fallback_title: "DESKTOP-OPTIMIZED EXPERIENCE",
     mobile_fallback_msg: "This arcade cabinet needs a screen at least 1024px wide to display without clipping. Please open this portfolio on a desktop or laptop computer."
   }

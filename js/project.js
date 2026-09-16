@@ -8,6 +8,7 @@
  *     desglose STAR por secciones, paginador y contacto.
  *   - Cambio de idioma en tiempo real, sincronizado con el arcade (misma clave).
  *   - Atajos: ESC / Backspace → arcade · ◄ ► → sistema anterior / siguiente.
+ *   - Mando (Fase 4): B → arcade · LB / RB / D-Pad ◄ ► → proyectos · Select → idioma.
  *   - Botones de copiar (código, email, teléfono) con toast de estado.
  *   - Resaltado de sintaxis ligero para C++ / C# (sin dependencias).
  *
@@ -16,6 +17,7 @@
  */
 
 import { specSheets, pageText, CONTACT } from './specContent.js';
+import { initGamepad, describeGamepad, isGamepadConnected } from './gamepadManager.js';
 
 const LANG_KEY = 'victor_portfolio_lang';
 const SYSTEM_KEY = 'victor_portfolio_system';
@@ -50,6 +52,7 @@ function readSystemParam() {
 }
 
 const RETURN_SFX_KEY = 'arcade_play_return_sfx';
+const SFX_KEY = 'victor_portfolio_sfx'; // misma clave de mute que audioManager
 // Margen para que el blip de salida suene entero antes de descargar la pagina
 const RETURN_LEAVE_MS = 120;
 
@@ -65,6 +68,7 @@ function arcadeUrl(index) {
  */
 function playReturnSound() {
   try {
+    if (localStorage.getItem(SFX_KEY) === '0') return; // mute persistido
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
@@ -304,8 +308,15 @@ function render() {
     renderAction({ type: 'copy', label: { es: ui('contactEmail'), en: ui('contactEmail') }, done: { es: ui('copied'), en: ui('copied') }, value: CONTACT.email, icon: 'mail' }, 'cs-action--primary') +
     renderAction({ type: 'link', label: { es: ui('contactLinkedin'), en: ui('contactLinkedin') }, href: CONTACT.linkedin, icon: 'in' });
 
-  document.getElementById('cs-hint').textContent = ui('hint');
+  renderHint();
   document.getElementById('cs-footer-brand').textContent = ui('footer');
+}
+
+/* Leyenda de atajos del pie: añade los del mando solo mientras hay uno conectado */
+function renderHint() {
+  const el = document.getElementById('cs-hint');
+  if (!el) return;
+  el.textContent = isGamepadConnected() ? `${ui('hint')}   ·   ${ui('hintPad')}` : ui('hint');
 }
 
 // ---------------------------------------------------------------------------
@@ -413,6 +424,10 @@ function setLanguage(lang) {
   window.scrollTo({ top: y, behavior: 'instant' });
 }
 
+function toggleLanguage() {
+  setLanguage(currentLang === 'es' ? 'en' : 'es');
+}
+
 function goToSystem(index) {
   currentIndex = (index + TOTAL) % TOTAL;
   localStorage.setItem(SYSTEM_KEY, String(currentIndex));
@@ -473,6 +488,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('click', onClick);
   window.addEventListener('keydown', onKeydown);
+
+  // Mando: B vuelve al arcade (con blip + fanfarria), bumpers / D-Pad cambian
+  // de proyecto, Select alterna idioma. Toast de conexión reutiliza cs-toast.
+  initGamepad({
+    onBack: () => backToArcade(),
+    onPrevProject: () => goToSystem(currentIndex - 1),
+    onNextProject: () => goToSystem(currentIndex + 1),
+    onToggleLang: () => toggleLanguage(),
+    onConnected: (pad) => { renderHint(); showToast(ui('padConnected') + describeGamepad(pad)); },
+    onDisconnected: () => { renderHint(); showToast(ui('padDisconnected')); }
+  });
   window.addEventListener('popstate', (e) => {
     const idx = e.state?.system ?? readSystemParam();
     if (idx === null || idx === undefined) return;

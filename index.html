@@ -100,7 +100,7 @@
         </div>
 
         <!-- Audio SFX Toggle -->
-        <button id="sfx-toggle-btn" class="arcade-btn-retro !px-2" onclick="toggleAudioSFX()" title="Silenciar / Activar Sonido">
+        <button id="sfx-toggle-btn" class="arcade-btn-retro !px-2" onclick="toggleAudioSFX()" title="Silenciar / Activar Sonido" aria-pressed="false">
           <span id="sfx-label">🔊 SFX</span>
         </button>
 
@@ -184,6 +184,9 @@
 
             <!-- Interactive CTA: click / Enter navigates to project.html (Phase 2) -->
             <div class="screen-inspect-cta" data-i18n="screen_inspect_cta">[ ↵ CLIC / ENTER: INSPECCIONAR ]</div>
+
+            <!-- Fase 4: OSD retro (mando conectado / desconectado, SFX) -->
+            <div class="arcade-osd-toast" id="arcade-osd" role="status" aria-live="polite"></div>
 
             <!-- Authentic Arcade Decal Strip -->
             <div class="arcade-decal-strip" id="arcade-decal-strip"><span id="screen-decal-text">Lanzado en Itch.io // Motor C++ Propio</span></div>

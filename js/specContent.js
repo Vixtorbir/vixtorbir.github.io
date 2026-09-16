@@ -701,6 +701,9 @@ export const pageText = {
     contactEmail: 'COPIAR EMAIL',
     contactLinkedin: 'LINKEDIN',
     hint: '[ ESC / ⌫ ] ARCADE   ·   [ ◄ ► ] CAMBIAR SISTEMA   ·   [ TAB ] NAVEGAR',
+    hintPad: '[ B ] VOLVER AL ARCADE   ·   [ LB / RB ] PROYECTOS   ·   [ SELECT ] IDIOMA',
+    padConnected: '🎮 MANDO DETECTADO: ',
+    padDisconnected: '🎮 MANDO DESCONECTADO',
     footer: 'VÍCTOR CÁRDENAS · CITM - UPC · BARCELONA',
     notFound: 'Sistema no encontrado. Volviendo al arcade…'
   },
@@ -726,6 +729,9 @@ export const pageText = {
     contactEmail: 'COPY EMAIL',
     contactLinkedin: 'LINKEDIN',
     hint: '[ ESC / ⌫ ] ARCADE   ·   [ ◄ ► ] SWITCH SYSTEM   ·   [ TAB ] NAVIGATE',
+    hintPad: '[ B ] BACK TO ARCADE   ·   [ LB / RB ] PROJECTS   ·   [ SELECT ] LANGUAGE',
+    padConnected: '🎮 GAMEPAD DETECTED: ',
+    padDisconnected: '🎮 GAMEPAD DISCONNECTED',
     footer: 'VÍCTOR CÁRDENAS · CITM - UPC · BARCELONA',
     notFound: 'System not found. Returning to arcade…'
   }

@@ -7,11 +7,13 @@
  * actualiza el DOM y conecta los eventos de teclado, rueda del ratón y
  * los handlers invocados desde los atributos onclick de index.html.
  * INSPECCIONAR navega a la ficha técnica dedicada (project.html?system=N).
+ * Fase 4: mandos (gamepadManager) con feedback en los Sanwa y OSD en el tubo.
  */
 
 import { arcadeSystems, uiText, onAssetLoad } from './arcadeSystems.js';
 import { initCanvasRenderer, renderScreenArtwork, resizeCanvas, startRenderLoop } from './canvasRenderer.js';
-import { playArcadeTick, playCoinSound, playArcadeStartSound, playInspectSound, toggleAudioSFX, isAudioContextRunning } from './audioManager.js';
+import { playArcadeTick, playCoinSound, playArcadeStartSound, playInspectSound, toggleAudioSFX, initAudioState, isAudioContextRunning } from './audioManager.js';
+import { initGamepad, describeGamepad } from './gamepadManager.js';
 
 const LANG_KEY = 'victor_portfolio_lang';
 const SYSTEM_KEY = 'victor_portfolio_system';
@@ -268,10 +270,33 @@ function goToMainMenu() {
   pulseChassis();
 }
 
-function handleToggleAudioSFX() {
-  const active = toggleAudioSFX();
+/** Refleja el estado de audio en el botón de la barra superior */
+function renderAudioState(active) {
   const label = document.getElementById('sfx-label');
   if (label) label.textContent = active ? '🔊 SFX' : '🔇 MUTE';
+  const btn = document.getElementById('sfx-toggle-btn');
+  if (btn) btn.setAttribute('aria-pressed', active ? 'false' : 'true');
+}
+
+function handleToggleAudioSFX(fromGamepad = false) {
+  const active = toggleAudioSFX();
+  renderAudioState(active);
+  if (fromGamepad) showArcadeOSD(uiText[currentLang][active ? 'osd_sfx_on' : 'osd_sfx_off']);
+}
+
+// ---------------------------------------------------------
+// OSD retro en el tubo (mando conectado, SFX...)
+// ---------------------------------------------------------
+const OSD_VISIBLE_MS = 2200;
+let osdTimer = null;
+
+function showArcadeOSD(text) {
+  const osd = document.getElementById('arcade-osd');
+  if (!osd) return;
+  osd.textContent = text;
+  osd.classList.add('is-visible');
+  clearTimeout(osdTimer);
+  osdTimer = setTimeout(() => osd.classList.remove('is-visible'), OSD_VISIBLE_MS);
 }
 
 // Global window exposure for inline onclick handlers in index.html
@@ -289,6 +314,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvasEl = document.getElementById('media-canvas');
   initCanvasRenderer(canvasEl);
 
+  // Estado de audio persistido (mute sobrevive a la recarga)
+  renderAudioState(initAudioState());
+
   // Repaint the active scene whenever a lazily-loaded scene asset finishes loading
   onAssetLoad(() => renderScreenArtwork(activeSystemIndex));
 
@@ -302,6 +330,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fanfarria de retorno si venimos de project.html (bandera + ?return=1).
   // Va ANTES de leer ?system=N porque ese bloque limpia toda la query.
   checkReturnSound();
+
+  // Mandos (Gamepad API): mismas acciones que el teclado, mismo feedback
+  // háptico en los Sanwa (navigateSystem / inspectSystem / goToMainMenu ya
+  // iluminan azul / amarillo / rojo) y OSD retro al conectar / desconectar.
+  initGamepad({
+    onNavigate: (dir) => {
+      if (isLeaving) return;
+      pressSanwa(document.getElementById('scroll-btn'));
+      if (acceptNavigation()) navigateSystem(dir);
+    },
+    onInspect: () => inspectSystem(),
+    onMainMenu: () => { if (!isLeaving) goToMainMenu(); },
+    onToggleSFX: () => handleToggleAudioSFX(true),
+    onToggleLang: () => setLanguage(currentLang === 'es' ? 'en' : 'es'),
+    onConnected: (pad) => showArcadeOSD(uiText[currentLang].osd_pad_connected + describeGamepad(pad)),
+    onDisconnected: () => showArcadeOSD(uiText[currentLang].osd_pad_disconnected)
+  });
 
   // Sistema inicial: `?system=N` (retorno desde project.html) > último visitado > 0
   const total = arcadeSystems.length;

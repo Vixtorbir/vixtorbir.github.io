@@ -110,8 +110,10 @@ html, body {
     animation: none !important;
   }
 
-  .system-logo-item {
+  .system-logo-item,
+  .arcade-osd-toast {
     transition: opacity 0.2s ease !important;
+    transform: none !important;
   }
 
   .arcade-viewport-env,
@@ -710,6 +712,35 @@ html, body {
   /* Sin filter/animation: bitmap 1:1, texto e iconos del canvas 100% nitidos */
 }
 
+
+/* Notificacion retro On-Screen Display (OSD) para mandos y eventos del
+   sistema. Vive dentro del tubo (esquina superior derecha), por encima de la
+   mascara CRT y los decals; solo transform + opacity (composited). */
+.arcade-osd-toast {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 150;
+  background: rgba(10, 15, 25, 0.92);
+  border: 1.5px solid var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4), inset 0 0 8px rgba(0, 240, 255, 0.2);
+  color: var(--neon-cyan);
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.arcade-osd-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* Top-Left Arcade Badge (Authentic 80s arcade logo tab) */
 .screen-top-badge {
