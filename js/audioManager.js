@@ -198,18 +198,6 @@ function playFilteredTone(ctx, { freqStart, freqEnd, startAt, duration, peak, cu
   osc.stop(startAt + duration + 0.01);
 }
 
-// ESC dentro del cabinet: "apagado" del tubo — barrido descendente filtrado
-// (E5 -> ~55 Hz) con cola grave, sale del monitor hacia la maquina arcade.
-export function playPowerDownSound() {
-  if (!isAudioActive) return;
-  try {
-    const ctx = ensureContext();
-    const t = ctx.currentTime;
-    playFilteredTone(ctx, { freqStart: 659.25, freqEnd: 55, startAt: t, duration: 0.32, peak: 0.05, cutoff: 1600 });
-    playFilteredTone(ctx, { freqStart: 120, freqEnd: 40, startAt: t + 0.05, duration: 0.3, peak: 0.035, cutoff: 400, type: 'triangle' });
-  } catch (e) {}
-}
-
 // Dos notas ascendentes cortas (A4 -> E5) + zumbido grave de relé; suena
 // durante el fundido del chasis antes de navegar a project.html
 export function playInspectSound() {

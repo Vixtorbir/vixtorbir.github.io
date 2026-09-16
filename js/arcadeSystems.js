@@ -1499,10 +1499,6 @@ export const uiText = {
     osd_pad_disconnected: "🎮 MANDO DESCONECTADO",
     osd_sfx_on: "🔊 SFX ACTIVADO",
     osd_sfx_off: "🔇 SFX SILENCIADO",
-    attract_aria: "Pantalla de inicio del Arcade — pulsa cualquier tecla, clic o botón del mando para empezar",
-    attract_hint: "[ TOCA / PULSA PARA ENTRAR ]",
-    attract_coin_aria: "Pulsa para entrar en el arcade",
-    osd_esc_hint: "[ ESC ] VOLVER A LA MÁQUINA",
     mobile_fallback_title: "EXPERIENCIA OPTIMIZADA PARA ESCRITORIO",
     mobile_fallback_msg: "Este cabinet arcade necesita una pantalla de 1024px de ancho o más para mostrarse sin recortes. Abre este portfolio en un ordenador de escritorio o portátil."
   },
@@ -1521,10 +1517,6 @@ export const uiText = {
     osd_pad_disconnected: "🎮 GAMEPAD DISCONNECTED",
     osd_sfx_on: "🔊 SFX ON",
     osd_sfx_off: "🔇 SFX MUTED",
-    attract_aria: "Arcade start screen — press any key, click or gamepad button to begin",
-    attract_hint: "[ TAP / PRESS TO ENTER ]",
-    attract_coin_aria: "Press to enter the arcade",
-    osd_esc_hint: "[ ESC ] BACK TO THE MACHINE",
     mobile_fallback_title: "DESKTOP-OPTIMIZED EXPERIENCE",
     mobile_fallback_msg: "This arcade cabinet needs a screen at least 1024px wide to display without clipping. Please open this portfolio on a desktop or laptop computer."
   }
