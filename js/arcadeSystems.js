@@ -71,22 +71,49 @@ function font(ctx, px, family, weight) {
   ctx.font = `${weight || ''} ${Math.round(px)}px ${family}`.trim();
 }
 
+// Silueta de montanas: el trazado (Path2D) se cachea por geometria, asi no se
+// recalculan sin/cos ni se reconstruye el path en cada frame.
+const mountainPathCache = new Map();
+
 function drawJaggedMountains(ctx, w, h, startYRatio, color, peakVariance) {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(0, h);
-  ctx.lineTo(0, h * startYRatio);
-  const step = 28;
-  for (let x = 0; x <= w + step; x += step) {
-    const yOffset = Math.sin(x * 0.02) * 20 + Math.cos(x * 0.05) * peakVariance;
-    ctx.lineTo(x, h * startYRatio + yOffset);
+  const key = `${w}|${h}|${startYRatio}|${peakVariance}`;
+  let path = mountainPathCache.get(key);
+  if (!path) {
+    if (mountainPathCache.size > 16) mountainPathCache.clear();
+    path = new Path2D();
+    path.moveTo(0, h);
+    path.lineTo(0, h * startYRatio);
+    const step = 28;
+    for (let x = 0; x <= w + step; x += step) {
+      const yOffset = Math.sin(x * 0.02) * 20 + Math.cos(x * 0.05) * peakVariance;
+      path.lineTo(x, h * startYRatio + yOffset);
+    }
+    path.lineTo(w, h);
+    path.closePath();
+    mountainPathCache.set(key, path);
   }
-  ctx.lineTo(w, h);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillStyle = color;
+  ctx.fill(path);
 }
 
 // Retro blue floor grid with a single vanishing point (CoinOPS / outrun floor)
+// Gradiente del halo de horizonte cacheado por (h, horizonte, color): antes se
+// instanciaba un CanvasGradient nuevo en cada frame (60 asignaciones/s).
+const floorGlowCache = new Map();
+
+function floorGlow(ctx, h, horizon, depth, rgb) {
+  const key = `${h}|${horizon}|${rgb}`;
+  let g = floorGlowCache.get(key);
+  if (!g) {
+    if (floorGlowCache.size > 16) floorGlowCache.clear();
+    g = ctx.createLinearGradient(0, horizon, 0, horizon + depth * 0.55);
+    g.addColorStop(0, `rgba(${rgb}, 0.28)`);
+    g.addColorStop(1, `rgba(${rgb}, 0)`);
+    floorGlowCache.set(key, g);
+  }
+  return g;
+}
+
 function drawRetroFloorGrid(ctx, w, h, horizonRatio, rgb, alpha) {
   const a = alpha === undefined ? 1 : alpha;
   const horizon = h * horizonRatio;
@@ -96,10 +123,7 @@ function drawRetroFloorGrid(ctx, w, h, horizonRatio, rgb, alpha) {
   ctx.save();
   ctx.globalAlpha = a;
 
-  const glow = ctx.createLinearGradient(0, horizon, 0, horizon + depth * 0.55);
-  glow.addColorStop(0, `rgba(${rgb}, 0.28)`);
-  glow.addColorStop(1, `rgba(${rgb}, 0)`);
-  ctx.fillStyle = glow;
+  ctx.fillStyle = floorGlow(ctx, h, horizon, depth, rgb);
   ctx.fillRect(0, horizon, w, depth * 0.55);
 
   ctx.strokeStyle = `rgba(${rgb}, 0.55)`;

@@ -48,75 +48,58 @@ html, body {
    arcade cabinet" is that every real cabinet was viewed through a curved,
    slightly-dirty CRT tube. These three layers sit above everything.
    ========================================================================== */
+/* Scanlines CRT estaticas y autenticas: sin animacion de background-position
+   y sin mix-blend-mode pesado para evitar repintados a pantalla completa.
+   (En un tubo real las lineas de fosforo son fijas: no se deslizan.)
+   translateZ(0) promociona la capa a la GPU una sola vez. */
 .crt-scanlines {
   position: absolute;
   inset: 0;
   z-index: 200;
   pointer-events: none;
-  /* Global (chasis): muy tenue. El texto tecnico del cabinet no esta "dentro"
-     del tubo, asi que aqui solo buscamos atmosfera, no mascara (skill: 10-15%).
-     Periodo de 4px -> a 1x son lineas finas, a 2x (Retina) no se convierten
-     en bandas gruesas que ensucien la tipografia monoespaciada. */
   background: repeating-linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.18) 0px,
-    rgba(0, 0, 0, 0.18) 1px,
-    transparent 1px,
-    transparent 4px
+    rgba(0, 0, 0, 0.22) 0px,
+    rgba(0, 0, 0, 0.22) 1.5px,
+    transparent 1.5px,
+    transparent 3.5px
   );
-  mix-blend-mode: multiply;
-  opacity: 0.28;
-  animation: scanlineDrift 11s linear infinite;
+  opacity: 0.7;
+  transform: translateZ(0);
 }
 
-@keyframes scanlineDrift {
-  /* Desplazamiento multiplo exacto del periodo (4px) para que el loop no salte */
-  0% { background-position: 0 0; }
-  100% { background-position: 0 120px; }
-}
-
-/* Faint phosphor grain — the "dusty old tube" texture */
+/* Grano CRT estatico sin coste de calculo de turbulencia SVG en tiempo real
+   (feTurbulence + overlay provocaba caidas severas de FPS en Chromium). */
 .crt-grain {
   position: absolute;
   inset: 0;
   z-index: 199;
   pointer-events: none;
-  opacity: 0.045;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  background-image: radial-gradient(#ffffff 1px, transparent 1px);
+  background-size: 3px 3px;
+  transform: translateZ(0);
 }
 
-/* Barrel vignette + very subtle tube flicker, like a warming-up monitor */
+/* Vineta estatica en GPU (sin flicker de opacidad) */
 .crt-vignette {
   position: absolute;
   inset: 0;
   z-index: 198;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.5) 100%);
-  animation: tubeFlicker 7.5s ease-in-out infinite;
-}
-
-/* Micro-caida de tension cada ~7s: un tubo viejo "respira", pero solo opacidad
-   (composited) y nunca por debajo del 90% para no comprometer la lectura. */
-@keyframes tubeFlicker {
-  0%, 96%, 100% { opacity: 1; }
-  97% { opacity: 0.93; }
-  98% { opacity: 1; }
-  98.5% { opacity: 0.9; }
+  background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.55) 100%);
+  transform: translateZ(0);
 }
 
 /* ==========================================================================
    0b. ACCESIBILIDAD — prefers-reduced-motion (REGLA GLOBAL UNICA)
    Un solo bloque autoritativo en lugar de reglas dispersas por secciones.
-   - Sin parpadeo de scanlines, flicker de tubo, pulsos de CTA/cursor/coin.
+   - Sin pulsos de CTA/cursor/coin (las capas CRT ya son estaticas siempre).
    - Sin oscilacion del joystick ni rebote elastico: la ruleta usa
      transiciones de opacidad simple.
    - !important es deliberado: debe ganar a cualquier regla de gamefeel posterior.
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  .crt-scanlines,
-  .crt-vignette,
-  .crt-flicker-layer,
   .arcade-viewport-env.chassis-pulse,
   .screen-inspect-cta,
   .pointer-triangle,
@@ -223,29 +206,39 @@ html, body {
 .bolt-br { bottom: 10px; right: 20px; }
 
 /* 3D Floor Grid with Cyan Perspective */
+/* Suelo 3D sin mask-image (la mascara sobre un hijo con transform 3D forzaba
+   un render pass por software). El desvanecimiento hacia el horizonte lo hace
+   ahora un degradado lineal compuesto en ::after, opaco al color del chasis. */
 .arcade-floor-grid {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 58%;
+  height: 55%;
   perspective: 400px;
   overflow: hidden;
   pointer-events: none;
   z-index: 1;
-  mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
+}
+
+.arcade-floor-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(3, 5, 10, 0) 45%, rgba(3, 5, 10, 0.92) 100%);
+  transform: translateZ(0);
 }
 
 .arcade-floor-grid-plane {
   width: 200%;
   height: 200%;
   margin-left: -50%;
-  transform: rotateX(65deg) translateY(-24%);
+  transform: rotateX(65deg) translateY(-24%) translateZ(0);
   background-size: 50px 50px;
-  background-image: 
-    linear-gradient(to right, rgba(251, 191, 36, 0.2) 1.5px, transparent 1.5px),
-    linear-gradient(to bottom, rgba(251, 191, 36, 0.2) 1.5px, transparent 1.5px);
+  background-image:
+    linear-gradient(to right, rgba(251, 191, 36, 0.18) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, rgba(251, 191, 36, 0.18) 1.5px, transparent 1.5px);
+  will-change: transform;
 }
 
 /* Warm Arcade Machine Glow in the Background */
@@ -255,10 +248,11 @@ html, body {
   top: 18%;
   bottom: 12%;
   width: 280px;
-  background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.3) 0%, rgba(202, 138, 4, 0.08) 50%, transparent 80%);
-  filter: blur(35px);
+  /* Reemplazo de blur(35px) por radial-gradient con caida suave precalculada */
+  background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.22) 0%, rgba(202, 138, 4, 0.08) 45%, transparent 70%);
   pointer-events: none;
   z-index: 2;
+  transform: translateZ(0);
 }
 
 /* ==========================================================================
@@ -696,24 +690,17 @@ html, body {
   z-index: 12;
 }
 
-/* Bloom de fosforo + micro-flicker de linea. Antes el flicker era un
-   filter: brightness() animado sobre el propio canvas (repintado del bitmap
-   cada frame). Ahora es una capa aparte animando solo opacity: composited,
-   coste ~0 y el canvas se muestra sin ningun filtro. */
+/* Bloom de fosforo estatico sobre el monitor: sin mix-blend-mode ni
+   animacion (un blend sobre el canvas obligaba a recomponer en cada frame).
+   El canvas se muestra sin ningun filtro. */
 .crt-flicker-layer {
   position: absolute;
   inset: 0;
   z-index: 13;
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 48%, rgba(255, 255, 255, 0.06) 0%, transparent 60%);
-  mix-blend-mode: screen;
-  opacity: 0.75;
-  animation: phosphorFlicker 0.2s steps(2) infinite;
-}
-
-@keyframes phosphorFlicker {
-  0%, 100% { opacity: 0.75; }
-  50%      { opacity: 1; }
+  background: radial-gradient(ellipse at 50% 48%, rgba(255, 255, 255, 0.04) 0%, transparent 60%);
+  opacity: 0.6;
+  transform: translateZ(0);
 }
 
 #media-canvas {
@@ -1076,12 +1063,14 @@ html, body {
      como una rueda de recreativa frenada por un trinquete mecanico.
      El overshoot (y=1.34) es visible pero no "gelatina"; 0.52s permite
      leer el frenado sin bloquear la cadencia de 220ms del debounce. */
+  /* Solo transform + opacity (composited). El filter NO se transiciona:
+     interpolarlo re-rasteriza el texto vectorial en cada frame del giro. */
   transition:
-    transform 0.52s cubic-bezier(0.34, 1.34, 0.64, 1),
-    opacity 0.36s cubic-bezier(0.22, 0.61, 0.36, 1),
-    filter 0.36s cubic-bezier(0.22, 0.61, 0.36, 1);
+    transform 0.45s cubic-bezier(0.34, 1.34, 0.64, 1),
+    opacity 0.3s ease;
   will-change: transform, opacity;
   backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 /* Activo: justo en el centro del canal a la altura del apice */
@@ -1089,7 +1078,8 @@ html, body {
   transform: translate(-50%, -50%) translateY(0) translateX(0) scale(1.22);
   opacity: 1;
   z-index: 30;
-  filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.7));
+  /* Sombra ligera precalculada en vez de drop-shadow con radio excesivo */
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
 }
 
 /* Posiciones +-1: 135px verticales, +45px hacia la derecha siguiendo la curvatura */
