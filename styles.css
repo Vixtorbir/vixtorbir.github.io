@@ -1128,12 +1128,12 @@ html, body {
 /* Posiciones +-2: 265px verticales, +95px hacia la derecha */
 .system-logo-item.pos--2 {
   transform: translate(-50%, -50%) translateY(-265px) translateX(95px) rotate(7.5deg) scale(0.82);
-  opacity: 0.7;
+  opacity: 0.55;
   z-index: 10;
 }
 .system-logo-item.pos-2 {
   transform: translate(-50%, -50%) translateY(265px) translateX(95px) rotate(-7.5deg) scale(0.82);
-  opacity: 0.7;
+  opacity: 0.55;
   z-index: 10;
 }
 
