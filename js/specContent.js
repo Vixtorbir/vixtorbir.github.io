@@ -27,7 +27,8 @@ export const CONTACT = {
   phone: '+34 623 187 320',
   github: 'https://github.com/Vixtorbir',
   linkedin: 'https://www.linkedin.com/in/victor-cardenas-gamedev',
-  cv: 'assets/Victor_Cardenas_CV.pdf',
+  cvEs: 'assets/Victor_Cardenas_CV_ES.pdf',
+  cvEn: 'assets/Victor_Cardenas_CV_EN.pdf',
   location: { es: 'Barcelona, España', en: 'Barcelona, Spain' }
 };
 
@@ -264,7 +265,7 @@ export const specSheets = [
     actions: [
       { type: 'link', label: { es: 'GITHUB', en: 'GITHUB' }, href: CONTACT.github, icon: 'gh' },
       { type: 'link', label: { es: 'LINKEDIN', en: 'LINKEDIN' }, href: CONTACT.linkedin, icon: 'in' },
-      { type: 'download', label: { es: 'DESCARGAR CV (PDF)', en: 'DOWNLOAD RESUME (PDF)' }, href: CONTACT.cv, icon: 'pdf' },
+      { type: 'cv', label: { es: 'VER CV (PDF)', en: 'VIEW RESUME (PDF)' }, href: { es: CONTACT.cvEs, en: CONTACT.cvEn }, icon: 'pdf' },
       { type: 'copy', label: { es: 'COPIAR EMAIL', en: 'COPY EMAIL' }, done: { es: '¡COPIADO!', en: 'COPIED!' }, value: CONTACT.email, icon: 'mail' }
     ]
   },
@@ -622,7 +623,7 @@ export const specSheets = [
     ],
     actions: [
       { type: 'link', label: { es: 'GITHUB · VIXTORBIR', en: 'GITHUB · VIXTORBIR' }, href: CONTACT.github, icon: 'gh' },
-      { type: 'download', label: { es: 'DESCARGAR CV (PDF)', en: 'DOWNLOAD RESUME (PDF)' }, href: CONTACT.cv, icon: 'pdf' }
+      { type: 'cv', label: { es: 'VER CV (PDF)', en: 'VIEW RESUME (PDF)' }, href: { es: CONTACT.cvEs, en: CONTACT.cvEn }, icon: 'pdf' }
     ]
   },
 
@@ -672,7 +673,7 @@ export const specSheets = [
       { type: 'copy', label: { es: 'COPIAR TELÉFONO', en: 'COPY PHONE' }, done: { es: '¡COPIADO!', en: 'COPIED!' }, value: CONTACT.phone, icon: 'tel' },
       { type: 'link', label: { es: 'GITHUB', en: 'GITHUB' }, href: CONTACT.github, icon: 'gh' },
       { type: 'link', label: { es: 'LINKEDIN', en: 'LINKEDIN' }, href: CONTACT.linkedin, icon: 'in' },
-      { type: 'download', label: { es: 'CV (PDF)', en: 'RESUME (PDF)' }, href: CONTACT.cv, icon: 'pdf' }
+      { type: 'cv', label: { es: 'CV (PDF)', en: 'RESUME (PDF)' }, href: { es: CONTACT.cvEs, en: CONTACT.cvEn }, icon: 'pdf' }
     ]
   }
 ];

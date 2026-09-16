@@ -199,8 +199,9 @@ function renderAction(a, extraClass = '') {
   if (a.type === 'copy') {
     return `<button type="button" class="cs-action ${extraClass}" data-copy="${escapeHtml(a.value)}" data-label="${escapeHtml(t(a.label))}" data-done="${escapeHtml(t(a.done))}">${icon}<span>${t(a.label)}</span></button>`;
   }
-  if (a.type === 'download') {
-    return `<a class="cs-action ${extraClass}" href="${a.href}" download>${icon}<span>${t(a.label)}</span></a>`;
+  if (a.type === 'cv') {
+    // CV en el idioma activo; se abre en pestaña nueva (visor PDF), no se descarga
+    return `<a class="cs-action ${extraClass}" href="${t(a.href)}" target="_blank" rel="noopener noreferrer">${icon}<span>${t(a.label)}</span></a>`;
   }
   return `<a class="cs-action ${extraClass}" href="${a.href}" target="_blank" rel="noopener noreferrer">${icon}<span>${t(a.label)}</span></a>`;
 }
@@ -230,6 +231,11 @@ function render() {
   document.getElementById('cs-lang').setAttribute('aria-label', ui('langAria'));
   document.getElementById('cs-github-label').textContent = ui('github');
   document.getElementById('cs-cv-label').textContent = ui('cv');
+  const csCv = document.getElementById('cs-cv');
+  if (csCv) {
+    csCv.href = currentLang === 'en' ? CONTACT.cvEn : CONTACT.cvEs;
+    csCv.title = currentLang === 'en' ? 'Open CV in new tab (PDF)' : 'Abrir CV en nueva pestaña (PDF)';
+  }
   document.querySelectorAll('.cs-lang-btn').forEach(b => {
     b.setAttribute('aria-pressed', b.dataset.lang === currentLang ? 'true' : 'false');
   });

@@ -206,6 +206,13 @@ function setLanguage(lang) {
     }
   });
 
+  // CV en el idioma activo, abierto en pestaña nueva (visor PDF del navegador)
+  const cvBtn = document.getElementById('top-cv-btn');
+  if (cvBtn) {
+    cvBtn.href = lang === 'en' ? 'assets/Victor_Cardenas_CV_EN.pdf' : 'assets/Victor_Cardenas_CV_ES.pdf';
+    cvBtn.title = lang === 'en' ? 'Open CV in new tab (PDF)' : 'Abrir CV en nueva pestaña (PDF)';
+  }
+
   const btnEn = document.getElementById('lang-btn-en');
   const btnEs = document.getElementById('lang-btn-es');
   if (lang === 'en') {

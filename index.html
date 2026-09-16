@@ -5,6 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Víctor Cárdenas (Vixtorbir) | Arcade Front-End — Gameplay & Systems Programmer</title>
   <meta name="description" content="Portfolio Arcade de Víctor Cárdenas (Vixtorbir) — Gameplay & Systems Programmer (CITM-UPC). C++, FMOD nativo, Unity Zero-GC y Arquitectura de Motores.">
+  <link rel="canonical" href="https://vixtorbir.github.io/">
+  <meta name="author" content="Víctor Cárdenas Hormigo">
+  <meta name="theme-color" content="#03050a">
+
+  <!-- OpenGraph (LinkedIn / Discord / Slack) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Víctor Cárdenas — Arcade Portfolio">
+  <meta property="og:title" content="Víctor Cárdenas (Vixtorbir) | Gameplay & Systems Programmer — Arcade Portfolio">
+  <meta property="og:description" content="Portfolio arcade interactivo: motor C++ propio, FMOD nativo, Unity Zero-GC y arquitectura de motores. Estudiante de 4º curso CITM-UPC en busca de prácticas en estudios AAA.">
+  <meta property="og:url" content="https://vixtorbir.github.io/">
+  <meta property="og:image" content="https://vixtorbir.github.io/assets/fable_intro_title.png">
+  <meta property="og:image:alt" content="Pantalla de título de Fable — arte del portfolio arcade de Víctor Cárdenas">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:locale:alternate" content="en_US">
+
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Víctor Cárdenas (Vixtorbir) | Gameplay & Systems Programmer">
+  <meta name="twitter:description" content="Arcade portfolio: custom C++ engine, native FMOD, Unity Zero-GC and engine architecture. 4th-year CITM-UPC student seeking AAA internship.">
+  <meta name="twitter:image" content="https://vixtorbir.github.io/assets/fable_intro_title.png">
+  <meta name="twitter:image:alt" content="Fable title screen — Víctor Cárdenas arcade portfolio artwork">
   
   <!-- Arcade Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -85,11 +106,9 @@
 
       <!-- Right Controls: [CV PDF] [EN/ES] [SFX] -->
       <div class="top-right-controls">
-        <!-- Subtle CV Button -->
-        <a href="assets/Victor_Cardenas_CV.pdf" download="Victor_Cardenas_CV.pdf" class="arcade-btn-retro" title="Descargar CV / Resume">
-          <svg class="w-3.5 h-3.5 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
+        <!-- CV: se abre en pestaña nueva (visor PDF nativo), ES/EN según idioma activo (app.js) -->
+        <a href="assets/Victor_Cardenas_CV_ES.pdf" target="_blank" rel="noopener noreferrer" id="top-cv-btn" class="arcade-btn-retro" title="Abrir CV en nueva pestaña (PDF)">
+          <span aria-hidden="true">📄</span>
           <span data-i18n="cv_btn">[CV PDF]</span>
         </a>
 
