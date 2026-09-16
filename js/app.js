@@ -31,6 +31,9 @@ const NAV_COOLDOWN_MS = 220;
 // Umbral de deltaY: trackpads emiten eventos de 1-4px de inercia residual
 // que no deben contar como "un clic de rueda".
 const WHEEL_THRESHOLD = 10;
+// Tiempos de feedback haptico visible (perceptibles a simple vista)
+const JOYSTICK_HOLD_MS = 240; // palanca inclinada antes del retorno elastico
+const SANWA_PRESS_MS = 250;   // boton hundido + destello de microswitch
 let navCooldownUntil = 0;
 
 // Controles del panel: se resuelven una vez en DOMContentLoaded
@@ -40,8 +43,9 @@ const sanwaTimers = new Map(); // buttonEl -> timeout id
 
 /**
  * Inclina la palanca del mini-joystick en la direccion del salto y la suelta
- * ~140ms despues; la CSS aplica el muelle de retorno. Reinicia el temporizador
- * en cada pulsacion para que una rafaga mantenga la palanca inclinada.
+ * 240ms despues (JOYSTICK_HOLD_MS); la CSS aplica el muelle de retorno.
+ * Reinicia el temporizador en cada pulsacion para que una rafaga mantenga la
+ * palanca inclinada de forma continua en vez de vibrar.
  * @param {1|-1} delta  1 = abajo (ArrowDown/wheel+), -1 = arriba
  */
 function tiltJoystick(delta) {
@@ -51,12 +55,12 @@ function tiltJoystick(delta) {
   clearTimeout(joystickTimer);
   joystickTimer = setTimeout(() => {
     joystickEl.classList.remove('tilt-up', 'tilt-down');
-  }, 140);
+  }, JOYSTICK_HOLD_MS);
 }
 
 /**
  * Hunde fisicamente un boton Sanwa del panel (clase .is-pressed) durante
- * ~160ms, con reinicio de la animacion de destello si se pulsa en rafaga.
+ * 250ms (SANWA_PRESS_MS), con reinicio del destello si se pulsa en rafaga.
  * @param {HTMLElement|null} btn  contenedor .panel-action del boton
  */
 function pressSanwa(btn) {
@@ -65,7 +69,7 @@ function pressSanwa(btn) {
   void btn.offsetWidth; // reinicia sanwaFlash
   btn.classList.add('is-pressed');
   clearTimeout(sanwaTimers.get(btn));
-  sanwaTimers.set(btn, setTimeout(() => btn.classList.remove('is-pressed'), 160));
+  sanwaTimers.set(btn, setTimeout(() => btn.classList.remove('is-pressed'), SANWA_PRESS_MS));
 }
 
 /**
@@ -163,7 +167,7 @@ function navigateSystem(delta) {
   localStorage.setItem(SYSTEM_KEY, String(activeSystemIndex));
   playArcadeTick();
   tiltJoystick(delta);
-  pressSanwa(document.getElementById('scroll-hint'));
+  pressSanwa(document.getElementById('scroll-btn'));
   updateLogosView();
 }
 
@@ -295,6 +299,50 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   joystickEl = document.getElementById('mini-joystick');
+
+  // Mini-joystick con raton: clic en la mitad superior = sistema anterior,
+  // mitad inferior = siguiente. Con el boton pulsado y arrastrando, cruzar
+  // la linea media vuelve a disparar (con la misma cadencia que el teclado),
+  // como empujar una palanca real de un tope al otro.
+  const joystickHit = document.querySelector('.control-panel-visual');
+  if (joystickHit && joystickEl) {
+    let dragging = false;
+    let lastDir = 0;
+    const dirFromEvent = (e) => {
+      const r = joystickEl.getBoundingClientRect();
+      return e.clientY < r.top + r.height / 2 ? -1 : 1;
+    };
+    const push = (dir) => {
+      if (isLeaving) return;
+      lastDir = dir;
+      tiltJoystick(dir); // feedback inmediato aunque el cooldown descarte el salto
+      if (acceptNavigation()) navigateSystem(dir);
+    };
+    joystickHit.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      dragging = true;
+      joystickHit.setPointerCapture?.(e.pointerId);
+      push(dirFromEvent(e));
+    });
+    joystickHit.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dir = dirFromEvent(e);
+      if (dir !== lastDir) push(dir);
+    });
+    const release = () => { dragging = false; lastDir = 0; };
+    joystickHit.addEventListener('pointerup', release);
+    joystickHit.addEventListener('pointercancel', release);
+    joystickHit.addEventListener('lostpointercapture', release);
+  }
+
+  // Boton azul Sanwa: siguiente sistema (mismo detent que ArrowDown)
+  const scrollBtn = document.getElementById('scroll-btn');
+  if (scrollBtn) {
+    scrollBtn.addEventListener('click', () => {
+      if (acceptNavigation()) navigateSystem(1);
+    });
+  }
 
   updateLogosView();
 
