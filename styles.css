@@ -1128,12 +1128,12 @@ html, body {
 /* Posiciones +-2: 265px verticales, +95px hacia la derecha */
 .system-logo-item.pos--2 {
   transform: translate(-50%, -50%) translateY(-265px) translateX(95px) rotate(7.5deg) scale(0.82);
-  opacity: 0.55;
+  opacity: 0.7;
   z-index: 10;
 }
 .system-logo-item.pos-2 {
   transform: translate(-50%, -50%) translateY(265px) translateX(95px) rotate(-7.5deg) scale(0.82);
-  opacity: 0.55;
+  opacity: 0.7;
   z-index: 10;
 }
 
@@ -1836,55 +1836,65 @@ button.panel-action:active,
 
 /* ==========================================================================
    ATTRACT MODE — LA MÁQUINA ARCADE (Fase 6)
-   Overlay fixed (z 500 > capas CRT 200). El mueble es una foto real
-   (assets/arcade_red_cabinet.jpg, 1024x819) y las capas vivas (marquesina,
-   monitor, monedero) se posicionan en % del mueble y se tipografian en cqw
-   (unidades de contenedor): escalan con la maquina en cualquier viewport.
-   Coordenadas medidas sobre la imagen: cristal x 12.9%..87.5% / y 19%..73.8%;
-   panel de marquesina x 30%..70% / y 2.5%..11%.
+   Mueble 100% vectorial (SVG inline en index.html, estilo ilustracion de
+   videojuego: colores planos, contornos, neon). Vista frontal encuadrada con
+   zoom sobre el monitor: el mueble mide 135vh, asi la marquesina queda al
+   borde superior, el panel de mandos al inferior y el cristal domina el centro.
+   Las capas vivas (marquesina, pantalla, monedero) se posicionan en % del
+   mueble (viewBox 1000x1300) y se tipografian en cqw (unidades de contenedor).
+   Cristal: x 190..810 / y 312..732  ->  19% 24%  62% x 32.3%
+   Marquesina: x 150..850 / y 58..202 -> 15% 4.46% 70% x 11.08%
+   Toda animacion es transform / opacity (compuesta): cero repintados.
    ========================================================================== */
 .arcade-attract-screen {
+  --cab-h: min(135vh, calc(100vw * 1.3));
+  --cab-w: calc(var(--cab-h) * 1000 / 1300);
+  --screen-cy: 48vh; /* altura del centro del cristal en el viewport */
   position: fixed;
   inset: 0;
   z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
   cursor: pointer;
   background:
-    radial-gradient(ellipse at 50% 110%, rgba(220, 38, 38, 0.16) 0%, transparent 55%),
-    radial-gradient(circle at 50% 40%, #0b0f18 0%, #04060b 60%, #020306 100%);
+    radial-gradient(ellipse at 50% 108%, rgba(225, 29, 72, 0.14) 0%, transparent 50%),
+    radial-gradient(circle at 50% 40%, #0a0f1a 0%, #04060b 55%, #020306 100%);
   transition: opacity 0.55s ease 0.12s, filter 0.5s ease;
 }
 
 .arcade-attract-screen[hidden] { display: none; }
 
-/* Luces de sala: halo de la maquina sobre el suelo y reflejo lateral */
+/* Sala: luz del monitor sobre las paredes, suelo y scanlines ambientales */
 .attract-room {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 50% 100%, rgba(245, 158, 11, 0.10) 0%, rgba(245, 158, 11, 0.04) 30%, transparent 55%),
-    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0px, rgba(0, 0, 0, 0.22) 1.5px, transparent 1.5px, transparent 3.5px);
-  opacity: 0.6;
+    radial-gradient(ellipse 60vw 45vh at 50% var(--screen-cy), rgba(56, 189, 248, 0.10) 0%, rgba(56, 189, 248, 0.03) 45%, transparent 70%),
+    linear-gradient(to top, rgba(245, 158, 11, 0.08) 0%, transparent 18%),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0px, rgba(0, 0, 0, 0.2) 1.5px, transparent 1.5px, transparent 3.5px);
   transform: translateZ(0);
 }
 
-/* El mueble: llena la altura del viewport conservando la proporcion de la foto */
+/* El mueble */
 .attract-cabinet {
-  position: relative;
-  width: min(100vw, calc(100vh * 1024 / 819), calc(100dvh * 1024 / 819));
-  aspect-ratio: 1024 / 819;
-  background: url('assets/arcade_red_cabinet.jpg') center / 100% 100% no-repeat;
+  position: absolute;
+  left: calc(50% - var(--cab-w) / 2);
+  top: calc(var(--screen-cy) - var(--cab-h) * 0.4015);
+  width: var(--cab-w);
+  height: var(--cab-h);
   container-type: inline-size;
   /* El zoom de arranque entra por el centro del cristal */
-  transform-origin: 50.2% 46.4%;
+  transform-origin: 50% 40.15%;
   transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
-  /* Sombra del mueble sobre el suelo: box-shadow (composited), nunca filter */
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.75);
+}
+
+.attract-cabinet-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* ---- Transicion "coin drop & CRT zoom": la camara entra por el monitor ---- */
@@ -1894,79 +1904,143 @@ button.panel-action:active,
   pointer-events: none;
 }
 .arcade-attract-screen.is-booting .attract-cabinet {
-  transform: scale(3);
+  transform: scale(3.2);
 }
 
-/* ---- Marquesina retroiluminada ---- */
+/* ---- Marquesina retroiluminada (sobre el cristal SVG) ---- */
 .attract-marquee {
   position: absolute;
-  left: 30%;
-  top: 2.4%;
-  width: 40%;
-  height: 8.6%;
+  left: 15%;
+  top: 4.46%;
+  width: 70%;
+  height: 11.08%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.4cqw;
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.75) 100%);
-  border: 0.15cqw solid rgba(245, 158, 11, 0.85);
-  box-shadow:
-    0 0 2cqw rgba(245, 158, 11, 0.45),
-    inset 0 0 1.4cqw rgba(245, 158, 11, 0.25);
-  border-radius: 0.4cqw;
+  gap: 0.5cqw;
+  border-radius: 0.6cqw;
+  box-shadow: inset 0 0 2.4cqw rgba(245, 158, 11, 0.35), 0 0 2cqw rgba(245, 158, 11, 0.35);
   animation: marqueeBacklight 3.2s ease-in-out infinite;
 }
 
 @keyframes marqueeBacklight {
-  0%, 100% { box-shadow: 0 0 2cqw rgba(245, 158, 11, 0.45), inset 0 0 1.4cqw rgba(245, 158, 11, 0.25); }
-  50%      { box-shadow: 0 0 2.8cqw rgba(245, 158, 11, 0.6), inset 0 0 1.8cqw rgba(245, 158, 11, 0.35); }
+  0%, 100% { opacity: 0.92; }
+  50%      { opacity: 1; }
 }
 
 .attract-tag {
   font-family: var(--font-pixel);
-  font-size: 0.72cqw;
+  font-size: 0.85cqw;
   color: #fbbf24;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   line-height: 1;
+  text-shadow: 0 0 0.8cqw rgba(251, 191, 36, 0.7);
 }
 
 .attract-title {
   font-family: var(--font-arcade);
-  font-size: 3.1cqw;
+  font-size: 4.6cqw;
   font-weight: 800;
-  color: #ffffff;
+  color: #fff7ed;
   letter-spacing: 0.08em;
   line-height: 1;
   margin: 0;
   white-space: nowrap;
   text-shadow:
     0 0 1.2cqw rgba(255, 255, 255, 0.55),
-    0 0 2.4cqw rgba(245, 158, 11, 0.35),
-    0.18cqw 0.18cqw 0 #000;
+    0 0 3cqw rgba(245, 158, 11, 0.55),
+    0.22cqw 0.22cqw 0 #3b0a0a;
 }
 
 /* ---- Monitor CRT ---- */
 .attract-screen {
   position: absolute;
-  left: 12.9%;
-  top: 19%;
-  width: 74.6%;
-  height: 54.8%;
-  border-radius: 1.6cqw;
+  left: 19%;
+  top: 24%;
+  width: 62%;
+  height: 32.3%;
+  z-index: 2;
+  border-radius: 0.8cqw;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 45%, #0c1424 0%, #050912 55%, #020409 100%);
+  background: radial-gradient(ellipse at 50% 45%, #0e1a30 0%, #060b16 55%, #02040a 100%);
   box-shadow: inset 0 0 4cqw rgba(0, 0, 0, 0.95);
+}
+
+/* Luz del tubo sangrando sobre el bisel y la sala (pulso lento de fosforo) */
+.attract-screen-bleed {
+  position: absolute;
+  left: 19%;
+  top: 24%;
+  width: 62%;
+  height: 32.3%;
+  z-index: 1;
+  border-radius: 0.8cqw;
+  pointer-events: none;
+  box-shadow:
+    0 0 4cqw 0.6cqw rgba(56, 189, 248, 0.32),
+    0 0 12cqw 2cqw rgba(56, 189, 248, 0.12),
+    0 0 18cqw 4cqw rgba(245, 158, 11, 0.08);
+  animation: screenBleed 4.5s ease-in-out infinite;
+}
+
+@keyframes screenBleed {
+  0%, 100% { opacity: 0.75; }
+  50%      { opacity: 1; }
+}
+
+/* Rejilla retro en perspectiva (suelo outrun) recorriendo la mitad inferior */
+.attract-screen-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52%;
+  perspective: 22cqw;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Desvanecido hacia el horizonte sin mask-image (degradado compuesto) */
+.attract-screen-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, transparent 45%, #060b16 100%);
+  transform: translateZ(0);
+}
+
+.attract-screen-grid-plane {
+  --cell: 3.4cqw;
+  position: absolute;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  top: -10%;
+  transform-origin: 50% 0;
+  transform: rotateX(62deg) translateY(0);
+  background-size: var(--cell) var(--cell);
+  background-image:
+    linear-gradient(to right, rgba(56, 189, 248, 0.35) 0.12cqw, transparent 0.12cqw),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.35) 0.12cqw, transparent 0.12cqw);
+  animation: gridScroll 1.6s linear infinite;
+  will-change: transform;
+}
+
+@keyframes gridScroll {
+  0%   { transform: rotateX(62deg) translateY(0); }
+  100% { transform: rotateX(62deg) translateY(var(--cell)); }
 }
 
 .attract-screen-inner {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 2.2cqw 3cqw 2cqw;
+  padding: 1.6cqw 2.4cqw 1.5cqw;
   text-align: center;
 }
 
@@ -1975,41 +2049,54 @@ button.panel-action:active,
   justify-content: space-between;
   gap: 1.5cqw;
   font-family: var(--font-pixel);
-  font-size: 0.78cqw;
+  font-size: 0.8cqw;
   letter-spacing: 0.1em;
   color: #fbbf24;
   text-shadow: 0 0 0.6cqw rgba(251, 191, 36, 0.6);
 }
 .attract-screen-bottom { color: #7dd3fc; text-shadow: 0 0 0.6cqw rgba(56, 189, 248, 0.5); }
-.attract-screen-bottom span:last-child { color: #64748b; text-shadow: none; letter-spacing: 0.08em; }
+.attract-screen-bottom span:last-child { color: #64748b; text-shadow: none; }
 
 .attract-screen-center {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.1cqw;
+  gap: 0.9cqw;
+}
+
+.attract-screen-name {
+  font-family: var(--font-pixel);
+  font-size: 2.6cqw;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  white-space: nowrap;
+  text-shadow:
+    0 0 1cqw rgba(255, 255, 255, 0.7),
+    0 0 2.4cqw rgba(56, 189, 248, 0.6),
+    0.2cqw 0.2cqw 0 #1e3a8a;
 }
 
 .attract-subtitle {
   font-family: var(--font-mono);
-  font-size: 1.25cqw;
+  font-size: 1.15cqw;
   font-weight: 600;
   color: var(--neon-cyan);
-  letter-spacing: 0.18em;
-  text-shadow: 0 0 1cqw rgba(0, 240, 255, 0.55);
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 1cqw rgba(0, 240, 255, 0.6);
 }
 
 .attract-system-sub {
   font-family: var(--font-mono);
-  font-size: 0.95cqw;
+  font-size: 0.85cqw;
   color: #94a3b8;
   letter-spacing: 0.14em;
 }
 
 .attract-coin-prompt {
-  margin-top: 1.6cqw;
+  margin-top: 1.1cqw;
   font-family: var(--font-pixel);
-  font-size: 2cqw;
+  font-size: 1.55cqw;
   color: var(--neon-yellow);
   letter-spacing: 0.06em;
   white-space: nowrap;
@@ -2025,68 +2112,115 @@ button.panel-action:active,
 
 .attract-start-hint {
   font-family: var(--font-mono);
-  font-size: 0.95cqw;
+  font-size: 0.85cqw;
   color: #64748b;
   letter-spacing: 0.1em;
 }
 
-/* Post-procesado del tubo: scanlines + vineta + reflejo del cristal (estatico) */
+/* Barrido de reflejo sobre el cristal (banda de luz que cruza cada ~7s) */
+.attract-screen-sweep {
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 28%;
+  height: 200%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 0%, rgba(200, 230, 255, 0.10) 45%, rgba(255, 255, 255, 0.16) 50%, rgba(200, 230, 255, 0.10) 55%, transparent 100%);
+  transform: translateX(-160%) skewX(-14deg);
+  animation: glassSweep 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes glassSweep {
+  0%   { transform: translateX(-160%) skewX(-14deg); }
+  38%  { transform: translateX(460%) skewX(-14deg); }
+  100% { transform: translateX(460%) skewX(-14deg); }
+}
+
+/* Post-procesado del tubo: scanlines + vineta + reflejo estatico */
 .attract-screen-fx {
   position: absolute;
   inset: 0;
+  z-index: 4;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 22% 10%, rgba(200, 225, 255, 0.07) 0%, transparent 40%),
-    radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.6) 100%),
+    radial-gradient(ellipse at 22% 8%, rgba(200, 225, 255, 0.07) 0%, transparent 40%),
+    radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.62) 100%),
     repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.28) 0px, rgba(0, 0, 0, 0.28) 1px, transparent 1px, transparent 3px);
   transform: translateZ(0);
 }
 
-/* ---- Placa del monedero sobre el panel de control ---- */
+/* Bloom + micro-flicker del fosforo (solo opacity) */
+.attract-screen-flicker {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, rgba(180, 220, 255, 0.07) 0%, transparent 60%);
+  opacity: 0.7;
+  animation: attractFlicker 3.4s steps(1) infinite;
+}
+
+@keyframes attractFlicker {
+  0%, 100% { opacity: 0.7; }
+  8%       { opacity: 1; }
+  9%       { opacity: 0.6; }
+  10%      { opacity: 0.9; }
+  61%      { opacity: 0.8; }
+  62%      { opacity: 0.55; }
+  63%      { opacity: 0.8; }
+}
+
+/* ---- Placa del monedero sobre el panel de mandos (siempre visible) ---- */
 .attract-coin-btn {
   position: absolute;
-  left: 50%;
-  top: 83.5%;
-  transform: translateX(-50%);
+  left: 26%;
+  top: 71.6%;
+  transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
-  gap: 0.8cqw;
-  padding: 0.7cqw 1.4cqw;
-  background: linear-gradient(180deg, #2b3340 0%, #171c26 100%);
-  border: 0.15cqw solid #cbd5e1;
+  gap: 0.9cqw;
+  padding: 0.8cqw 1.6cqw;
+  background: linear-gradient(180deg, #2b3548 0%, #151c2b 100%);
+  border: 0.18cqw solid #cbd5e1;
   border-radius: 0.5cqw;
   color: #fbbf24;
   font-family: var(--font-pixel);
-  font-size: 0.75cqw;
+  font-size: 0.9cqw;
   letter-spacing: 0.08em;
   cursor: pointer;
-  box-shadow: 0 0.4cqw 1.2cqw rgba(0, 0, 0, 0.7), inset 0 0.1cqw 0 rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0.4cqw 1.2cqw rgba(0, 0, 0, 0.7), inset 0 0.12cqw 0 rgba(255, 255, 255, 0.25), 0 0 1.4cqw rgba(245, 158, 11, 0.25);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .coin-slot-opening {
-  width: 2cqw;
-  height: 0.55cqw;
+  width: 2.2cqw;
+  height: 0.6cqw;
   border-radius: 0.2cqw;
   background: #000;
-  box-shadow: inset 0 0.1cqw 0.2cqw rgba(0, 0, 0, 0.95), 0 0 0 0.12cqw #9ca3af;
+  box-shadow: inset 0 0.1cqw 0.2cqw rgba(0, 0, 0, 0.95), 0 0 0 0.14cqw #9ca3af;
 }
 
 .attract-coin-btn:hover,
 .attract-coin-btn:focus-visible {
-  transform: translateX(-50%) translateY(-0.15cqw);
-  box-shadow: 0 0 1.6cqw rgba(245, 158, 11, 0.65), inset 0 0.1cqw 0 rgba(255, 255, 255, 0.25);
+  transform: translate(-50%, -50%) translateY(-0.15cqw);
+  box-shadow: 0 0 1.8cqw rgba(245, 158, 11, 0.7), inset 0 0.12cqw 0 rgba(255, 255, 255, 0.25);
   outline: none;
   border-color: var(--neon-yellow);
 }
 .attract-coin-btn:active {
-  transform: translateX(-50%) translateY(0.1cqw);
+  transform: translate(-50%, -50%) translateY(0.1cqw);
 }
 
-/* Accesibilidad: sin parpadeo, sin pulso de marquesina, sin zoom; fundido simple */
+/* Accesibilidad: sin parpadeos, barridos ni zoom; fundido simple */
 @media (prefers-reduced-motion: reduce) {
   .attract-coin-prompt,
-  .attract-marquee { animation: none !important; }
+  .attract-marquee,
+  .attract-screen-bleed,
+  .attract-screen-grid-plane,
+  .attract-screen-sweep,
+  .attract-screen-flicker { animation: none !important; }
   .arcade-attract-screen { transition: opacity 0.3s ease !important; }
   .arcade-attract-screen.is-booting { filter: none !important; }
   .attract-cabinet { transition: none !important; }
