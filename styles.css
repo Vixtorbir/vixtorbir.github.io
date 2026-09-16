@@ -1965,10 +1965,13 @@ button.panel-action:active,
   width: 62%;
   height: 32.3%;
   z-index: 2;
-  border-radius: 0.8cqw;
+  border-radius: 1cqw / 1.4cqw;
   overflow: hidden;
   background: radial-gradient(ellipse at 50% 45%, #0e1a30 0%, #060b16 55%, #02040a 100%);
-  box-shadow: inset 0 0 4cqw rgba(0, 0, 0, 0.95);
+  /* Sombra de la capota proyectada sobre el cristal + hueco del tubo */
+  box-shadow:
+    inset 0 4cqw 7cqw rgba(0, 0, 0, 0.95),
+    inset 0 0 4cqw rgba(0, 0, 0, 0.9);
 }
 
 /* Luz del tubo sangrando sobre el bisel y la sala (pulso lento de fosforo) */
@@ -2044,7 +2047,7 @@ button.panel-action:active,
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1.6cqw 2.4cqw 1.5cqw;
+  padding: 1.4cqw 2.4cqw 1.3cqw;
   text-align: center;
 }
 
@@ -2070,7 +2073,7 @@ button.panel-action:active,
 
 .attract-screen-name {
   font-family: var(--font-pixel);
-  font-size: 2.6cqw;
+  font-size: 2.9cqw;
   color: #ffffff;
   letter-spacing: 0.04em;
   line-height: 1.1;
@@ -2081,13 +2084,18 @@ button.panel-action:active,
     0.2cqw 0.2cqw 0 #1e3a8a;
 }
 
+/* Segundo titular: la especialidad debe leerse al instante */
 .attract-subtitle {
-  font-family: var(--font-mono);
-  font-size: 1.15cqw;
-  font-weight: 600;
-  color: var(--neon-cyan);
-  letter-spacing: 0.2em;
-  text-shadow: 0 0 1cqw rgba(0, 240, 255, 0.6);
+  font-family: var(--font-arcade);
+  font-size: 2.55cqw;
+  font-weight: 800;
+  line-height: 1.12;
+  color: #38bdf8;
+  letter-spacing: 0.12em;
+  text-shadow:
+    0 0 0.8cqw rgba(56, 189, 248, 0.85),
+    0 0 2.2cqw rgba(56, 189, 248, 0.45),
+    0.14cqw 0.14cqw 0 #082f49;
 }
 
 /* Insignias tecnicas (terminologia de los case studies) */
@@ -2108,9 +2116,9 @@ button.panel-action:active,
 }
 
 .attract-coin-prompt {
-  margin-top: 1.1cqw;
+  margin-top: 0.6cqw;
   font-family: var(--font-pixel);
-  font-size: 1.55cqw;
+  font-size: 1.45cqw;
   color: var(--neon-yellow);
   letter-spacing: 0.06em;
   white-space: nowrap;
@@ -2153,15 +2161,29 @@ button.panel-action:active,
 }
 
 /* Post-procesado del tubo: scanlines + vineta + reflejo estatico */
+/* Optica del tubo: vineta de barril (esquinas oscurecidas por la curvatura),
+   scanlines finas y mascara de fosforo RGB. Nada de blur: texto nitido. */
 .attract-screen-fx {
   position: absolute;
   inset: 0;
   z-index: 4;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 22% 8%, rgba(200, 225, 255, 0.07) 0%, transparent 40%),
-    radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.62) 100%),
-    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.28) 0px, rgba(0, 0, 0, 0.28) 1px, transparent 1px, transparent 3px);
+    radial-gradient(ellipse 78% 74% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.45) 85%, rgba(0, 0, 0, 0.85) 100%),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.30) 0px, rgba(0, 0, 0, 0.30) 1px, transparent 1px, transparent 3px),
+    repeating-linear-gradient(to right, rgba(255, 56, 56, 0.05) 0px, rgba(255, 56, 56, 0.05) 1px, rgba(56, 255, 90, 0.05) 1px, rgba(56, 255, 90, 0.05) 2px, rgba(70, 90, 255, 0.05) 2px, rgba(70, 90, 255, 0.05) 3px);
+  transform: translateZ(0);
+}
+
+/* Cristal curvo: reflejo diagonal de la sala a 120 grados + brillo de esquina */
+.attract-screen-glass {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 28%, transparent 46%, transparent 100%),
+    radial-gradient(ellipse at 18% 6%, rgba(200, 225, 255, 0.09) 0%, transparent 34%);
   transform: translateZ(0);
 }
 
@@ -2195,34 +2217,51 @@ button.panel-action:active,
   display: inline-flex;
   align-items: center;
   gap: 0.9cqw;
-  padding: 0.8cqw 1.6cqw;
-  background: linear-gradient(180deg, #2b3548 0%, #151c2b 100%);
-  border: 0.18cqw solid #cbd5e1;
-  border-radius: 0.5cqw;
-  color: #fbbf24;
+  padding: 0.7cqw 1.4cqw;
+  /* Placa de zinc fundido: gradiente metalico + bisel */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0) 45%, rgba(0, 0, 0, 0.35)),
+    linear-gradient(180deg, #6b7280 0%, #4b5563 40%, #374151 100%);
+  border: 0.12cqw solid #111827;
+  border-radius: 0.4cqw;
+  color: #111827;
   font-family: var(--font-pixel);
-  font-size: 0.9cqw;
-  letter-spacing: 0.08em;
+  font-size: 0.82cqw;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0.08cqw 0 rgba(255, 255, 255, 0.35);
   cursor: pointer;
-  box-shadow: 0 0.4cqw 1.2cqw rgba(0, 0, 0, 0.7), inset 0 0.12cqw 0 rgba(255, 255, 255, 0.25), 0 0 1.4cqw rgba(245, 158, 11, 0.25);
+  box-shadow:
+    0 0.5cqw 1.2cqw rgba(0, 0, 0, 0.75),
+    inset 0 0.14cqw 0 rgba(255, 255, 255, 0.45),
+    inset 0 -0.14cqw 0 rgba(0, 0, 0, 0.6);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
+/* Ranura vertical de moneda */
 .coin-slot-opening {
-  width: 2.2cqw;
-  height: 0.6cqw;
-  border-radius: 0.2cqw;
+  width: 0.55cqw;
+  height: 1.8cqw;
+  border-radius: 0.15cqw;
   background: #000;
-  box-shadow: inset 0 0.1cqw 0.2cqw rgba(0, 0, 0, 0.95), 0 0 0 0.14cqw #9ca3af;
+  box-shadow: inset 0 0 0.25cqw rgba(0, 0, 0, 1), 0 0 0 0.12cqw #1f2937, 0 0 0 0.24cqw #9ca3af;
 }
 
-/* Pulsador de devolucion del coin mech */
+/* Pulsador de devolucion: ambar translucido con bombilla interior */
 .coin-return {
-  width: 1.1cqw;
-  height: 1.1cqw;
+  width: 1.3cqw;
+  height: 1.3cqw;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fecaca, #ef4444 55%, #7f1d1d);
-  box-shadow: 0 0 0 0.12cqw #05080f;
+  background: radial-gradient(circle at 45% 40%, #fff7ed 0%, #fbbf24 30%, #f59e0b 60%, #b45309 100%);
+  box-shadow:
+    0 0 0 0.12cqw #111827,
+    0 0 0.9cqw rgba(245, 158, 11, 0.75),
+    inset 0 -0.15cqw 0.2cqw rgba(0, 0, 0, 0.35);
+  animation: coinBulb 2.4s ease-in-out infinite;
+}
+
+@keyframes coinBulb {
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 1; }
 }
 
 .attract-coin-btn:hover,
@@ -2232,6 +2271,7 @@ button.panel-action:active,
   outline: none;
   border-color: var(--neon-yellow);
 }
+.attract-coin-btn:focus-visible { box-shadow: 0 0 0 0.25cqw var(--neon-yellow), 0 0.5cqw 1.2cqw rgba(0, 0, 0, 0.75); }
 .attract-coin-btn:active {
   transform: translate(-50%, -50%) translateY(0.1cqw);
 }
@@ -2243,6 +2283,7 @@ button.panel-action:active,
   .attract-screen-bleed,
   .attract-screen-grid-plane,
   .attract-screen-sweep,
+  .coin-return,
   .attract-screen-flicker { animation: none !important; }
   .arcade-attract-screen { transition: opacity 0.3s ease !important; }
   .arcade-attract-screen.is-booting { filter: none !important; }
