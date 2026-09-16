@@ -1863,15 +1863,19 @@ button.panel-action:active,
 
 .arcade-attract-screen[hidden] { display: none; }
 
-/* Sala: luz del monitor sobre las paredes, suelo y scanlines ambientales */
+/* Sala de recreativos: retroiluminacion ambar calida tras la marquesina, luz
+   cian del monitor sobre la pared, suelo calido, scanlines ambientales y
+   vineta oscura en los bordes (todo estatico y compuesto). */
 .attract-room {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
+    radial-gradient(ellipse 70vw 40vh at 50% 6vh, rgba(245, 158, 11, 0.20) 0%, rgba(245, 158, 11, 0.07) 40%, transparent 70%),
     radial-gradient(ellipse 60vw 45vh at 50% var(--screen-cy), rgba(56, 189, 248, 0.10) 0%, rgba(56, 189, 248, 0.03) 45%, transparent 70%),
-    linear-gradient(to top, rgba(245, 158, 11, 0.08) 0%, transparent 18%),
-    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0px, rgba(0, 0, 0, 0.2) 1.5px, transparent 1.5px, transparent 3.5px);
+    linear-gradient(to top, rgba(245, 158, 11, 0.10) 0%, transparent 20%),
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0px, rgba(0, 0, 0, 0.2) 1.5px, transparent 1.5px, transparent 3.5px),
+    radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.75) 100%);
   transform: translateZ(0);
 }
 
@@ -1904,7 +1908,7 @@ button.panel-action:active,
   pointer-events: none;
 }
 .arcade-attract-screen.is-booting .attract-cabinet {
-  transform: scale(3.2);
+  transform: scale(2.2);
 }
 
 /* ---- Marquesina retroiluminada (sobre el cristal SVG) ---- */
@@ -2086,11 +2090,21 @@ button.panel-action:active,
   text-shadow: 0 0 1cqw rgba(0, 240, 255, 0.6);
 }
 
+/* Insignias tecnicas (terminologia de los case studies) */
 .attract-system-sub {
+  display: flex;
+  gap: 0.6cqw;
   font-family: var(--font-mono);
-  font-size: 0.85cqw;
-  color: #94a3b8;
-  letter-spacing: 0.14em;
+  font-size: 0.8cqw;
+  color: #cbd5e1;
+  letter-spacing: 0.12em;
+}
+.attract-badge {
+  padding: 0.25cqw 0.7cqw;
+  border: 0.1cqw solid rgba(56, 189, 248, 0.55);
+  border-radius: 0.2cqw;
+  background: rgba(56, 189, 248, 0.08);
+  text-shadow: 0 0 0.5cqw rgba(56, 189, 248, 0.5);
 }
 
 .attract-coin-prompt {
@@ -2200,6 +2214,15 @@ button.panel-action:active,
   border-radius: 0.2cqw;
   background: #000;
   box-shadow: inset 0 0.1cqw 0.2cqw rgba(0, 0, 0, 0.95), 0 0 0 0.14cqw #9ca3af;
+}
+
+/* Pulsador de devolucion del coin mech */
+.coin-return {
+  width: 1.1cqw;
+  height: 1.1cqw;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fecaca, #ef4444 55%, #7f1d1d);
+  box-shadow: 0 0 0 0.12cqw #05080f;
 }
 
 .attract-coin-btn:hover,

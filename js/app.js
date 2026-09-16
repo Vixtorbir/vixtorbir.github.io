@@ -42,7 +42,7 @@ const INSPECT_LEAVE_MS = 260;
 const RETURN_SFX_KEY = 'arcade_play_return_sfx';
 // Attract Mode (Fase 6): '1' en sessionStorage = la sesión ya arrancó, no se
 // repite la intro al volver de project.html; una pestaña nueva o recarga sí.
-const BOOT_KEY = 'arcade_booted';
+const BOOT_KEY = 'arcade_cabinet_booted';
 const BOOT_ZOOM_MS = 650;
 let attractActive = false; // true mientras el overlay de Attract Mode está en pantalla
 let attractBoot = null;    // bootArcade() expuesto para el mando (onAnyButton)
