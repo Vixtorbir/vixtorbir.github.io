@@ -562,7 +562,6 @@
             <stop offset="1" stop-color="rgba(0,0,0,0)"/>
           </linearGradient>
           <!-- Chaflanes del bisel: iluminado arriba/izquierda, oscuro abajo/derecha -->
-          <linearGradient id="chamfTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c222c"/><stop offset="1" stop-color="#0c1016"/></linearGradient>
           <linearGradient id="chamfBottom" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05070a"/><stop offset="1" stop-color="#11161d"/></linearGradient>
           <linearGradient id="chamfLeft" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#181e27"/><stop offset="1" stop-color="#090c11"/></linearGradient>
           <linearGradient id="chamfRight" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#07090d"/><stop offset="1" stop-color="#141920"/></linearGradient>
@@ -592,18 +591,7 @@
           <!-- Resina rubí: base #991b1b -> #450a0a con sombra nuclear hacia abajo -->
           <!-- Luz de borde inferior: rebote cian del CRT + ámbar del panel -->
           <!-- Derrame de luz del monitor sobre la mitad superior del panel -->
-          <linearGradient id="crtSpill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="rgba(125,211,252,0.16)"/>
-            <stop offset="0.45" stop-color="rgba(125,211,252,0.04)"/>
-            <stop offset="1" stop-color="rgba(125,211,252,0)"/>
-          </linearGradient>
           <!-- Canto de aluminio pulido del frente del panel -->
-          <linearGradient id="aluLip" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#f3f4f6"/>
-            <stop offset="0.25" stop-color="#9ca3af"/>
-            <stop offset="0.55" stop-color="#e5e7eb"/>
-            <stop offset="1" stop-color="#374151"/>
-          </linearGradient>
           <!-- 1P Start: botón pequeño recesado -->
           <!-- Sanwa OBSF-30: collar de montaje, pozo del microswitch y émbolo convexo -->
           <!-- Puerta de monedas: chapa de acero -->
@@ -611,89 +599,90 @@
             <stop offset="0" stop-color="#1a1f27"/>
             <stop offset="1" stop-color="#0b0e13"/>
           </linearGradient>
-          <!-- Sombras de contacto difuminadas (solo sobre formas pequeñas: coste único) -->
-          <filter id="softContactShadow" x="-40%" y="-60%" width="180%" height="240%">
-            <feGaussianBlur stdDeviation="2.5"/>
+          <!-- ===== HARDWARE DEL PANEL (Sanwa JLF + OBSF-30) ===== -->
+          <!-- Sombra de contacto: unico filtro; solo sobre elipses de sombra -->
+          <filter id="softShadow" x="-40%" y="-80%" width="180%" height="260%">
+            <feGaussianBlur stdDeviation="2"/>
           </filter>
-          <filter id="wideShadow" x="-40%" y="-60%" width="180%" height="240%">
-            <feGaussianBlur stdDeviation="4"/>
+          <filter id="bloom" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="1.6"/>
           </filter>
-          <!-- Sombra de la capota sobre la mitad superior del panel -->
-          <linearGradient id="deckCanopyShadow" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="rgba(0,0,0,0.78)"/>
-            <stop offset="0.5" stop-color="rgba(0,0,0,0.28)"/>
+          <clipPath id="washerClip"><ellipse cx="320" cy="884" rx="48" ry="15"/></clipPath>
+          <!-- Costura deck/capota: AO profunda -->
+          <linearGradient id="deckSeamAO" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="rgba(0,0,0,0.9)"/>
+            <stop offset="0.45" stop-color="rgba(0,0,0,0.35)"/>
             <stop offset="1" stop-color="rgba(0,0,0,0)"/>
           </linearGradient>
-          <!-- Cromo del eje: bandas anisotrópicas nítidas -->
-          <linearGradient id="chromeShaft" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#374151"/>
-            <stop offset="0.25" stop-color="#d1d5db"/>
-            <stop offset="0.48" stop-color="#ffffff"/>
-            <stop offset="0.65" stop-color="#9ca3af"/>
-            <stop offset="0.92" stop-color="#111827"/>
-            <stop offset="1" stop-color="#0b0f16"/>
+          <!-- Derrame de luz del CRT sobre la mitad superior del deck -->
+          <linearGradient id="crtWash" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="rgba(180,220,255,0.12)"/>
+            <stop offset="0.5" stop-color="rgba(180,220,255,0.04)"/>
+            <stop offset="1" stop-color="rgba(180,220,255,0)"/>
           </linearGradient>
-          <!-- Dustwasher: disco de goma mate, un solo gradiente (sin anillos) -->
-          <radialGradient id="washerRubber" cx="0.5" cy="0.42" r="0.6">
-            <stop offset="0" stop-color="#2a2e34"/>
-            <stop offset="0.55" stop-color="#15181d"/>
-            <stop offset="0.9" stop-color="#0a0c0f"/>
-            <stop offset="1" stop-color="#040506"/>
+          <!-- Cara del pliegue frontal: bisel cepillado oscuro -->
+          <linearGradient id="lipFace" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3a414c"/>
+            <stop offset="0.5" stop-color="#232830"/>
+            <stop offset="1" stop-color="#12161c"/>
+          </linearGradient>
+          <!-- Eje: cromo espejo con reflejos anisotropicos verticales -->
+          <linearGradient id="chromeMirror" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#1f242d"/>
+            <stop offset="18%" stop-color="#64748b"/>
+            <stop offset="38%" stop-color="#ffffff"/>
+            <stop offset="55%" stop-color="#cbd5e1"/>
+            <stop offset="78%" stop-color="#334155"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+          </linearGradient>
+          <linearGradient id="chromeBands" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="rgba(255,255,255,0.25)"/>
+            <stop offset="0.12" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="0.5" stop-color="rgba(0,0,0,0.12)"/>
+            <stop offset="0.9" stop-color="rgba(255,255,255,0.12)"/>
+            <stop offset="1" stop-color="rgba(0,0,0,0.4)"/>
+          </linearGradient>
+          <!-- Dustwasher: goma vulcanizada grafito con sheen radial suave -->
+          <radialGradient id="rubberBody" cx="0.5" cy="0.38" r="0.62">
+            <stop offset="0" stop-color="#1e2126"/>
+            <stop offset="0.6" stop-color="#121418"/>
+            <stop offset="1" stop-color="#0a0b0e"/>
           </radialGradient>
-          <radialGradient id="washerSocket" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stop-color="#000"/>
-            <stop offset="0.7" stop-color="#050608"/>
-            <stop offset="1" stop-color="#1b1f25"/>
+          <linearGradient id="rimLight" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#475569"/>
+            <stop offset="1" stop-color="rgba(255,255,255,0.3)"/>
+          </linearGradient>
+          <!-- Balltop: acrilico rubi con nucleo de sombra abajo-derecha -->
+          <radialGradient id="rubyBase" cx="0.4" cy="0.34" r="0.78">
+            <stop offset="0" stop-color="#dc2626"/>
+            <stop offset="0.4" stop-color="#b91c1c"/>
+            <stop offset="0.75" stop-color="#7f1d1d"/>
+            <stop offset="1" stop-color="#450a0a"/>
           </radialGradient>
-          <!-- Balltop rubí: base saturada, núcleo de sombra abajo-derecha -->
-          <radialGradient id="rubyBase" cx="0.4" cy="0.34" r="0.8">
-            <stop offset="0" stop-color="#e11d48"/>
-            <stop offset="0.35" stop-color="#be123c"/>
-            <stop offset="0.7" stop-color="#881337"/>
-            <stop offset="1" stop-color="#3b0a12"/>
+          <radialGradient id="rubyCore" cx="0.7" cy="0.76" r="0.7">
+            <stop offset="0" stop-color="rgba(69,10,10,0.75)"/>
+            <stop offset="0.5" stop-color="rgba(69,10,10,0.25)"/>
+            <stop offset="1" stop-color="rgba(69,10,10,0)"/>
           </radialGradient>
-          <radialGradient id="rubyCore" cx="0.68" cy="0.74" r="0.75">
-            <stop offset="0" stop-color="rgba(20,0,6,0.55)"/>
-            <stop offset="0.55" stop-color="rgba(20,0,6,0.15)"/>
-            <stop offset="1" stop-color="rgba(20,0,6,0)"/>
+          <!-- OBSF-30: collar de plastico moldeado mate -->
+          <radialGradient id="collarPlastic" cx="0.42" cy="0.36" r="0.7">
+            <stop offset="0" stop-color="#23262e"/>
+            <stop offset="0.7" stop-color="#181a20"/>
+            <stop offset="1" stop-color="#101216"/>
           </radialGradient>
-          <!-- Reflejo suave del monitor/marquesina: glare radial descentrado -->
-          <radialGradient id="rubyGlare" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stop-color="rgba(255,255,255,0.95)"/>
-            <stop offset="0.25" stop-color="rgba(255,240,240,0.55)"/>
-            <stop offset="0.6" stop-color="rgba(255,220,225,0.12)"/>
-            <stop offset="1" stop-color="rgba(255,220,225,0)"/>
+          <!-- Cupulas convexas: base saturada que oscurece hacia el perimetro -->
+          <radialGradient id="capRed" cx="0.42" cy="0.36" r="0.72">
+            <stop offset="0" stop-color="#ef4444"/><stop offset="0.45" stop-color="#dc2626"/><stop offset="0.8" stop-color="#b91c1c"/><stop offset="1" stop-color="#7f1d1d"/>
           </radialGradient>
-          <radialGradient id="rubyBounce" cx="0.5" cy="1.05" r="0.6">
-            <stop offset="0" stop-color="rgba(148,163,184,0.42)"/>
-            <stop offset="0.5" stop-color="rgba(148,163,184,0.08)"/>
-            <stop offset="1" stop-color="rgba(148,163,184,0)"/>
+          <radialGradient id="capYellow" cx="0.42" cy="0.36" r="0.72">
+            <stop offset="0" stop-color="#fde047"/><stop offset="0.45" stop-color="#facc15"/><stop offset="0.8" stop-color="#ca8a04"/><stop offset="1" stop-color="#78350f"/>
           </radialGradient>
-          <!-- OBSF-30: collar de plástico carbón mate, pozo interior, cúpula semibrillo -->
-          <radialGradient id="collarMatte" cx="0.5" cy="0.35" r="0.65">
-            <stop offset="0" stop-color="#2b3039"/>
-            <stop offset="0.7" stop-color="#1e2229"/>
-            <stop offset="1" stop-color="#121519"/>
+          <radialGradient id="capBlue" cx="0.42" cy="0.36" r="0.72">
+            <stop offset="0" stop-color="#60a5fa"/><stop offset="0.45" stop-color="#3b82f6"/><stop offset="0.8" stop-color="#2563eb"/><stop offset="1" stop-color="#1e3a8a"/>
           </radialGradient>
-          <radialGradient id="cavity" cx="0.5" cy="0.6" r="0.55">
-            <stop offset="0" stop-color="#000"/>
-            <stop offset="0.6" stop-color="#030405"/>
-            <stop offset="1" stop-color="#15181d"/>
+          <radialGradient id="capWhite" cx="0.42" cy="0.36" r="0.72">
+            <stop offset="0" stop-color="#ffffff"/><stop offset="0.45" stop-color="#e5e7eb"/><stop offset="0.8" stop-color="#9ca3af"/><stop offset="1" stop-color="#4b5563"/>
           </radialGradient>
-          <radialGradient id="domeSheen" cx="0.36" cy="0.3" r="0.6">
-            <stop offset="0" stop-color="rgba(255,255,255,0.55)"/>
-            <stop offset="0.35" stop-color="rgba(255,255,255,0.12)"/>
-            <stop offset="1" stop-color="rgba(255,255,255,0)"/>
-          </radialGradient>
-          <radialGradient id="domeFall" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0.6" stop-color="rgba(0,0,0,0)"/>
-            <stop offset="1" stop-color="rgba(0,0,0,0.45)"/>
-          </radialGradient>
-          <!-- Cúpulas semibrillo, menos saturadas que un neón -->
-          <radialGradient id="plRed" cx="0.42" cy="0.38" r="0.7"><stop offset="0" stop-color="#f05252"/><stop offset="0.6" stop-color="#c81e1e"/><stop offset="1" stop-color="#7f1d1d"/></radialGradient>
-          <radialGradient id="plYellow" cx="0.42" cy="0.38" r="0.7"><stop offset="0" stop-color="#fde047"/><stop offset="0.6" stop-color="#eab308"/><stop offset="1" stop-color="#854d0e"/></radialGradient>
-          <radialGradient id="plBlue" cx="0.42" cy="0.38" r="0.7"><stop offset="0" stop-color="#60a5fa"/><stop offset="0.6" stop-color="#2563eb"/><stop offset="1" stop-color="#1e3a8a"/></radialGradient>
-          <radialGradient id="plWhite" cx="0.42" cy="0.38" r="0.7"><stop offset="0" stop-color="#ffffff"/><stop offset="0.6" stop-color="#d1d5db"/><stop offset="1" stop-color="#6b7280"/></radialGradient>
         </defs>
 
         <!-- ===== CUERPO ===== -->
@@ -770,85 +759,90 @@
         <use href="#hexbolt" x="156" y="288"/><use href="#hexbolt" x="844" y="288"/>
         <use href="#hexbolt" x="156" y="760"/><use href="#hexbolt" x="844" y="760"/>
 
-        <!-- ===== PANEL DE MANDOS (metal cepillado bajo lexan) ===== -->
+        <!-- ===== PANEL DE MANDOS (aluminio anodizado cepillado, inclinado) ===== -->
         <!-- Sombra del panel sobre el frontal -->
         <path d="M100 960 L900 960 L910 990 L90 990 Z" fill="rgba(0,0,0,0.75)"/>
         <path d="M130 790 L870 790 L900 960 L100 960 Z" fill="url(#deck)"/>
         <path d="M130 790 L870 790 L900 960 L100 960 Z" fill="url(#brushed)" opacity="0.9"/>
+        <path d="M130 790 L870 790 L900 960 L100 960 Z" fill="url(#grain)" opacity="0.08"/>
         <path d="M130 790 L870 790 L900 960 L100 960 Z" fill="url(#lexanGloss)"/>
-        <!-- Luz del CRT derramándose sobre la parte alta del panel -->
-        <path d="M130 790 L870 790 L890 900 L110 900 Z" fill="url(#crtSpill)"/>
-        <!-- Sombra de la capota / bisel cayendo sobre la mitad superior del panel -->
-        <path d="M130 790 L870 790 L886 880 L114 880 Z" fill="url(#deckCanopyShadow)"/>
-        <!-- Bisel superior (canto iluminado por el monitor) -->
-        <path d="M130 790 L870 790 L873 804 L127 804 Z" fill="#4b5563"/>
-        <path d="M128 792 L872 792 L873 796 L127 796 Z" fill="rgba(200,230,255,0.45)"/>
-        <!-- Pliegue frontal: canto de aluminio pulido (capping) -->
-        <path d="M101 950 L899 950 L900 960 L100 960 Z" fill="url(#aluLip)"/>
-        <path d="M101 950 L899 950 L899 952 L101 952 Z" fill="rgba(255,255,255,0.8)"/>
-        <path d="M100 960 L900 960 L901 964 L99 964 Z" fill="#05070a"/>
-        <!-- T-molding frontal del panel -->
-        <rect x="96" y="962" width="808" height="14" rx="7" fill="url(#tMoldH)"/>
+        <!-- Derrame de luz del CRT sobre la mitad superior -->
+        <path d="M130 790 L870 790 L890 900 L110 900 Z" fill="url(#crtWash)"/>
+        <!-- Costura bajo la capota: AO profunda (el monitor sobresale sobre el deck) -->
+        <path d="M130 790 L870 790 L884 872 L116 872 Z" fill="url(#deckSeamAO)"/>
+        <!-- Pliegue frontal: crestas del doblez, cara biselada oscura, T-molding de goma -->
+        <path d="M101 950 L899 950 L900 962 L100 962 Z" fill="url(#lipFace)"/>
+        <path d="M101 950 L899 950 L900 962 L100 962 Z" fill="url(#brushed)" opacity="0.6"/>
+        <path d="M101 949.5 L899 949.5 L899 951 L101 951 Z" fill="rgba(255,255,255,0.85)"/>
+        <path d="M100 962 L900 962 L901 965 L99 965 Z" fill="#05070a"/>
+        <rect x="96" y="964" width="808" height="14" rx="7" fill="url(#tMoldH)"/>
         <!-- Tornillos del panel -->
         <use href="#hexbolt" x="150" y="812"/><use href="#hexbolt" x="850" y="812"/>
         <use href="#hexbolt" x="120" y="940"/><use href="#hexbolt" x="880" y="940"/>
 
         <!-- ===== JOYSTICK SANWA JLF ===== -->
-        <!-- Sombra de contacto del conjunto (difuminada, hacia abajo-derecha) -->
-        <ellipse cx="328" cy="896" rx="58" ry="14" fill="rgba(0,0,0,0.6)" filter="url(#wideShadow)"/>
-        <!-- Dustwasher: un solo disco de goma mate, comprimido en Y -->
-        <ellipse cx="320" cy="884" rx="50" ry="15.5" fill="url(#washerRubber)"/>
-        <!-- AO bajo el labio (difusa) y cresta superior que recoge la luz del monitor -->
-        <ellipse cx="320" cy="889" rx="48" ry="13" fill="rgba(0,0,0,0.55)" filter="url(#softContactShadow)"/>
-        <path d="M274 882 A46 13 0 0 1 366 882" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.75"/>
-        <!-- Zócalo central recesado -->
-        <ellipse cx="320" cy="882" rx="15" ry="4.8" fill="url(#washerSocket)"/>
-        <ellipse cx="320" cy="880.6" rx="15" ry="4.8" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.75"/>
-        <!-- Eje: cilindro cromado, bandas anisotrópicas, sin contorno -->
-        <rect x="311" y="806" width="18" height="78" rx="2" fill="url(#chromeShaft)"/>
-        <rect x="311" y="806" width="18" height="78" rx="2" fill="url(#chromeBands)"/>
-        <!-- Sombra de la bola sobre el eje (difusa) -->
-        <ellipse cx="322" cy="836" rx="22" ry="6" fill="rgba(0,0,0,0.55)" filter="url(#softContactShadow)"/>
-        <!-- Balltop: base rubí, núcleo de sombra abajo-derecha, rebote del metal, glare -->
+        <!-- Sombra de contacto del conjunto sobre el deck -->
+        <ellipse cx="324" cy="893" rx="52" ry="13" fill="rgba(0,0,0,0.6)" filter="url(#softShadow)"/>
+        <!-- Dustwasher: goma vulcanizada (elipse 3.2:1) con textura, labio biselado y undercut -->
+        <ellipse cx="320" cy="884" rx="48" ry="15" fill="url(#rubberBody)"/>
+        <rect x="270" y="868" width="100" height="32" fill="url(#grain)" opacity="0.16" clip-path="url(#washerClip)"/>
+        <path d="M273 886 A48 15 0 0 0 367 886" fill="none" stroke="#000" stroke-opacity="0.85" stroke-width="1.5"/>
+        <path d="M274 881.5 A47 14.2 0 0 1 366 881.5" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>
+        <!-- Cubo central: collar mecanico elevado con orificio del eje -->
+        <ellipse cx="320" cy="880" rx="17" ry="5.6" fill="rgba(0,0,0,0.6)"/>
+        <ellipse cx="320" cy="877.5" rx="16" ry="5.2" fill="#090a0d"/>
+        <path d="M305 876.5 A15.5 4.8 0 0 1 335 876.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.9"/>
+        <ellipse cx="320" cy="877.5" rx="9.5" ry="3.1" fill="#000"/>
+        <!-- Eje: cilindro de cromo espejo -->
+        <rect x="311" y="806" width="18" height="72" rx="1.5" fill="url(#chromeMirror)"/>
+        <rect x="311" y="806" width="18" height="72" rx="1.5" fill="url(#chromeBands)"/>
+        <ellipse cx="320" cy="878" rx="9" ry="2.6" fill="#0f172a"/>
+        <!-- Sombra de la bola sobre el eje -->
+        <ellipse cx="321" cy="834" rx="16" ry="5" fill="rgba(0,0,0,0.55)" filter="url(#softShadow)"/>
+        <!-- Balltop: acrilico rubi pulido -->
         <circle cx="320" cy="798" r="32" fill="url(#rubyBase)"/>
         <circle cx="320" cy="798" r="32" fill="url(#rubyCore)"/>
-        <circle cx="320" cy="798" r="32" fill="url(#rubyBounce)"/>
-        <ellipse cx="308" cy="784" rx="12" ry="9" fill="url(#rubyGlare)"/>
-        <path d="M296 790 A32 32 0 0 1 322 767" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.75"/>
+        <!-- Rebote secundario del deck (abajo-izquierda) -->
+        <path d="M292 810 A32 32 0 0 0 318 830" fill="none" stroke="rgba(180,220,255,0.22)" stroke-width="2" stroke-linecap="round"/>
+        <!-- Hotspot especular principal (reflejo del CRT) con ligero bloom -->
+        <ellipse cx="307" cy="785" rx="7.5" ry="5" fill="#ffffff" opacity="0.7" filter="url(#bloom)" transform="rotate(-35 307 785)"/>
+        <ellipse cx="307" cy="785" rx="5" ry="3.2" fill="#ffffff" transform="rotate(-35 307 785)"/>
 
-        <!-- ===== SANWA OBSF-30 (x3) + 1P START ===== -->
-        <!-- Alojamiento: sombra de contacto difusa, collar carbón mate con bisel
-             superior, cavidad interior, cúpula hundida semibrillo. Sin contornos. -->
-        <g id="sanwa">
-          <ellipse cx="3" cy="7" rx="31" ry="28" fill="rgba(0,0,0,0.6)" filter="url(#wideShadow)"/>
-          <circle r="30" fill="url(#collarMatte)"/>
-          <path d="M-25 -16 A30 30 0 0 1 25 -16" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.75"/>
-          <circle r="24.5" fill="url(#cavity)"/>
-          <ellipse cx="0" cy="1.5" rx="23" ry="22" fill="rgba(0,0,0,0.5)" filter="url(#softContactShadow)"/>
-        </g>
-        <g id="plunger">
-          <circle r="19" style="fill: var(--dome)"/>
-          <circle r="19" fill="url(#domeFall)"/>
-          <ellipse cx="-5" cy="-6" rx="13" ry="10" fill="url(#domeSheen)"/>
-          <path d="M-14 -11 A18 18 0 0 1 2 -18" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.75"/>
-          <ellipse cx="4" cy="12" rx="8" ry="2.6" fill="rgba(180,230,255,0.10)"/>
+        <!-- ===== SANWA OBSF-30 (x3) + 1P START: 4 capas fisicas ===== -->
+        <g id="btn">
+          <!-- Tier 1: sombra de contacto direccional sobre el deck -->
+          <ellipse cx="2" cy="6" rx="26" ry="11" fill="rgba(0,0,0,0.65)" filter="url(#softShadow)"/>
+          <!-- Tier 2: collar de montaje elevado -->
+          <circle r="24" fill="url(#collarPlastic)"/>
+          <path d="M8 22.6 A24 24 0 0 1 -22.6 8" fill="none" stroke="#080a0d" stroke-width="1.6" transform="rotate(180)"/>
+          <path d="M-22 -9.6 A24 24 0 0 1 -9.6 -22" fill="none" stroke="url(#rimLight)" stroke-width="1" stroke-linecap="round"/>
+          <path d="M-9.6 -22 A24 24 0 0 1 9.6 -22" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1" stroke-linecap="round"/>
+          <!-- Tier 3: pozo anular de holgura -->
+          <circle r="20.5" fill="#07080a"/>
+          <path d="M-14 15 A20.5 20.5 0 0 0 14 15" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+          <!-- Tier 4: capuchon convexo -->
+          <circle r="17" style="fill: var(--cap)"/>
+          <path d="M-13.5 -10.3 A17 17 0 0 1 13.5 -10.3" fill="none" stroke="rgba(0,0,0,0.42)" stroke-width="2.2"/>
+          <ellipse cx="-6" cy="-7" rx="6" ry="3.4" fill="rgba(255,255,255,0.85)" transform="rotate(-32 -6 -7)"/>
+          <path d="M-10 12 A16 16 0 0 0 8 14" fill="none" stroke="rgba(180,220,255,0.16)" stroke-width="1.2" stroke-linecap="round"/>
         </g>
         <g id="startbtn">
-          <ellipse cx="1.5" cy="3.5" rx="14.5" ry="13" fill="rgba(0,0,0,0.6)" filter="url(#softContactShadow)"/>
-          <circle r="14" fill="url(#collarMatte)"/>
-          <path d="M-11.5 -7.5 A14 14 0 0 1 11.5 -7.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.75"/>
-          <circle r="10.8" fill="url(#cavity)"/>
-          <circle r="7.6" fill="url(#plWhite)"/>
-          <circle r="7.6" fill="url(#domeFall)"/>
-          <ellipse cx="-2" cy="-2.5" rx="5" ry="3.8" fill="url(#domeSheen)"/>
+          <ellipse cx="1" cy="3" rx="13" ry="5.5" fill="rgba(0,0,0,0.65)" filter="url(#softShadow)"/>
+          <circle r="12" fill="url(#collarPlastic)"/>
+          <path d="M4 11.3 A12 12 0 0 1 -11.3 4" fill="none" stroke="#080a0d" stroke-width="1.2" transform="rotate(180)"/>
+          <path d="M-11 -4.8 A12 12 0 0 1 -4.8 -11" fill="none" stroke="url(#rimLight)" stroke-width="0.9" stroke-linecap="round"/>
+          <circle r="9.8" fill="#07080a"/>
+          <circle r="8" fill="url(#capWhite)"/>
+          <path d="M-6.3 -4.9 A8 8 0 0 1 6.3 -4.9" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.4"/>
+          <ellipse cx="-2.6" cy="-3.2" rx="2.8" ry="1.6" fill="rgba(255,255,255,0.9)" transform="rotate(-32 -2.6 -3.2)"/>
         </g>
-        <!-- Arco ergonómico de 3: rojo, amarillo, azul -->
-        <g transform="translate(560 882)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#plRed)"/></g>
-        <g transform="translate(648 858)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#plYellow)"/></g>
-        <g transform="translate(738 866)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#plBlue)"/></g>
-        <!-- 1P Start arriba-izquierda del cluster -->
-        <g transform="translate(528 824)"><use href="#startbtn"/></g>
-        <text x="528" y="806" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" letter-spacing="1" fill="rgba(226,232,240,0.5)">1P START</text>
+        <!-- Arco japones: rojo, amarillo (elevado), azul (ligeramente bajo) -->
+        <use href="#btn" x="560" y="880" style="--cap: url(#capRed)"/>
+        <use href="#btn" x="635" y="855" style="--cap: url(#capYellow)"/>
+        <use href="#btn" x="710" y="865" style="--cap: url(#capBlue)"/>
+        <!-- 1P Start (24mm) arriba-izquierda del cluster -->
+        <use href="#startbtn" x="525" y="815"/>
+        <text x="525" y="797" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" letter-spacing="1" fill="rgba(226,232,240,0.5)">1P START</text>
 
         <!-- ===== PUERTA DE MONEDAS (chapa) ===== -->
         <rect x="132" y="990" width="736" height="310" fill="url(#coinDoor)"/>
@@ -905,7 +899,7 @@
   </div>
 
   <!-- Arcade Logic Engine (ES Modules, sin build step) -->
-  <script type="module" src="js/app.js?v=3.3"></script>
+  <script type="module" src="js/app.js?v=3.4"></script>
 
 </body>
 </html>
