@@ -1833,3 +1833,234 @@ button.panel-action:active,
 .arcade-viewport-env.is-leaving .screen-inspect-cta { animation: none; }
 
 
+
+/* ==========================================================================
+   ATTRACT MODE SCREEN — SECUENCIA DE ARRANQUE ARCADE (Fase 6)
+   Overlay fixed por encima de todo (z 500 > capas CRT 200). La salida
+   "coin drop & CRT zoom" anima transform + opacity + un destello de tubo
+   (filter) durante 0.6s, una sola vez; despues app.js elimina el nodo.
+   ========================================================================== */
+.arcade-attract-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: radial-gradient(circle at center, #0d131f 0%, #03050a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  transform-origin: 50% 46%;
+  transition:
+    opacity 0.5s ease,
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.5s ease;
+  will-change: transform, opacity;
+}
+
+/* Transicion de entrada al arcade: zoom hacia el interior del tubo + destello */
+.arcade-attract-screen.is-booting {
+  transform: scale(2.2);
+  opacity: 0;
+  filter: brightness(1.8) contrast(1.2);
+  pointer-events: none;
+}
+
+/* Halo de sala: sin blur() (se re-rasterizaria durante el zoom); la caida
+   suave del gradiente da el mismo efecto a coste cero. */
+.attract-backdrop-glow {
+  position: absolute;
+  width: 720px;
+  height: 720px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(245, 158, 11, 0.16) 0%,
+    rgba(245, 158, 11, 0.09) 22%,
+    rgba(59, 130, 246, 0.07) 48%,
+    rgba(59, 130, 246, 0.02) 62%,
+    transparent 72%);
+  pointer-events: none;
+}
+
+/* Scanlines estaticas del attract (misma receta ultraligera que el chasis) */
+.attract-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.22) 0px,
+    rgba(0, 0, 0, 0.22) 1.5px,
+    transparent 1.5px,
+    transparent 3.5px
+  );
+  opacity: 0.55;
+  transform: translateZ(0);
+}
+
+.attract-cabinet-hero {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.attract-marquee {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid #f59e0b;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), inset 0 0 15px rgba(245, 158, 11, 0.2);
+  padding: 1rem 2.5rem;
+  border-radius: 8px;
+}
+
+.attract-tag {
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  color: #fbbf24;
+  letter-spacing: 0.2em;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.attract-title {
+  font-family: var(--font-arcade);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 2px 2px 0 #000;
+  margin: 0;
+}
+
+.attract-subtitle {
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+  color: var(--neon-cyan);
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  margin-top: 0.25rem;
+}
+
+.attract-monitor-box {
+  background: #000000;
+  border: 3px solid #334155;
+  border-radius: 12px;
+  padding: 1.5rem 3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.attract-system-sub {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #94a3b8;
+  letter-spacing: 0.12em;
+  margin-bottom: 1.2rem;
+}
+
+.attract-coin-prompt {
+  font-family: var(--font-pixel);
+  font-size: clamp(0.9rem, 2vw, 1.3rem);
+  color: var(--neon-yellow);
+  text-shadow: 0 0 12px rgba(254, 240, 138, 0.8);
+  animation: blinkPrompt 0.9s steps(2) infinite;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.coin-star { color: #fbbf24; }
+
+@keyframes blinkPrompt {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.attract-start-hint {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
+.attract-coin-slot-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.attract-coin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.6rem 1.4rem;
+  color: #fbbf24;
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* Ranura del monedero: rendija negra con canto metalico */
+.coin-slot-opening {
+  width: 22px;
+  height: 6px;
+  border-radius: 2px;
+  background: #000;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 0 1.5px #9ca3af;
+}
+
+.attract-coin-btn:hover,
+.attract-coin-btn:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+  outline: none;
+}
+
+.attract-coin-btn:focus-visible {
+  border-color: var(--neon-yellow);
+}
+
+.attract-coin-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.attract-footer-meta {
+  display: flex;
+  justify-content: center;
+  gap: 1.4rem;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 640px;
+  margin-top: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #475569;
+  letter-spacing: 0.1em;
+}
+
+/* Accesibilidad: sin parpadeo del rotulo ni zoom cinematico; fundido simple */
+@media (prefers-reduced-motion: reduce) {
+  .attract-coin-prompt { animation: none !important; }
+  .arcade-attract-screen {
+    transition: opacity 0.3s ease !important;
+  }
+  .arcade-attract-screen.is-booting {
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Por debajo de 1024px el chasis se sustituye por el fallback: el attract
+   tampoco tiene sentido (nunca se llegaria al cabinet). */
+@media (max-width: 1023px) {
+  .arcade-attract-screen { display: none; }
+}

@@ -40,6 +40,12 @@ const SANWA_PRESS_MS = 320;   // boton hundido + halo neon de microswitch
 const INSPECT_LEAVE_MS = 260;
 // Bandera que project.js deja al volver al arcade para sonar la fanfarria
 const RETURN_SFX_KEY = 'arcade_play_return_sfx';
+// Attract Mode (Fase 6): '1' en sessionStorage = la sesión ya arrancó, no se
+// repite la intro al volver de project.html; una pestaña nueva o recarga sí.
+const BOOT_KEY = 'arcade_booted';
+const BOOT_ZOOM_MS = 650;
+let attractActive = false; // true mientras el overlay de Attract Mode está en pantalla
+let attractBoot = null;    // bootArcade() expuesto para el mando (onAnyButton)
 let navCooldownUntil = 0;
 
 const sanwaTimers = new Map(); // buttonEl -> timeout id
@@ -205,6 +211,10 @@ function setLanguage(lang) {
       el.innerHTML = uiText[lang][key];
     }
   });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    const key = el.getAttribute('data-i18n-aria');
+    if (uiText[lang][key]) el.setAttribute('aria-label', uiText[lang][key]);
+  });
 
   // CV en el idioma activo, abierto en pestaña nueva (visor PDF del navegador)
   const cvBtn = document.getElementById('top-cv-btn');
@@ -292,6 +302,65 @@ function handleToggleAudioSFX(fromGamepad = false) {
 }
 
 // ---------------------------------------------------------
+// ATTRACT MODE — "Insert Coin" y secuencia de arranque (Fase 6)
+// ---------------------------------------------------------
+function setupAttractMode() {
+  const attractScreen = document.getElementById('arcade-attract-screen');
+  if (!attractScreen) return;
+
+  // Sesión ya arrancada (retorno desde project.html): sin intro, navegación ágil
+  let booted = false;
+  try { booted = sessionStorage.getItem(BOOT_KEY) === '1'; } catch (e) {}
+  if (booted) {
+    attractScreen.remove();
+    return;
+  }
+
+  attractActive = true;
+  let isBooting = false;
+
+  function bootArcade() {
+    if (isBooting) return;
+    isBooting = true;
+    try { sessionStorage.setItem(BOOT_KEY, '1'); } catch (e) {}
+
+    // Coin drop + fanfarria (el gesto del usuario desbloquea el AudioContext)
+    playCoinSound();
+    setTimeout(() => playArcadeStartSound(), 180);
+
+    // Zoom cinemático hacia el tubo; con reduced-motion la CSS lo reduce a fundido
+    attractScreen.classList.add('is-booting');
+    window.removeEventListener('keydown', onIntroKey, true);
+
+    setTimeout(() => {
+      attractScreen.remove();
+      attractActive = false;
+      // Foco al tubo para que ENTER / flechas sigan funcionando desde teclado
+      document.querySelector('.scifi-screen-viewport')?.focus({ preventScroll: true });
+    }, BOOT_ZOOM_MS);
+  }
+
+  // Ratón / táctil: cualquier punto del overlay (incluido el monedero)
+  attractScreen.addEventListener('click', bootArcade);
+
+  // Teclado: ENTER / ESPACIO / A. Captura para adelantarse a los atajos del
+  // cabinet (que además están bloqueados mientras attractActive es true).
+  function onIntroKey(e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'a' || e.key === 'A') {
+      e.preventDefault();
+      bootArcade();
+    }
+  }
+  window.addEventListener('keydown', onIntroKey, true);
+
+  // Foco inicial en el monedero (lector de pantalla / Tab)
+  document.getElementById('attract-coin-btn')?.focus({ preventScroll: true });
+
+  // Mando: cualquier botón -> onAnyButton en initGamepad (más abajo)
+  attractBoot = bootArcade;
+}
+
+// ---------------------------------------------------------
 // OSD retro en el tubo (mando conectado, SFX...)
 // ---------------------------------------------------------
 const OSD_VISIBLE_MS = 2200;
@@ -318,6 +387,9 @@ window.inspectSystem = inspectSystem;
 // INITIALIZATION
 // ---------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
+  // Attract Mode primero: decide si hay intro antes de que nada más escuche input
+  setupAttractMode();
+
   const canvasEl = document.getElementById('media-canvas');
   initCanvasRenderer(canvasEl);
 
@@ -342,15 +414,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // háptico en los Sanwa (navigateSystem / inspectSystem / goToMainMenu ya
   // iluminan azul / amarillo / rojo) y OSD retro al conectar / desconectar.
   initGamepad({
+    // Attract Mode: cualquier botón inserta la moneda; el resto de acciones
+    // quedan bloqueadas hasta que el overlay desaparece.
+    onAnyButton: () => { if (attractActive && attractBoot) attractBoot(); },
     onNavigate: (dir) => {
-      if (isLeaving) return;
+      if (isLeaving || attractActive) return;
       pressSanwa(document.getElementById('scroll-btn'));
       if (acceptNavigation()) navigateSystem(dir);
     },
-    onInspect: () => inspectSystem(),
-    onMainMenu: () => { if (!isLeaving) goToMainMenu(); },
-    onToggleSFX: () => handleToggleAudioSFX(true),
-    onToggleLang: () => setLanguage(currentLang === 'es' ? 'en' : 'es'),
+    onInspect: () => { if (!attractActive) inspectSystem(); },
+    onMainMenu: () => { if (!isLeaving && !attractActive) goToMainMenu(); },
+    onToggleSFX: () => { if (!attractActive) handleToggleAudioSFX(true); },
+    onToggleLang: () => { if (!attractActive) setLanguage(currentLang === 'es' ? 'en' : 'es'); },
     onConnected: (pad) => showArcadeOSD(uiText[currentLang].osd_pad_connected + describeGamepad(pad)),
     onDisconnected: () => showArcadeOSD(uiText[currentLang].osd_pad_disconnected)
   });
@@ -411,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Mouse Wheel navigation anywhere on screen (debounce de 220ms + umbral
   // anti-trackpad: un gesto rapido produce UN salto, nunca tres)
   window.addEventListener('wheel', (e) => {
-    if (Math.abs(e.deltaY) < WHEEL_THRESHOLD || isLeaving) return;
+    if (Math.abs(e.deltaY) < WHEEL_THRESHOLD || isLeaving || attractActive) return;
     pressSanwa(document.getElementById('scroll-btn'));
     if (!acceptNavigation()) return;
     navigateSystem(e.deltaY > 0 ? 1 : -1);
@@ -419,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Keyboard Navigation (Arrow keys, W / S, A = menu principal)
   window.addEventListener('keydown', (e) => {
-    if (isLeaving) return;
+    if (isLeaving || attractActive) return;
 
     if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
       e.preventDefault();

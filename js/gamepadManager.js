@@ -11,6 +11,7 @@
  * - Botón 4/5 (LB / RB)           : Proyecto anterior / siguiente
  * - Botón 8  (Select / Back)      : Conmutar idioma ES / EN
  * - Botón 9  (Start)              : Conmutar SFX / Mute
+ * - Cualquier botón (onAnyButton) : flanco de subida global (Attract Mode / Insert Coin)
  *
  * Diseño:
  *   - Polling con requestAnimationFrame SOLO mientras hay un mando conectado
@@ -90,7 +91,15 @@ function handleInput(pad) {
   if (justPressed('left', isPressed(pad, 14) || stickX < -STICK_DEADZONE)) h.onPrevProject();
   if (justPressed('right', isPressed(pad, 15) || stickX > STICK_DEADZONE)) h.onNextProject();
 
-  // 3. Botones de acción (flanco de subida)
+  // 3. Cualquier botón (flanco de subida global): la Gamepad API no emite
+  //    eventos de botón, así que se deriva aquí. Bucle sin asignaciones.
+  let anyDown = false;
+  for (let i = 0; i < pad.buttons.length; i++) {
+    if (isPressed(pad, i)) { anyDown = true; break; }
+  }
+  if (justPressed('any', anyDown)) h.onAnyButton();
+
+  // 4. Botones de acción (flanco de subida)
   if (justPressed('b0', isPressed(pad, 0))) h.onInspect();     // A / Cross
   if (justPressed('b1', isPressed(pad, 1))) h.onBack();        // B / Circle
   if (justPressed('b2', isPressed(pad, 2))) h.onMainMenu();    // X / Square
@@ -139,6 +148,7 @@ export function initGamepad(options = {}) {
     onNextProject: options.onNextProject || noop,
     onToggleSFX: options.onToggleSFX || noop,
     onToggleLang: options.onToggleLang || noop,
+    onAnyButton: options.onAnyButton || noop,
     onConnected: options.onConnected || noop,
     onDisconnected: options.onDisconnected || noop
   };
