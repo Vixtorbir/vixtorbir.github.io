@@ -11,7 +11,7 @@
 
 import { arcadeSystems, uiText, onAssetLoad } from './arcadeSystems.js';
 import { initCanvasRenderer, renderScreenArtwork, resizeCanvas, startRenderLoop } from './canvasRenderer.js';
-import { playArcadeTick, playCoinSound, playArcadeStartSound, playInspectSound, toggleAudioSFX } from './audioManager.js';
+import { playArcadeTick, playCoinSound, playArcadeStartSound, playInspectSound, toggleAudioSFX, isAudioContextRunning } from './audioManager.js';
 
 const LANG_KEY = 'victor_portfolio_lang';
 const SYSTEM_KEY = 'victor_portfolio_system';
@@ -32,44 +32,58 @@ const NAV_COOLDOWN_MS = 220;
 // que no deben contar como "un clic de rueda".
 const WHEEL_THRESHOLD = 10;
 // Tiempos de feedback haptico visible (perceptibles a simple vista)
-const JOYSTICK_HOLD_MS = 240; // palanca inclinada antes del retorno elastico
-const SANWA_PRESS_MS = 250;   // boton hundido + destello de microswitch
+const SANWA_PRESS_MS = 320;   // boton hundido + halo neon de microswitch
+// Retardo antes de saltar a project.html: deja ver el halo dorado del boton
+// amarillo y el zoom del chasis (transicion is-leaving) antes de descargar.
+const INSPECT_LEAVE_MS = 260;
+// Bandera que project.js deja al volver al arcade para sonar la fanfarria
+const RETURN_SFX_KEY = 'arcade_play_return_sfx';
 let navCooldownUntil = 0;
 
-// Controles del panel: se resuelven una vez en DOMContentLoaded
-let joystickEl = null;
-let joystickTimer = null;
 const sanwaTimers = new Map(); // buttonEl -> timeout id
 
 /**
- * Inclina la palanca del mini-joystick en la direccion del salto y la suelta
- * 240ms despues (JOYSTICK_HOLD_MS); la CSS aplica el muelle de retorno.
- * Reinicia el temporizador en cada pulsacion para que una rafaga mantenga la
- * palanca inclinada de forma continua en vez de vibrar.
- * @param {1|-1} delta  1 = abajo (ArrowDown/wheel+), -1 = arriba
- */
-function tiltJoystick(delta) {
-  if (!joystickEl) return;
-  joystickEl.classList.remove('tilt-up', 'tilt-down');
-  joystickEl.classList.add(delta > 0 ? 'tilt-down' : 'tilt-up');
-  clearTimeout(joystickTimer);
-  joystickTimer = setTimeout(() => {
-    joystickEl.classList.remove('tilt-up', 'tilt-down');
-  }, JOYSTICK_HOLD_MS);
-}
-
-/**
- * Hunde fisicamente un boton Sanwa del panel (clase .is-pressed) durante
- * 250ms (SANWA_PRESS_MS), con reinicio del destello si se pulsa en rafaga.
+ * Ilumina y hunde un boton Sanwa del panel (clase .is-pressed) durante
+ * SANWA_PRESS_MS, con reinicio del destello si se pulsa en rafaga.
  * @param {HTMLElement|null} btn  contenedor .panel-action del boton
  */
 function pressSanwa(btn) {
   if (!btn) return;
   btn.classList.remove('is-pressed');
-  void btn.offsetWidth; // reinicia sanwaFlash
+  void btn.offsetWidth; // fuerza reflow para reiniciar animacion
   btn.classList.add('is-pressed');
   clearTimeout(sanwaTimers.get(btn));
   sanwaTimers.set(btn, setTimeout(() => btn.classList.remove('is-pressed'), SANWA_PRESS_MS));
+}
+
+/**
+ * Sonido de retorno desde project.html. La bandera llega por sessionStorage
+ * y/o `return=1` en la query (el parametro se limpia de la URL). Si el
+ * navegador bloquea el autoplay (AudioContext suspendido), la fanfarria se
+ * engancha al primer gesto del usuario.
+ */
+function checkReturnSound() {
+  const params = new URLSearchParams(window.location.search);
+  const returnedFromProject = sessionStorage.getItem(RETURN_SFX_KEY) === '1' || params.has('return');
+  if (!returnedFromProject) return;
+
+  sessionStorage.removeItem(RETURN_SFX_KEY);
+  if (params.has('return')) {
+    params.delete('return');
+    const q = params.toString();
+    history.replaceState(null, '', q ? `${window.location.pathname}?${q}` : window.location.pathname);
+  }
+
+  playArcadeStartSound();
+  if (isAudioContextRunning()) return;
+
+  const playOnce = () => {
+    window.removeEventListener('pointerdown', playOnce);
+    window.removeEventListener('keydown', playOnce);
+    playArcadeStartSound();
+  };
+  window.addEventListener('pointerdown', playOnce, { once: true });
+  window.addEventListener('keydown', playOnce, { once: true });
 }
 
 /**
@@ -166,7 +180,6 @@ function navigateSystem(delta) {
   activeSystemIndex = (activeSystemIndex + delta + total) % total;
   localStorage.setItem(SYSTEM_KEY, String(activeSystemIndex));
   playArcadeTick();
-  tiltJoystick(delta);
   pressSanwa(document.getElementById('scroll-btn'));
   updateLogosView();
 }
@@ -215,7 +228,7 @@ function inspectSystem() {
   isLeaving = true;
   localStorage.setItem(SYSTEM_KEY, String(activeSystemIndex));
   playInspectSound();
-  // El boton amarillo se hunde y destella antes de que el chasis haga el zoom
+  // El boton amarillo se ilumina en dorado antes de que el chasis haga el zoom
   pressSanwa(document.getElementById('inspect-btn'));
 
   const target = 'project.html?system=' + activeSystemIndex;
@@ -226,7 +239,7 @@ function inspectSystem() {
     return;
   }
   chassis.classList.add('is-leaving');
-  setTimeout(() => { window.location.href = target; }, 220);
+  setTimeout(() => { window.location.href = target; }, INSPECT_LEAVE_MS);
 }
 
 let chassisPulseTimer = null;
@@ -286,6 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setLanguage('es');
   }
 
+  // Fanfarria de retorno si venimos de project.html (bandera + ?return=1).
+  // Va ANTES de leer ?system=N porque ese bloque limpia toda la query.
+  checkReturnSound();
+
   // Sistema inicial: `?system=N` (retorno desde project.html) > último visitado > 0
   const total = arcadeSystems.length;
   const param = Number.parseInt(new URLSearchParams(window.location.search).get('system') ?? '', 10);
@@ -298,48 +315,12 @@ document.addEventListener('DOMContentLoaded', () => {
     activeSystemIndex = saved;
   }
 
-  joystickEl = document.getElementById('mini-joystick');
-
-  // Mini-joystick con raton: clic en la mitad superior = sistema anterior,
-  // mitad inferior = siguiente. Con el boton pulsado y arrastrando, cruzar
-  // la linea media vuelve a disparar (con la misma cadencia que el teclado),
-  // como empujar una palanca real de un tope al otro.
-  const joystickHit = document.querySelector('.control-panel-visual');
-  if (joystickHit && joystickEl) {
-    let dragging = false;
-    let lastDir = 0;
-    const dirFromEvent = (e) => {
-      const r = joystickEl.getBoundingClientRect();
-      return e.clientY < r.top + r.height / 2 ? -1 : 1;
-    };
-    const push = (dir) => {
-      if (isLeaving) return;
-      lastDir = dir;
-      tiltJoystick(dir); // feedback inmediato aunque el cooldown descarte el salto
-      if (acceptNavigation()) navigateSystem(dir);
-    };
-    joystickHit.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      dragging = true;
-      joystickHit.setPointerCapture?.(e.pointerId);
-      push(dirFromEvent(e));
-    });
-    joystickHit.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      const dir = dirFromEvent(e);
-      if (dir !== lastDir) push(dir);
-    });
-    const release = () => { dragging = false; lastDir = 0; };
-    joystickHit.addEventListener('pointerup', release);
-    joystickHit.addEventListener('pointercancel', release);
-    joystickHit.addEventListener('lostpointercapture', release);
-  }
-
-  // Boton azul Sanwa: siguiente sistema (mismo detent que ArrowDown)
+  // Boton azul Sanwa: siguiente sistema (mismo detent que ArrowDown). Se
+  // ilumina siempre al clic, aunque el debounce descarte el salto.
   const scrollBtn = document.getElementById('scroll-btn');
   if (scrollBtn) {
     scrollBtn.addEventListener('click', () => {
+      pressSanwa(scrollBtn);
       if (acceptNavigation()) navigateSystem(1);
     });
   }
@@ -367,6 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.persisted) return;
     isLeaving = false;
     document.querySelector('.arcade-viewport-env')?.classList.remove('is-leaving');
+    checkReturnSound();
   });
 
   // Resize canvas when window resizes
@@ -377,7 +359,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Mouse Wheel navigation anywhere on screen (debounce de 220ms + umbral
   // anti-trackpad: un gesto rapido produce UN salto, nunca tres)
   window.addEventListener('wheel', (e) => {
-    if (Math.abs(e.deltaY) < WHEEL_THRESHOLD) return;
+    if (Math.abs(e.deltaY) < WHEEL_THRESHOLD || isLeaving) return;
+    pressSanwa(document.getElementById('scroll-btn'));
     if (!acceptNavigation()) return;
     navigateSystem(e.deltaY > 0 ? 1 : -1);
   }, { passive: true });
@@ -388,9 +371,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
       e.preventDefault();
+      pressSanwa(document.getElementById('scroll-btn'));
       if (acceptNavigation()) navigateSystem(1);
     } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
       e.preventDefault();
+      pressSanwa(document.getElementById('scroll-btn'));
       if (acceptNavigation()) navigateSystem(-1);
     } else if ((e.key === 'a' || e.key === 'A') && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey) {
       // Tecla A = boton rojo Sanwa. No interceptar si se escribe en un campo.

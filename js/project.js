@@ -6,12 +6,12 @@
  *   - Leer `?system=N` (0-5) y el idioma persistido (localStorage) y renderizar
  *     la ficha correspondiente de specContent.js: hero, métricas, galería,
  *     desglose STAR por secciones, paginador y contacto.
- *   - Cambio de idioma en tiempo real, sincronizado con el cabinet (misma clave).
- *   - Atajos: ESC / Backspace → cabinet · ◄ ► → sistema anterior / siguiente.
+ *   - Cambio de idioma en tiempo real, sincronizado con el arcade (misma clave).
+ *   - Atajos: ESC / Backspace → arcade · ◄ ► → sistema anterior / siguiente.
  *   - Botones de copiar (código, email, teléfono) con toast de estado.
  *   - Resaltado de sintaxis ligero para C++ / C# (sin dependencias).
  *
- * El retorno al cabinet conserva el sistema visitado vía `index.html?system=N`
+ * El retorno al arcade conserva el sistema visitado vía `index.html?system=N`
  * y localStorage, de modo que la ruleta vuelve a la misma posición.
  */
 
@@ -49,8 +49,38 @@ function readSystemParam() {
   return Number.isInteger(n) && n >= 0 && n < TOTAL ? n : null;
 }
 
-function cabinetUrl(index) {
-  return `index.html?system=${index}`;
+const RETURN_SFX_KEY = 'arcade_play_return_sfx';
+// Margen para que el blip de salida suene entero antes de descargar la pagina
+const RETURN_LEAVE_MS = 120;
+
+function arcadeUrl(index) {
+  return `index.html?system=${index}&return=1`;
+}
+
+/**
+ * Blip breve de confirmacion de salida (square 440→880 Hz, 100 ms).
+ * Contexto efimero: se cierra al terminar el oscilador para no dejar
+ * AudioContexts colgando al navegar. Rampa exponencial hasta 0.001 antes
+ * de stop() para evitar el pop de corte.
+ */
+function playReturnSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(440, t);
+    osc.frequency.exponentialRampToValueAtTime(880, t + 0.08);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.linearRampToValueAtTime(0.1, t + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.onended = () => { ctx.close().catch(() => {}); };
+    osc.start(t);
+    osc.stop(t + 0.1);
+  } catch (e) {}
 }
 
 function projectUrl(index) {
@@ -190,7 +220,7 @@ function render() {
 
   // Barra superior
   const back = document.getElementById('cs-back');
-  back.href = cabinetUrl(currentIndex);
+  back.href = arcadeUrl(currentIndex);
   back.setAttribute('aria-label', ui('backAria'));
   document.getElementById('cs-back-label').textContent = ui('back');
   document.getElementById('cs-lang').setAttribute('aria-label', ui('langAria'));
@@ -358,6 +388,15 @@ async function onClick(e) {
   if (nav) {
     e.preventDefault();
     goToSystem(Number(nav.dataset.nav));
+    return;
+  }
+
+  // Enlace de retorno: misma ruta que ESC (bandera de audio + blip de salida).
+  // Con modificadores (ctrl/cmd/shift) se respeta el comportamiento nativo.
+  const back = e.target.closest('#cs-back');
+  if (back && !e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+    e.preventDefault();
+    backToArcade();
   }
 }
 
@@ -383,9 +422,15 @@ function goToSystem(index) {
   document.getElementById('cs-main').focus({ preventScroll: true });
 }
 
-function backToCabinet() {
+let leaving = false;
+
+function backToArcade() {
+  if (leaving) return;
+  leaving = true;
   localStorage.setItem(SYSTEM_KEY, String(currentIndex));
-  window.location.href = cabinetUrl(currentIndex);
+  sessionStorage.setItem(RETURN_SFX_KEY, '1');
+  playReturnSound();
+  setTimeout(() => { window.location.href = arcadeUrl(currentIndex); }, RETURN_LEAVE_MS);
 }
 
 function onKeydown(e) {
@@ -395,7 +440,7 @@ function onKeydown(e) {
 
   if (e.key === 'Escape' || e.key === 'Backspace') {
     e.preventDefault();
-    backToCabinet();
+    backToArcade();
   } else if (e.key === 'ArrowRight') {
     e.preventDefault();
     goToSystem(currentIndex + 1);
@@ -435,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
   });
 
-  // Sincroniza el idioma si el cabinet lo cambia en otra pestaña
+  // Sincroniza el idioma si el arcade lo cambia en otra pestaña
   window.addEventListener('storage', (e) => {
     if (e.key === LANG_KEY && e.newValue && e.newValue !== currentLang) setLanguage(e.newValue);
   });

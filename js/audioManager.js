@@ -25,6 +25,11 @@ export function isAudioEnabled() {
   return isAudioActive;
 }
 
+/** true si el AudioContext existe y no esta suspendido por la politica de autoplay */
+export function isAudioContextRunning() {
+  return !!audioCtx && audioCtx.state === 'running';
+}
+
 export function toggleAudioSFX() {
   isAudioActive = !isAudioActive;
   return isAudioActive;

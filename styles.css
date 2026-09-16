@@ -109,8 +109,8 @@ html, body {
    0b. ACCESIBILIDAD — prefers-reduced-motion (REGLA GLOBAL UNICA)
    Un solo bloque autoritativo en lugar de reglas dispersas por secciones.
    - Sin parpadeo de scanlines, flicker de tubo, pulsos de CTA/cursor/coin.
-   - Sin oscilacion del joystick ni rebote elastico: la ruleta y los controles
-     usan transiciones instantaneas o de opacidad simple.
+   - Sin oscilacion del joystick ni rebote elastico: la ruleta usa
+     transiciones de opacidad simple.
    - !important es deliberado: debe ganar a cualquier regla de gamefeel posterior.
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
@@ -135,10 +135,9 @@ html, body {
   .scifi-screen-viewport {
     transition: none !important;
   }
-  /* Joystick y Sanwa siguen respondiendo (son feedback funcional), pero sin
-     muelle/overshoot: retorno lineal corto en lugar de rebote. */
-  .mini-joystick { transition: transform 0.12s ease-out !important; }
-  .sanwa-btn     { transition: transform 0.05s linear !important; }
+  /* Los Sanwa siguen iluminandose (feedback funcional) pero sin animacion
+     de destello: solo el estado estatico .is-pressed. */
+  .sanwa-btn { transition: transform 0.05s linear !important; }
   .arcade-viewport-env.is-leaving { transform: none !important; }
 }
 
@@ -1485,10 +1484,11 @@ html, body {
   padding-right: 1.1rem;
   margin-right: 0.35rem;
   border-right: 1.5px solid #263449;
-  /* Fase 3: la palanca es interactiva con raton (clic arriba/abajo) */
-  cursor: pointer;
+  cursor: default; /* Estetico, sin arrastre */
 }
 
+/* Joystick 100% estetico: solo la oscilacion idle de la bola. Sin cursor
+   pointer, sin seleccion ni arrastre nativo. */
 .mini-joystick {
   position: relative;
   width: 30px;
@@ -1496,45 +1496,11 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  /* Sin seleccion/arrastre nativo: el pointerdown es la accion */
+  cursor: default;
   touch-action: none;
   user-select: none;
   -webkit-user-drag: none;
-  /* Pivote en la base de la palanca (la rotula del joystick real) */
   transform-origin: 50% 96%;
-  /* Retorno al centro: muelle de la rotula (overshoot breve y asentamiento) */
-  transition: transform 0.32s cubic-bezier(0.34, 1.6, 0.64, 1);
-}
-
-/* Inclinacion sincronizada con ArrowUp/ArrowDown/W/S/wheel/clic-arrastre.
-   24 grados: a 30px de palanca la bola se desplaza ~7px, claramente visible.
-   La ida es casi instantanea (una mano empujando la palanca); app.js la
-   mantiene 240ms y la vuelta usa el muelle de la rotula. */
-.mini-joystick.tilt-up,
-.mini-joystick.tilt-down {
-  transition: transform 0.09s cubic-bezier(0.2, 0, 0, 1);
-}
-.mini-joystick.tilt-up   { transform: rotate(-24deg); }
-.mini-joystick.tilt-down { transform: rotate(24deg); }
-
-/* Al inclinarse, la bola se ilumina (LED de la rotula) para reforzar el gesto */
-.mini-joystick.tilt-up .joystick-ball,
-.mini-joystick.tilt-down .joystick-ball {
-  box-shadow:
-    0 2px 5px rgba(0, 0, 0, 0.8),
-    0 0 12px 3px rgba(239, 68, 68, 0.55),
-    inset 0 1px 1px rgba(255, 255, 255, 0.5);
-}
-.mini-joystick:hover .joystick-ball {
-  filter: brightness(1.12);
-}
-
-/* Mientras esta inclinada, la oscilacion idle se congela para no sumar
-   transforms contradictorios sobre la bola. */
-.mini-joystick.tilt-up .joystick-ball,
-.mini-joystick.tilt-down .joystick-ball {
-  animation-play-state: paused;
 }
 
 .joystick-shaft {
@@ -1649,11 +1615,10 @@ button.panel-action:focus-visible {
   outline: none;
 }
 
-/* Pulsacion: el boton se hunde en el anillo (pierde el canto 3D).
-   :active = raton. .is-pressed = teclado (ENTER/ESPACIO -> amarillo, A -> rojo)
-   o navegacion (flechas/wheel -> azul), aplicada desde app.js. */
-button.panel-action:active .sanwa-btn,
-.panel-action.is-pressed .sanwa-btn {
+/* Pulsacion con raton (:active): el boton se hunde en el anillo y pierde
+   el canto 3D. El estado .is-pressed (teclado / scroll / clic, desde app.js)
+   se define mas abajo con la iluminacion neon por color. */
+button.panel-action:active .sanwa-btn {
   transform: translateY(4px);
   box-shadow:
     0 0 0 3px #111827,
@@ -1670,16 +1635,60 @@ button.panel-action:active,
   color: var(--neon-yellow);
 }
 
-/* Destello de microswitch: al hundirse, el LED del boton se satura un
-   instante y decae. Solo filter sobre un elemento de 31px: coste minimo. */
+/* Iluminacion vibrante y potente cuando se activa por teclado, scroll o clic
+   (.is-pressed durante SANWA_PRESS_MS = 320ms en app.js). El boton se hunde,
+   pierde el canto 3D y su LED inunda el panel con un halo neon del color del
+   microswitch: azul (scroll/flechas), dorado (ENTER) o rojo (A). */
 .panel-action.is-pressed .sanwa-btn {
-  animation: sanwaFlash 0.25s cubic-bezier(0.2, 0, 0, 1);
+  transform: translateY(3px) scale(0.96);
+  filter: brightness(1.8) saturate(1.4) contrast(1.15);
+  animation: sanwaFlash 0.32s cubic-bezier(0.2, 0, 0, 1);
 }
 
+.panel-action.is-pressed .sanwa-blue {
+  box-shadow:
+    0 0 0 3px #111827,
+    0 0 0 4px #60a5fa,
+    0 1px 3px 2px rgba(0, 0, 0, 0.6),
+    0 0 25px 8px rgba(59, 130, 246, 0.95),
+    0 0 50px 14px rgba(59, 130, 246, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.panel-action.is-pressed .sanwa-yellow {
+  box-shadow:
+    0 0 0 3px #111827,
+    0 0 0 4px #fde047,
+    0 1px 3px 2px rgba(0, 0, 0, 0.6),
+    0 0 25px 8px rgba(250, 204, 21, 0.95),
+    0 0 50px 14px rgba(250, 204, 21, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.panel-action.is-pressed .sanwa-red {
+  box-shadow:
+    0 0 0 3px #111827,
+    0 0 0 4px #f87171,
+    0 1px 3px 2px rgba(0, 0, 0, 0.6),
+    0 0 25px 8px rgba(239, 68, 68, 0.95),
+    0 0 50px 14px rgba(239, 68, 68, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.panel-action.is-pressed .panel-action-label {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+}
+
+/* Destello de microswitch: pico de brillo al cerrar el contacto y decaimiento
+   hasta el nivel estatico de .is-pressed. */
 @keyframes sanwaFlash {
-  0%   { filter: brightness(1.9) saturate(1.5); }
-  60%  { filter: brightness(1.4) saturate(1.2); }
-  100% { filter: brightness(1.15) saturate(1); }
+  0%   { filter: brightness(2.2) saturate(1.6); }
+  50%  { filter: brightness(1.7) saturate(1.3); }
+  100% { filter: brightness(1.2) saturate(1.1); }
 }
 
 .arcade-btn-retro:active,

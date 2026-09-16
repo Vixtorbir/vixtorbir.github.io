@@ -681,8 +681,8 @@ export const specSheets = [
 export const pageText = {
   es: {
     docTitle: 'Ficha técnica',
-    back: '[ ← VOLVER AL CABINET / ESC ]',
-    backAria: 'Volver al cabinet arcade (Esc)',
+    back: '[ ← VOLVER AL ARCADE / ESC ]',
+    backAria: 'Volver al arcade (Esc)',
     langAria: 'Idioma de la ficha',
     github: 'GITHUB',
     cv: 'CV (PDF)',
@@ -700,14 +700,14 @@ export const pageText = {
     contactBody: 'Disponible para Convenio de Prácticas Universitarias (CITM - UPC) como Gameplay / Audio Programmer. Respuesta habitual en menos de 24 h.',
     contactEmail: 'COPIAR EMAIL',
     contactLinkedin: 'LINKEDIN',
-    hint: '[ ESC / ⌫ ] CABINET   ·   [ ◄ ► ] CAMBIAR SISTEMA   ·   [ TAB ] NAVEGAR',
+    hint: '[ ESC / ⌫ ] ARCADE   ·   [ ◄ ► ] CAMBIAR SISTEMA   ·   [ TAB ] NAVEGAR',
     footer: 'VÍCTOR CÁRDENAS · CITM - UPC · BARCELONA',
-    notFound: 'Sistema no encontrado. Volviendo al cabinet…'
+    notFound: 'Sistema no encontrado. Volviendo al arcade…'
   },
   en: {
     docTitle: 'Spec sheet',
-    back: '[ ← BACK TO CABINET / ESC ]',
-    backAria: 'Back to the arcade cabinet (Esc)',
+    back: '[ ← BACK TO ARCADE / ESC ]',
+    backAria: 'Back to arcade (Esc)',
     langAria: 'Spec sheet language',
     github: 'GITHUB',
     cv: 'RESUME (PDF)',
@@ -725,8 +725,8 @@ export const pageText = {
     contactBody: 'Available for a University Internship Agreement (CITM - UPC) as a Gameplay / Audio Programmer. Typical reply within 24 h.',
     contactEmail: 'COPY EMAIL',
     contactLinkedin: 'LINKEDIN',
-    hint: '[ ESC / ⌫ ] CABINET   ·   [ ◄ ► ] SWITCH SYSTEM   ·   [ TAB ] NAVIGATE',
+    hint: '[ ESC / ⌫ ] ARCADE   ·   [ ◄ ► ] SWITCH SYSTEM   ·   [ TAB ] NAVIGATE',
     footer: 'VÍCTOR CÁRDENAS · CITM - UPC · BARCELONA',
-    notFound: 'System not found. Returning to the cabinet…'
+    notFound: 'System not found. Returning to arcade…'
   }
 };
