@@ -12,7 +12,7 @@
 
 import { arcadeSystems, uiText, onAssetLoad } from './arcadeSystems.js';
 import { initCanvasRenderer, renderScreenArtwork, resizeCanvas, startRenderLoop } from './canvasRenderer.js';
-import { playArcadeTick, playCoinSound, playArcadeStartSound, playInspectSound, toggleAudioSFX, initAudioState, isAudioContextRunning } from './audioManager.js';
+import { playArcadeTick, playCoinSound, playArcadeStartSound, playInspectSound, playPowerDownSound, toggleAudioSFX, initAudioState, isAudioContextRunning } from './audioManager.js';
 import { initGamepad, describeGamepad } from './gamepadManager.js';
 
 const LANG_KEY = 'victor_portfolio_lang';
@@ -302,61 +302,89 @@ function handleToggleAudioSFX(fromGamepad = false) {
 }
 
 // ---------------------------------------------------------
-// ATTRACT MODE — "Insert Coin" y secuencia de arranque (Fase 6)
+// ATTRACT MODE — la máquina arcade (Fase 6)
+// Entrar = zoom por el cristal del monitor; ESC dentro del cabinet = volver
+// a la máquina. El overlay nunca se elimina: se oculta con [hidden].
 // ---------------------------------------------------------
+let attractScreen = null;
+let isBooting = false;
+
+function onIntroKey(e) {
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'a' || e.key === 'A') {
+    e.preventDefault();
+    bootArcade();
+  }
+}
+
+/** Oculta la máquina y deja el cabinet operativo (foco al tubo). */
+function hideAttract() {
+  attractScreen.hidden = true;
+  attractActive = false;
+  isBooting = false;
+  window.removeEventListener('keydown', onIntroKey, true);
+  document.querySelector('.scifi-screen-viewport')?.focus({ preventScroll: true });
+}
+
+/** Inserta la moneda: suena, siempre arranca en Player 1 y entra por el monitor. */
+function bootArcade() {
+  if (isBooting || !attractActive) return;
+  isBooting = true;
+  try { sessionStorage.setItem(BOOT_KEY, '1'); } catch (e) {}
+
+  // Coin drop + fanfarria (el gesto del usuario desbloquea el AudioContext)
+  playCoinSound();
+  setTimeout(() => playArcadeStartSound(), 180);
+
+  // Al entrar en la máquina lo primero es siempre el sistema Víctor Cárdenas
+  if (activeSystemIndex !== 0) {
+    activeSystemIndex = 0;
+    localStorage.setItem(SYSTEM_KEY, '0');
+    updateLogosView();
+  }
+
+  attractScreen.classList.add('is-booting');
+  setTimeout(() => {
+    hideAttract();
+    showArcadeOSD(uiText[currentLang].osd_esc_hint);
+  }, BOOT_ZOOM_MS);
+}
+
+/** ESC en el cabinet: la cámara sale del monitor y vuelve a la máquina. */
+function showAttract() {
+  if (!attractScreen || attractActive || isLeaving) return;
+  attractActive = true;
+  try { sessionStorage.removeItem(BOOT_KEY); } catch (e) {}
+  playPowerDownSound();
+
+  // Parte del estado "dentro del tubo" y se aleja hasta el mueble completo
+  attractScreen.classList.add('is-booting');
+  attractScreen.hidden = false;
+  void attractScreen.offsetWidth; // aplica el estado inicial antes de animar
+  requestAnimationFrame(() => attractScreen.classList.remove('is-booting'));
+
+  window.addEventListener('keydown', onIntroKey, true);
+  document.getElementById('attract-coin-btn')?.focus({ preventScroll: true });
+}
+
 function setupAttractMode() {
-  const attractScreen = document.getElementById('arcade-attract-screen');
+  attractScreen = document.getElementById('arcade-attract-screen');
   if (!attractScreen) return;
 
   // Sesión ya arrancada (retorno desde project.html): sin intro, navegación ágil
   let booted = false;
   try { booted = sessionStorage.getItem(BOOT_KEY) === '1'; } catch (e) {}
   if (booted) {
-    attractScreen.remove();
+    attractScreen.hidden = true;
     return;
   }
 
   attractActive = true;
-  let isBooting = false;
-
-  function bootArcade() {
-    if (isBooting) return;
-    isBooting = true;
-    try { sessionStorage.setItem(BOOT_KEY, '1'); } catch (e) {}
-
-    // Coin drop + fanfarria (el gesto del usuario desbloquea el AudioContext)
-    playCoinSound();
-    setTimeout(() => playArcadeStartSound(), 180);
-
-    // Zoom cinemático hacia el tubo; con reduced-motion la CSS lo reduce a fundido
-    attractScreen.classList.add('is-booting');
-    window.removeEventListener('keydown', onIntroKey, true);
-
-    setTimeout(() => {
-      attractScreen.remove();
-      attractActive = false;
-      // Foco al tubo para que ENTER / flechas sigan funcionando desde teclado
-      document.querySelector('.scifi-screen-viewport')?.focus({ preventScroll: true });
-    }, BOOT_ZOOM_MS);
-  }
-
-  // Ratón / táctil: cualquier punto del overlay (incluido el monedero)
-  attractScreen.addEventListener('click', bootArcade);
-
-  // Teclado: ENTER / ESPACIO / A. Captura para adelantarse a los atajos del
-  // cabinet (que además están bloqueados mientras attractActive es true).
-  function onIntroKey(e) {
-    if (e.key === 'Enter' || e.key === ' ' || e.key === 'a' || e.key === 'A') {
-      e.preventDefault();
-      bootArcade();
-    }
-  }
+  // Ratón / táctil: cualquier punto de la máquina (incluido el monedero)
+  attractScreen.addEventListener('click', () => bootArcade());
+  // Teclado: ENTER / ESPACIO / A, en captura para adelantarse al cabinet
   window.addEventListener('keydown', onIntroKey, true);
-
-  // Foco inicial en el monedero (lector de pantalla / Tab)
   document.getElementById('attract-coin-btn')?.focus({ preventScroll: true });
 
-  // Mando: cualquier botón -> onAnyButton en initGamepad (más abajo)
   attractBoot = bootArcade;
 }
 
@@ -423,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (acceptNavigation()) navigateSystem(dir);
     },
     onInspect: () => { if (!attractActive) inspectSystem(); },
+    onBack: () => { if (!attractActive) showAttract(); },
     onMainMenu: () => { if (!isLeaving && !attractActive) goToMainMenu(); },
     onToggleSFX: () => { if (!attractActive) handleToggleAudioSFX(true); },
     onToggleLang: () => { if (!attractActive) setLanguage(currentLang === 'es' ? 'en' : 'es'); },
@@ -430,16 +459,17 @@ document.addEventListener('DOMContentLoaded', () => {
     onDisconnected: () => showArcadeOSD(uiText[currentLang].osd_pad_disconnected)
   });
 
-  // Sistema inicial: `?system=N` (retorno desde project.html) > último visitado > 0
+  // Sistema inicial. Sesión nueva (máquina arcade en pantalla): siempre
+  // Player 1 / Víctor Cárdenas. Retorno desde project.html: `?system=N`.
   const total = arcadeSystems.length;
   const param = Number.parseInt(new URLSearchParams(window.location.search).get('system') ?? '', 10);
-  const saved = Number.parseInt(localStorage.getItem(SYSTEM_KEY) ?? '', 10);
-  if (Number.isInteger(param) && param >= 0 && param < total) {
+  if (attractActive) {
+    activeSystemIndex = 0;
+    if (window.location.search) history.replaceState(null, '', window.location.pathname);
+  } else if (Number.isInteger(param) && param >= 0 && param < total) {
     activeSystemIndex = param;
     // Limpia la query para que un refresco no "fije" el sistema
     history.replaceState(null, '', window.location.pathname);
-  } else if (Number.isInteger(saved) && saved >= 0 && saved < total) {
-    activeSystemIndex = saved;
   }
 
   // Boton azul Sanwa: siguiente sistema (mismo detent que ArrowDown). Se
@@ -504,6 +534,10 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       pressSanwa(document.getElementById('scroll-btn'));
       if (acceptNavigation()) navigateSystem(-1);
+    } else if (e.key === 'Escape') {
+      // Salir del monitor: vuelve a la máquina arcade
+      e.preventDefault();
+      showAttract();
     } else if ((e.key === 'a' || e.key === 'A') && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey) {
       // Tecla A = boton rojo Sanwa. No interceptar si se escribe en un campo.
       const el = document.activeElement;

@@ -1502,6 +1502,7 @@ export const uiText = {
     attract_aria: "Pantalla de inicio del Arcade — pulsa cualquier tecla, clic o botón del mando para empezar",
     attract_hint: "[ CLIC / ENTER / ESPACIO / MANDO ]",
     attract_coin_aria: "Insertar moneda para comenzar",
+    osd_esc_hint: "[ ESC ] VOLVER A LA MÁQUINA",
     mobile_fallback_title: "EXPERIENCIA OPTIMIZADA PARA ESCRITORIO",
     mobile_fallback_msg: "Este cabinet arcade necesita una pantalla de 1024px de ancho o más para mostrarse sin recortes. Abre este portfolio en un ordenador de escritorio o portátil."
   },
@@ -1523,6 +1524,7 @@ export const uiText = {
     attract_aria: "Arcade start screen — press any key, click or gamepad button to begin",
     attract_hint: "[ CLICK / ENTER / SPACE / GAMEPAD ]",
     attract_coin_aria: "Insert coin to start",
+    osd_esc_hint: "[ ESC ] BACK TO THE MACHINE",
     mobile_fallback_title: "DESKTOP-OPTIMIZED EXPERIENCE",
     mobile_fallback_msg: "This arcade cabinet needs a screen at least 1024px wide to display without clipping. Please open this portfolio on a desktop or laptop computer."
   }

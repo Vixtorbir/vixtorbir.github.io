@@ -27,6 +27,9 @@
   <meta name="twitter:image" content="https://vixtorbir.github.io/assets/fable_intro_title.png">
   <meta name="twitter:image:alt" content="Fable title screen — Víctor Cárdenas arcade portfolio artwork">
   
+  <!-- Attract Mode: mueble arcade (evita el flash de carga del overlay) -->
+  <link rel="preload" as="image" href="assets/arcade_red_cabinet.jpg">
+
   <!-- Arcade Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -415,50 +418,58 @@
   </div>
 
   <!-- ===================================================================
-       ATTRACT MODE / SECUENCIA DE ARRANQUE RETRO (INSERT COIN) — Fase 6
-       Overlay superior; app.js lo retira tras el "coin drop & CRT zoom" o
-       de inmediato si la sesión ya arrancó (retorno desde project.html).
+       ATTRACT MODE — LA MÁQUINA ARCADE (Fase 6)
+       Mueble real (assets/arcade_red_cabinet.jpg) con marquesina y monitor
+       superpuestos en coordenadas relativas (cqw). Arrancar = "entrar" por el
+       cristal del monitor (zoom hacia su centro). ESC dentro del cabinet
+       vuelve aquí. app.js gestiona show / hide; nunca se elimina del DOM.
        =================================================================== -->
   <div class="arcade-attract-screen" id="arcade-attract-screen" role="dialog" aria-modal="true" aria-label="Pantalla de inicio del Arcade — pulsa cualquier tecla, clic o botón del mando para empezar" data-i18n-aria="attract_aria">
-    <div class="attract-backdrop-glow" aria-hidden="true"></div>
-    <div class="attract-scanlines" aria-hidden="true"></div>
+    <div class="attract-room" aria-hidden="true"></div>
 
-    <div class="attract-cabinet-hero">
-      <!-- Marquesina luminosa -->
-      <div class="attract-marquee">
+    <div class="attract-cabinet" id="attract-cabinet">
+      <!-- Marquesina retroiluminada -->
+      <div class="attract-marquee" aria-hidden="true">
         <span class="attract-tag">COIN-OP ARCADE SYSTEM</span>
         <h1 class="attract-title">VÍCTOR CÁRDENAS</h1>
-        <div class="attract-subtitle">GAMEPLAY &amp; AUDIO PROGRAMMER PORTFOLIO</div>
       </div>
 
-      <!-- Monitor de bienvenida -->
-      <div class="attract-monitor-box">
-        <div class="attract-monitor-screen">
-          <div class="attract-system-sub">CUSTOM C++ · FMOD · UNITY ZERO-GC</div>
-          <div class="attract-coin-prompt">
-            <span class="coin-star" aria-hidden="true">★</span> INSERT COIN / PRESS START <span class="coin-star" aria-hidden="true">★</span>
+      <!-- Monitor CRT: contenido del attract -->
+      <div class="attract-screen">
+        <div class="attract-screen-inner">
+          <div class="attract-screen-row attract-screen-top">
+            <span>CITM // ARCADE</span>
+            <span>FREE PLAY</span>
           </div>
-          <div class="attract-start-hint" data-i18n="attract_hint">[ CLIC / ENTER / ESPACIO / MANDO ]</div>
+
+          <div class="attract-screen-center">
+            <div class="attract-subtitle">GAMEPLAY &amp; AUDIO PROGRAMMER PORTFOLIO</div>
+            <div class="attract-system-sub">CUSTOM C++ · FMOD · UNITY ZERO-GC</div>
+            <div class="attract-coin-prompt">
+              <span class="coin-star" aria-hidden="true">★</span> INSERT COIN / PRESS START <span class="coin-star" aria-hidden="true">★</span>
+            </div>
+            <div class="attract-start-hint" data-i18n="attract_hint">[ CLIC / ENTER / ESPACIO / MANDO ]</div>
+          </div>
+
+          <div class="attract-screen-row attract-screen-bottom">
+            <span>1 PLAYER ONLY</span>
+            <span>CREDIT 00</span>
+            <span>CITM · UNIVERSITAT POLITÈCNICA DE CATALUNYA</span>
+          </div>
         </div>
+        <div class="attract-screen-fx" aria-hidden="true"></div>
       </div>
 
-      <!-- Monedero interactivo inferior -->
-      <div class="attract-coin-slot-zone">
-        <button class="attract-coin-btn" id="attract-coin-btn" type="button" aria-label="Insertar moneda para comenzar" data-i18n-aria="attract_coin_aria">
-          <span class="coin-slot-opening" aria-hidden="true"></span>
-          <span class="coin-slot-label">INSERT COIN (25¢)</span>
-        </button>
-        <div class="attract-footer-meta">
-          <span>1 PLAYER ONLY</span>
-          <span>FREE PLAY / CREDIT 00</span>
-          <span>CITM · UNIVERSITAT POLITÈCNICA DE CATALUNYA</span>
-        </div>
-      </div>
+      <!-- Placa del monedero sobre el panel de control -->
+      <button class="attract-coin-btn" id="attract-coin-btn" type="button" aria-label="Insertar moneda para comenzar" data-i18n-aria="attract_coin_aria">
+        <span class="coin-slot-opening" aria-hidden="true"></span>
+        <span class="coin-slot-label">INSERT COIN (25¢)</span>
+      </button>
     </div>
   </div>
 
   <!-- Arcade Logic Engine (ES Modules, sin build step) -->
-  <script type="module" src="js/app.js?v=2.6"></script>
+  <script type="module" src="js/app.js?v=2.7"></script>
 
 </body>
 </html>
