@@ -179,6 +179,9 @@
               <canvas id="media-canvas" class="w-full h-full block"></canvas>
             </div>
 
+            <!-- Fase 3: bloom de fosforo + micro-flicker (solo opacity, canvas sin filtros) -->
+            <div class="crt-flicker-layer" aria-hidden="true"></div>
+
             <!-- Interactive CTA: click / Enter navigates to project.html (Phase 2) -->
             <div class="screen-inspect-cta" data-i18n="screen_inspect_cta">[ ↵ CLIC / ENTER: INSPECCIONAR ]</div>
 
@@ -351,16 +354,16 @@
       <div class="bottom-ctrl-group">
         <!-- Real cabinet control panel: ball-top joystick + Sanwa-style buttons -->
         <div class="control-panel-visual" aria-hidden="true">
-          <div class="mini-joystick">
+          <div class="mini-joystick" id="mini-joystick">
             <span class="joystick-shaft"></span>
             <span class="joystick-ball"></span>
           </div>
         </div>
-        <button class="panel-action" onclick="goToMainMenu()" title="Volver al Perfil Principal / Back to Main Profile">
+        <button class="panel-action" id="main-menu-btn" onclick="goToMainMenu()" title="Volver al Perfil Principal (tecla A) / Back to Main Profile (A key)">
           <span class="sanwa-btn sanwa-red" aria-hidden="true">A</span>
           <span class="panel-action-label" data-i18n="bottom_main_menu">MENÚ PRINCIPAL</span>
         </button>
-        <div class="panel-action">
+        <div class="panel-action" id="scroll-hint">
           <span class="sanwa-btn sanwa-blue" aria-hidden="true">↕</span>
           <span class="panel-action-label" data-i18n="bottom_scroll">SCROLL PARA CAMBIAR</span>
         </div>

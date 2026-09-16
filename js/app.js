@@ -18,8 +18,66 @@ const SYSTEM_KEY = 'victor_portfolio_system';
 
 let currentLang = 'es';
 let activeSystemIndex = 0;
-let isThrottled = false;
 let isLeaving = false; // true mientras se transiciona hacia project.html
+
+// ---------------------------------------------------------
+// GAME FEEL (Fase 3): cadencia de la ruleta + controles hapticos del panel
+// ---------------------------------------------------------
+
+// Cadencia minima entre saltos de sistema. 220ms deja ver el frenado
+// elastico (0.52s de transicion, el overshoot ocurre en los primeros ~250ms)
+// sin que una rafaga de wheel o el auto-repeat del teclado encadene saltos.
+const NAV_COOLDOWN_MS = 220;
+// Umbral de deltaY: trackpads emiten eventos de 1-4px de inercia residual
+// que no deben contar como "un clic de rueda".
+const WHEEL_THRESHOLD = 10;
+let navCooldownUntil = 0;
+
+// Controles del panel: se resuelven una vez en DOMContentLoaded
+let joystickEl = null;
+let joystickTimer = null;
+const sanwaTimers = new Map(); // buttonEl -> timeout id
+
+/**
+ * Inclina la palanca del mini-joystick en la direccion del salto y la suelta
+ * ~140ms despues; la CSS aplica el muelle de retorno. Reinicia el temporizador
+ * en cada pulsacion para que una rafaga mantenga la palanca inclinada.
+ * @param {1|-1} delta  1 = abajo (ArrowDown/wheel+), -1 = arriba
+ */
+function tiltJoystick(delta) {
+  if (!joystickEl) return;
+  joystickEl.classList.remove('tilt-up', 'tilt-down');
+  joystickEl.classList.add(delta > 0 ? 'tilt-down' : 'tilt-up');
+  clearTimeout(joystickTimer);
+  joystickTimer = setTimeout(() => {
+    joystickEl.classList.remove('tilt-up', 'tilt-down');
+  }, 140);
+}
+
+/**
+ * Hunde fisicamente un boton Sanwa del panel (clase .is-pressed) durante
+ * ~160ms, con reinicio de la animacion de destello si se pulsa en rafaga.
+ * @param {HTMLElement|null} btn  contenedor .panel-action del boton
+ */
+function pressSanwa(btn) {
+  if (!btn) return;
+  btn.classList.remove('is-pressed');
+  void btn.offsetWidth; // reinicia sanwaFlash
+  btn.classList.add('is-pressed');
+  clearTimeout(sanwaTimers.get(btn));
+  sanwaTimers.set(btn, setTimeout(() => btn.classList.remove('is-pressed'), 160));
+}
+
+/**
+ * Puerta de cadencia compartida por wheel y teclado. Devuelve true si el
+ * salto se acepta y arma el cooldown; false si llega dentro de la ventana.
+ */
+function acceptNavigation() {
+  const now = performance.now();
+  if (isLeaving || now < navCooldownUntil) return false;
+  navCooldownUntil = now + NAV_COOLDOWN_MS;
+  return true;
+}
 
 // Update the Left Side Info (Vertical title, Screen Badge, Hardware Box, Clear Metadata List)
 function updateLeftDisplay() {
@@ -104,6 +162,8 @@ function navigateSystem(delta) {
   activeSystemIndex = (activeSystemIndex + delta + total) % total;
   localStorage.setItem(SYSTEM_KEY, String(activeSystemIndex));
   playArcadeTick();
+  tiltJoystick(delta);
+  pressSanwa(document.getElementById('scroll-hint'));
   updateLogosView();
 }
 
@@ -151,6 +211,8 @@ function inspectSystem() {
   isLeaving = true;
   localStorage.setItem(SYSTEM_KEY, String(activeSystemIndex));
   playInspectSound();
+  // El boton amarillo se hunde y destella antes de que el chasis haga el zoom
+  pressSanwa(document.getElementById('inspect-btn'));
 
   const target = 'project.html?system=' + activeSystemIndex;
   const chassis = document.querySelector('.arcade-viewport-env');
@@ -178,6 +240,7 @@ function pulseChassis() {
 }
 
 function goToMainMenu() {
+  pressSanwa(document.getElementById('main-menu-btn'));
   if (activeSystemIndex === 0) {
     playCoinSound();
   } else {
@@ -231,6 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
     activeSystemIndex = saved;
   }
 
+  joystickEl = document.getElementById('mini-joystick');
+
   updateLogosView();
 
   startRenderLoop();
@@ -261,32 +326,30 @@ document.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
   });
 
-  // Mouse Wheel navigation anywhere on screen
+  // Mouse Wheel navigation anywhere on screen (debounce de 220ms + umbral
+  // anti-trackpad: un gesto rapido produce UN salto, nunca tres)
   window.addEventListener('wheel', (e) => {
-    if (isThrottled || isLeaving) return;
-    isThrottled = true;
-
-    if (e.deltaY > 0) {
-      navigateSystem(1);
-    } else if (e.deltaY < 0) {
-      navigateSystem(-1);
-    }
-
-    setTimeout(() => {
-      isThrottled = false;
-    }, 160);
+    if (Math.abs(e.deltaY) < WHEEL_THRESHOLD) return;
+    if (!acceptNavigation()) return;
+    navigateSystem(e.deltaY > 0 ? 1 : -1);
   }, { passive: true });
 
-  // Keyboard Navigation (Arrow keys, W / S)
+  // Keyboard Navigation (Arrow keys, W / S, A = menu principal)
   window.addEventListener('keydown', (e) => {
     if (isLeaving) return;
 
     if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
       e.preventDefault();
-      navigateSystem(1);
+      if (acceptNavigation()) navigateSystem(1);
     } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
       e.preventDefault();
-      navigateSystem(-1);
+      if (acceptNavigation()) navigateSystem(-1);
+    } else if ((e.key === 'a' || e.key === 'A') && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // Tecla A = boton rojo Sanwa. No interceptar si se escribe en un campo.
+      const el = document.activeElement;
+      if (el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || el?.isContentEditable) return;
+      e.preventDefault();
+      goToMainMenu();
     } else if (e.key === 'Enter' || e.key === ' ') {
       // ENTER / ESPACIO global: no interceptar si el foco está sobre un control
       // (botones de idioma, mute, CV, enlaces...) para no romper su activación

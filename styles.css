@@ -53,20 +53,24 @@ html, body {
   inset: 0;
   z-index: 200;
   pointer-events: none;
-  /* Global: suave, para no ensuciar el texto tecnico del chasis (skill: 10-15%) */
+  /* Global (chasis): muy tenue. El texto tecnico del cabinet no esta "dentro"
+     del tubo, asi que aqui solo buscamos atmosfera, no mascara (skill: 10-15%).
+     Periodo de 4px -> a 1x son lineas finas, a 2x (Retina) no se convierten
+     en bandas gruesas que ensucien la tipografia monoespaciada. */
   background: repeating-linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.22) 0px,
-    rgba(0, 0, 0, 0.22) 1px,
-    transparent 2px,
+    rgba(0, 0, 0, 0.18) 0px,
+    rgba(0, 0, 0, 0.18) 1px,
+    transparent 1px,
     transparent 4px
   );
   mix-blend-mode: multiply;
-  opacity: 0.35;
-  animation: scanlineDrift 9s linear infinite;
+  opacity: 0.28;
+  animation: scanlineDrift 11s linear infinite;
 }
 
 @keyframes scanlineDrift {
+  /* Desplazamiento multiplo exacto del periodo (4px) para que el loop no salte */
   0% { background-position: 0 0; }
   100% { background-position: 0 120px; }
 }
@@ -77,7 +81,7 @@ html, body {
   inset: 0;
   z-index: 199;
   pointer-events: none;
-  opacity: 0.05;
+  opacity: 0.045;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
@@ -88,19 +92,52 @@ html, body {
   inset: 0;
   z-index: 198;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
-  animation: tubeFlicker 6.5s ease-in-out infinite;
+  background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.5) 100%);
+  animation: tubeFlicker 7.5s ease-in-out infinite;
 }
 
+/* Micro-caida de tension cada ~7s: un tubo viejo "respira", pero solo opacidad
+   (composited) y nunca por debajo del 90% para no comprometer la lectura. */
 @keyframes tubeFlicker {
   0%, 96%, 100% { opacity: 1; }
-  97% { opacity: 0.92; }
+  97% { opacity: 0.93; }
   98% { opacity: 1; }
-  98.5% { opacity: 0.88; }
+  98.5% { opacity: 0.9; }
 }
 
+/* ==========================================================================
+   0b. ACCESIBILIDAD — prefers-reduced-motion (REGLA GLOBAL UNICA)
+   Un solo bloque autoritativo en lugar de reglas dispersas por secciones.
+   - Sin parpadeo de scanlines, flicker de tubo, pulsos de CTA/cursor/coin.
+   - Sin oscilacion del joystick ni rebote elastico: la ruleta y los controles
+     usan transiciones instantaneas o de opacidad simple.
+   - !important es deliberado: debe ganar a cualquier regla de gamefeel posterior.
+   ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  .crt-scanlines, .crt-vignette { animation: none; }
+  .crt-scanlines,
+  .crt-vignette,
+  .crt-flicker-layer,
+  .arcade-viewport-env.chassis-pulse,
+  .screen-inspect-cta,
+  .pointer-triangle,
+  .joystick-ball,
+  .terminal-cursor,
+  .top-insert-coin span[data-i18n],
+  .panel-action.is-pressed .sanwa-btn {
+    animation: none !important;
+  }
+
+  .system-logo-item {
+    transition: opacity 0.2s ease !important;
+  }
+
+  .mini-joystick,
+  .sanwa-btn,
+  .arcade-viewport-env,
+  .scifi-screen-viewport {
+    transition: none !important;
+  }
+  .arcade-viewport-env.is-leaving { transform: none !important; }
 }
 
 /* ==========================================================================
@@ -139,9 +176,6 @@ html, body {
   100% { filter: brightness(1); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .arcade-viewport-env.chassis-pulse { animation: none; }
-}
 
 /* Heavy Rubber/Chrome T-Molding on Cabinet Edges */
 .arcade-viewport-env::before,
@@ -613,13 +647,15 @@ html, body {
   50%      { opacity: 0.55; box-shadow: 0 0 4px rgba(56, 189, 248, 0.15), 0 0 8px rgba(251, 191, 36, 0.1); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .screen-inspect-cta { animation: none; }
-}
 
-/* Monitor CRT real (Neo-Geo MVS / Candy Cab): scanlines densas + mascara de
-   fosforo RGB SOLO sobre el tubo. Los badges/decals (z-index 15) quedan por
-   encima de esta capa (z-index 11), asi el texto de UI sigue nitido. */
+/* Monitor CRT real (Neo-Geo MVS / Candy Cab) SOLO sobre el tubo.
+   Calibracion Fase 3:
+   - Scanlines: 1px oscura cada 3px al 26%. Suficiente para leer las lineas
+     de barrido a 40cm, insuficiente para partir la tipografia pixel del canvas.
+   - Mascara de fosforo (aperture grille): tripletes R/G/B de 1px al 5% con
+     blend multiply. Sin desplazamiento por canal (cero aberracion cromatica):
+     el color se percibe como "resplandor" de fosforo, nunca como desenfoque.
+   Los badges/decals (z-index 15) quedan por encima (z-index 11): texto nitido. */
 .scifi-screen-viewport::before {
   content: '';
   position: absolute;
@@ -629,46 +665,63 @@ html, body {
   background:
     repeating-linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.32) 0px,
-      rgba(0, 0, 0, 0.32) 1px,
+      rgba(0, 0, 0, 0.26) 0px,
+      rgba(0, 0, 0, 0.26) 1px,
       transparent 1px,
       transparent 3px
     ),
     repeating-linear-gradient(
       to right,
-      rgba(255, 40, 40, 0.06) 0px,
-      rgba(40, 255, 40, 0.06) 1px,
-      rgba(40, 40, 255, 0.06) 2px,
-      transparent 3px
+      rgba(255, 56, 56, 0.05) 0px,
+      rgba(255, 56, 56, 0.05) 1px,
+      rgba(56, 255, 90, 0.05) 1px,
+      rgba(56, 255, 90, 0.05) 2px,
+      rgba(70, 90, 255, 0.05) 2px,
+      rgba(70, 90, 255, 0.05) 3px
     );
   mix-blend-mode: multiply;
 }
 
-/* Authentic Faint Phosphor Screen Glow (Gives CRT presence without darkening art!) */
+/* Vinieta de tubo + reflejo de cristal (esquina superior izquierda, como la
+   luz de sala sobre el vidrio abombado). Solo opacidad: sin filtros. */
 .scifi-screen-viewport::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, transparent 65%, rgba(0, 0, 0, 0.5) 100%);
+  background:
+    radial-gradient(ellipse at 18% 8%, rgba(200, 225, 255, 0.05) 0%, transparent 38%),
+    radial-gradient(ellipse at center, transparent 62%, rgba(0, 0, 0, 0.52) 100%);
   pointer-events: none;
   z-index: 12;
+}
+
+/* Bloom de fosforo + micro-flicker de linea. Antes el flicker era un
+   filter: brightness() animado sobre el propio canvas (repintado del bitmap
+   cada frame). Ahora es una capa aparte animando solo opacity: composited,
+   coste ~0 y el canvas se muestra sin ningun filtro. */
+.crt-flicker-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 13;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 48%, rgba(255, 255, 255, 0.06) 0%, transparent 60%);
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  animation: phosphorFlicker 0.2s steps(2) infinite;
+}
+
+@keyframes phosphorFlicker {
+  0%, 100% { opacity: 0.75; }
+  50%      { opacity: 1; }
 }
 
 #media-canvas {
   width: 100%;
   height: 100%;
   display: block;
-  animation: crtBrightnessFlicker 0.18s infinite;
+  /* Sin filter/animation: bitmap 1:1, texto e iconos del canvas 100% nitidos */
 }
 
-@keyframes crtBrightnessFlicker {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.015); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #media-canvas { animation: none; }
-}
 
 /* Top-Left Arcade Badge (Authentic 80s arcade logo tab) */
 .screen-top-badge {
@@ -992,9 +1045,6 @@ html, body {
   100% { transform: translateX(5px); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pointer-triangle { animation: none; }
-}
 
 /* Logos Track */
 .arcade-logos-track {
@@ -1021,10 +1071,14 @@ html, body {
   align-items: center;
   cursor: pointer;
   transform-origin: center center;
+  /* Inercia elastica: la marquesina sobrepasa la ranura ~8% y retrocede,
+     como una rueda de recreativa frenada por un trinquete mecanico.
+     El overshoot (y=1.34) es visible pero no "gelatina"; 0.52s permite
+     leer el frenado sin bloquear la cadencia de 220ms del debounce. */
   transition:
-    transform 0.46s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.34s ease,
-    filter 0.34s ease;
+    transform 0.52s cubic-bezier(0.34, 1.34, 0.64, 1),
+    opacity 0.36s cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 0.36s cubic-bezier(0.22, 0.61, 0.36, 1);
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
@@ -1068,9 +1122,6 @@ html, body {
   z-index: 5;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .system-logo-item { transition: opacity 0.2s ease; }
-}
 
 /* ==========================================================================
    VINTAGE MARQUEES — cada sistema con identidad propia (CSS/vector)
@@ -1441,6 +1492,26 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Pivote en la base de la palanca (la rotula del joystick real) */
+  transform-origin: 50% 96%;
+  /* Retorno al centro: muelle de la rotula (overshoot breve y asentamiento) */
+  transition: transform 0.32s cubic-bezier(0.34, 1.6, 0.64, 1);
+}
+
+/* Inclinacion sincronizada con ArrowUp/ArrowDown/W/S/wheel. La ida es casi
+   instantanea (una mano empujando la palanca); la vuelta usa el muelle. */
+.mini-joystick.tilt-up,
+.mini-joystick.tilt-down {
+  transition: transform 0.08s cubic-bezier(0.2, 0, 0, 1);
+}
+.mini-joystick.tilt-up   { transform: rotate(-16deg); }
+.mini-joystick.tilt-down { transform: rotate(16deg); }
+
+/* Mientras esta inclinada, la oscilacion idle se congela para no sumar
+   transforms contradictorios sobre la bola. */
+.mini-joystick.tilt-up .joystick-ball,
+.mini-joystick.tilt-down .joystick-ball {
+  animation-play-state: paused;
 }
 
 .joystick-shaft {
@@ -1555,8 +1626,11 @@ button.panel-action:focus-visible {
   outline: none;
 }
 
-/* Pulsacion: el boton se hunde en el anillo (pierde el canto 3D) */
-button.panel-action:active .sanwa-btn {
+/* Pulsacion: el boton se hunde en el anillo (pierde el canto 3D).
+   :active = raton. .is-pressed = teclado (ENTER/ESPACIO -> amarillo, A -> rojo)
+   o navegacion (flechas/wheel -> azul), aplicada desde app.js. */
+button.panel-action:active .sanwa-btn,
+.panel-action.is-pressed .sanwa-btn {
   transform: translateY(3px);
   box-shadow:
     0 0 0 3px #111827,
@@ -1568,8 +1642,20 @@ button.panel-action:active .sanwa-btn {
     inset 0 -1px 2px rgba(0, 0, 0, 0.5);
 }
 
-button.panel-action:active {
+button.panel-action:active,
+.panel-action.is-pressed {
   color: var(--neon-yellow);
+}
+
+/* Destello de microswitch: al hundirse, el LED del boton se satura un
+   instante y decae. Solo filter sobre un elemento de 31px: coste minimo. */
+.panel-action.is-pressed .sanwa-btn {
+  animation: sanwaFlash 0.18s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes sanwaFlash {
+  0%   { filter: brightness(1.7) saturate(1.4); }
+  100% { filter: brightness(1.15) saturate(1); }
 }
 
 .arcade-btn-retro:active,
@@ -1692,7 +1778,4 @@ button.panel-action:active {
 }
 .arcade-viewport-env.is-leaving .screen-inspect-cta { animation: none; }
 
-@media (prefers-reduced-motion: reduce) {
-  .arcade-viewport-env { transition: none; }
-  .arcade-viewport-env.is-leaving { transform: none; }
-}
+
