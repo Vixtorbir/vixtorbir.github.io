@@ -471,31 +471,55 @@
           <linearGradient id="aoRight" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="rgba(0,0,0,0)"/><stop offset="1" stop-color="rgba(0,0,0,0.7)"/>
           </linearGradient>
-          <!-- T-molding: goma vinílica roja con perfil redondeado -->
+          <!-- T-molding: extrusión de goma granate mate, perfil en T con lomo
+               especular fino y caída de luz hacia los flancos -->
           <linearGradient id="tMold" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#3f0a0a"/>
-            <stop offset="0.28" stop-color="#b91c1c"/>
-            <stop offset="0.5" stop-color="#fca5a5"/>
-            <stop offset="0.62" stop-color="#dc2626"/>
-            <stop offset="1" stop-color="#450a0a"/>
+            <stop offset="0" stop-color="#1a0606"/>
+            <stop offset="0.2" stop-color="#4c0f12"/>
+            <stop offset="0.44" stop-color="#7a1a1f"/>
+            <stop offset="0.5" stop-color="#f3b4b8"/>
+            <stop offset="0.56" stop-color="#7a1a1f"/>
+            <stop offset="0.8" stop-color="#3d0b0e"/>
+            <stop offset="1" stop-color="#140404"/>
           </linearGradient>
           <linearGradient id="tMoldH" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#450a0a"/>
-            <stop offset="0.3" stop-color="#dc2626"/>
-            <stop offset="0.48" stop-color="#fca5a5"/>
-            <stop offset="0.7" stop-color="#b91c1c"/>
-            <stop offset="1" stop-color="#3f0a0a"/>
+            <stop offset="0" stop-color="#140404"/>
+            <stop offset="0.2" stop-color="#3d0b0e"/>
+            <stop offset="0.44" stop-color="#7a1a1f"/>
+            <stop offset="0.5" stop-color="#f3b4b8"/>
+            <stop offset="0.56" stop-color="#7a1a1f"/>
+            <stop offset="0.8" stop-color="#4c0f12"/>
+            <stop offset="1" stop-color="#1a0606"/>
           </linearGradient>
-          <!-- Marquesina: acrílico retroiluminado (fluorescente detrás) -->
-          <radialGradient id="marqueeGlass" cx="0.5" cy="0.5" r="0.75">
-            <stop offset="0" stop-color="#5a3a10"/>
-            <stop offset="0.55" stop-color="#2a1c09"/>
-            <stop offset="1" stop-color="#140d04"/>
+          <!-- Derrame de color del T-molding sobre el chasis contiguo -->
+          <linearGradient id="spillL" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="rgba(190,40,50,0.16)"/><stop offset="1" stop-color="rgba(190,40,50,0)"/>
+          </linearGradient>
+          <linearGradient id="spillR" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="rgba(190,40,50,0)"/><stop offset="1" stop-color="rgba(190,40,50,0.16)"/>
+          </linearGradient>
+          <!-- Marquesina: plexiglás lechoso difusor con dos tubos fluorescentes detrás -->
+          <linearGradient id="marqueeMilk" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#e9dfc9"/>
+            <stop offset="0.5" stop-color="#fbf3e2"/>
+            <stop offset="1" stop-color="#e3d6bd"/>
+          </linearGradient>
+          <linearGradient id="marqueeTubes" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="0.22" stop-color="rgba(255,255,255,0.55)"/>
+            <stop offset="0.3" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="0.68" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="0.76" stop-color="rgba(255,255,255,0.5)"/>
+            <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+          <radialGradient id="marqueeFall" cx="0.5" cy="0.5" r="0.7">
+            <stop offset="0.5" stop-color="rgba(120,80,30,0)"/>
+            <stop offset="1" stop-color="rgba(120,80,30,0.35)"/>
           </radialGradient>
           <linearGradient id="marqueeSheen" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="rgba(255,255,255,0.22)"/>
-            <stop offset="0.35" stop-color="rgba(255,255,255,0.04)"/>
-            <stop offset="0.36" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="0" stop-color="rgba(255,255,255,0.35)"/>
+            <stop offset="0.3" stop-color="rgba(255,255,255,0.06)"/>
+            <stop offset="0.31" stop-color="rgba(255,255,255,0)"/>
             <stop offset="1" stop-color="rgba(255,255,255,0)"/>
           </linearGradient>
           <!-- Aluminio (soportes, tornillos) -->
@@ -504,10 +528,28 @@
             <stop offset="0.5" stop-color="#9ca3af"/>
             <stop offset="1" stop-color="#4b5563"/>
           </linearGradient>
-          <radialGradient id="bolt" cx="0.4" cy="0.35" r="0.75">
-            <stop offset="0" stop-color="#d1d5db"/>
-            <stop offset="0.6" stop-color="#6b7280"/>
-            <stop offset="1" stop-color="#1f2937"/>
+          <!-- Tornillo Allen avellanado: arandela con cepillado radial, cono y cubo hexagonal -->
+          <radialGradient id="washer" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0.62" stop-color="#3b4149"/>
+            <stop offset="0.7" stop-color="#b6bcc6"/>
+            <stop offset="0.78" stop-color="#6b7280"/>
+            <stop offset="0.88" stop-color="#d7dbe1"/>
+            <stop offset="1" stop-color="#2b3038"/>
+          </radialGradient>
+          <linearGradient id="washerLight" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="rgba(255,255,255,0.55)"/>
+            <stop offset="0.5" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="1" stop-color="rgba(0,0,0,0.55)"/>
+          </linearGradient>
+          <radialGradient id="cone" cx="0.42" cy="0.38" r="0.7">
+            <stop offset="0" stop-color="#c9ced6"/>
+            <stop offset="0.55" stop-color="#7c8490"/>
+            <stop offset="1" stop-color="#2f353d"/>
+          </radialGradient>
+          <radialGradient id="socket" cx="0.5" cy="0.6" r="0.6">
+            <stop offset="0" stop-color="#000"/>
+            <stop offset="0.7" stop-color="#05070a"/>
+            <stop offset="1" stop-color="#3a414b"/>
           </radialGradient>
           <!-- Capota inclinada (recibe luz de arriba) -->
           <linearGradient id="hood" x1="0" y1="0" x2="0" y2="1">
@@ -538,41 +580,61 @@
             <stop offset="0.58" stop-color="rgba(255,255,255,0.05)"/>
             <stop offset="1" stop-color="rgba(255,255,255,0)"/>
           </linearGradient>
-          <!-- Joystick -->
-          <radialGradient id="dustwasher" cx="0.5" cy="0.45" r="0.6">
-            <stop offset="0" stop-color="#1f2329"/>
-            <stop offset="0.8" stop-color="#0a0c0f"/>
+          <!-- Joystick: dustwasher de goma mate biselado, eje cromado anisotrópico, balltop de resina -->
+          <radialGradient id="dustwasher" cx="0.5" cy="0.4" r="0.62">
+            <stop offset="0" stop-color="#262a30"/>
+            <stop offset="0.72" stop-color="#101216"/>
+            <stop offset="0.86" stop-color="#2c3139"/>
             <stop offset="1" stop-color="#000"/>
           </radialGradient>
           <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#6b7280"/>
-            <stop offset="0.2" stop-color="#9ca3af"/>
-            <stop offset="0.45" stop-color="#f3f4f6"/>
-            <stop offset="0.8" stop-color="#4b5563"/>
-            <stop offset="1" stop-color="#1f2937"/>
+            <stop offset="0" stop-color="#2b3138"/>
+            <stop offset="0.14" stop-color="#8b929c"/>
+            <stop offset="0.3" stop-color="#e5e8ec"/>
+            <stop offset="0.42" stop-color="#ffffff"/>
+            <stop offset="0.5" stop-color="#9aa1ab"/>
+            <stop offset="0.66" stop-color="#3c424a"/>
+            <stop offset="0.82" stop-color="#6d747e"/>
+            <stop offset="1" stop-color="#1c2026"/>
           </linearGradient>
-          <radialGradient id="ballRed" cx="0.38" cy="0.32" r="0.72">
-            <stop offset="0" stop-color="#fb7185"/>
-            <stop offset="0.35" stop-color="#dc2626"/>
-            <stop offset="0.8" stop-color="#7f1d1d"/>
-            <stop offset="1" stop-color="#3b0a0a"/>
+          <linearGradient id="chromeBands" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="rgba(255,255,255,0.25)"/>
+            <stop offset="0.12" stop-color="rgba(255,255,255,0)"/>
+            <stop offset="0.5" stop-color="rgba(0,0,0,0.12)"/>
+            <stop offset="0.9" stop-color="rgba(255,255,255,0.12)"/>
+            <stop offset="1" stop-color="rgba(0,0,0,0.4)"/>
+          </linearGradient>
+          <radialGradient id="ballRed" cx="0.36" cy="0.3" r="0.74">
+            <stop offset="0" stop-color="#ff8a99"/>
+            <stop offset="0.3" stop-color="#d91c2e"/>
+            <stop offset="0.7" stop-color="#8f0f1c"/>
+            <stop offset="0.9" stop-color="#4a0710"/>
+            <stop offset="1" stop-color="#2a0308"/>
           </radialGradient>
-          <!-- Sanwa OBSF-30: anillo de montaje, hueco y émbolo convexo -->
-          <radialGradient id="ring" cx="0.5" cy="0.4" r="0.6">
-            <stop offset="0" stop-color="#2a3038"/>
-            <stop offset="0.75" stop-color="#0c0f13"/>
-            <stop offset="1" stop-color="#000"/>
+          <!-- Rebote de luz del panel en la parte baja de la bola -->
+          <radialGradient id="ballBounce" cx="0.5" cy="1" r="0.75">
+            <stop offset="0" stop-color="rgba(255,120,130,0.35)"/>
+            <stop offset="0.6" stop-color="rgba(255,120,130,0)"/>
           </radialGradient>
-          <radialGradient id="ringRecess" cx="0.5" cy="0.55" r="0.6">
+          <!-- Sanwa OBSF-30: collar de montaje, pozo del microswitch y émbolo convexo -->
+          <radialGradient id="collar" cx="0.5" cy="0.38" r="0.62">
+            <stop offset="0" stop-color="#2a2e36"/>
+            <stop offset="0.78" stop-color="#1a1d24"/>
+            <stop offset="0.9" stop-color="#3a3f48"/>
+            <stop offset="1" stop-color="#0a0c10"/>
+          </radialGradient>
+          <radialGradient id="well" cx="0.5" cy="0.62" r="0.62">
             <stop offset="0" stop-color="#000"/>
-            <stop offset="0.85" stop-color="#05070a"/>
-            <stop offset="1" stop-color="#2a3038"/>
+            <stop offset="0.72" stop-color="#040609"/>
+            <stop offset="0.9" stop-color="#1a1d24"/>
+            <stop offset="1" stop-color="#3a3f48"/>
+          </radialGradient>
+          <radialGradient id="domeShade" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0.7" stop-color="rgba(0,0,0,0)"/>
+            <stop offset="1" stop-color="rgba(0,0,0,0.5)"/>
           </radialGradient>
           <radialGradient id="domeRed" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#fecaca"/><stop offset="0.3" stop-color="#ef4444"/><stop offset="0.8" stop-color="#991b1b"/><stop offset="1" stop-color="#450a0a"/></radialGradient>
           <radialGradient id="domeBlue" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#bfdbfe"/><stop offset="0.3" stop-color="#3b82f6"/><stop offset="0.8" stop-color="#1e40af"/><stop offset="1" stop-color="#172554"/></radialGradient>
-          <radialGradient id="domeYellow" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#fef9c3"/><stop offset="0.3" stop-color="#facc15"/><stop offset="0.8" stop-color="#a16207"/><stop offset="1" stop-color="#422006"/></radialGradient>
-          <radialGradient id="domeWhite" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#ffffff"/><stop offset="0.3" stop-color="#e5e7eb"/><stop offset="0.8" stop-color="#6b7280"/><stop offset="1" stop-color="#1f2937"/></radialGradient>
-          <radialGradient id="domeGreen" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#dcfce7"/><stop offset="0.3" stop-color="#22c55e"/><stop offset="0.8" stop-color="#15803d"/><stop offset="1" stop-color="#052e16"/></radialGradient>
           <!-- Puerta de monedas: chapa de acero -->
           <linearGradient id="coinDoor" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stop-color="#1a1f27"/>
@@ -596,13 +658,15 @@
         <!-- AO del frontal contra las laterales -->
         <rect x="128" y="0" width="34" height="1300" fill="url(#aoLeft)"/>
         <rect x="838" y="0" width="34" height="1300" fill="url(#aoRight)"/>
-        <!-- T-molding (goma) con sombra sobre el panel -->
-        <rect x="118" y="0" width="16" height="1300" fill="rgba(0,0,0,0.55)"/>
-        <rect x="866" y="0" width="16" height="1300" fill="rgba(0,0,0,0.55)"/>
-        <rect x="121" y="0" width="10" height="1300" rx="5" fill="url(#tMold)"/>
-        <rect x="869" y="0" width="10" height="1300" rx="5" fill="url(#tMold)"/>
-        <rect x="70" y="0" width="8" height="1300" rx="4" fill="url(#tMold)"/>
-        <rect x="922" y="0" width="8" height="1300" rx="4" fill="url(#tMold)"/>
+        <!-- T-molding (goma) encastrado en la ranura, con sombra y derrame de color -->
+        <rect x="134" y="0" width="26" height="1300" fill="url(#spillL)"/>
+        <rect x="840" y="0" width="26" height="1300" fill="url(#spillR)"/>
+        <rect x="116" y="0" width="20" height="1300" fill="rgba(0,0,0,0.6)"/>
+        <rect x="864" y="0" width="20" height="1300" fill="rgba(0,0,0,0.6)"/>
+        <rect x="120" y="0" width="12" height="1300" rx="6" fill="url(#tMold)"/>
+        <rect x="868" y="0" width="12" height="1300" rx="6" fill="url(#tMold)"/>
+        <rect x="70" y="0" width="9" height="1300" rx="4.5" fill="url(#tMold)"/>
+        <rect x="921" y="0" width="9" height="1300" rx="4.5" fill="url(#tMold)"/>
 
         <!-- ===== MARQUESINA (acrílico retroiluminado) ===== -->
         <rect x="132" y="34" width="736" height="192" rx="6" fill="#0a0d12"/>
@@ -610,16 +674,21 @@
         <!-- Soportes de aluminio superior / inferior -->
         <rect x="138" y="40" width="724" height="14" rx="3" fill="url(#alu)"/>
         <rect x="138" y="206" width="724" height="14" rx="3" fill="url(#alu)"/>
-        <!-- Cristal acrílico -->
-        <rect x="150" y="58" width="700" height="144" rx="4" fill="url(#marqueeGlass)"/>
+        <!-- Plexiglás lechoso retroiluminado: difusor + hotspots de dos tubos + caída en bordes -->
+        <rect x="150" y="58" width="700" height="144" rx="4" fill="url(#marqueeMilk)"/>
+        <rect x="150" y="58" width="700" height="144" rx="4" fill="url(#marqueeTubes)"/>
+        <rect x="150" y="58" width="700" height="144" rx="4" fill="url(#marqueeFall)"/>
+        <rect x="150" y="58" width="700" height="144" rx="4" fill="url(#grain)" opacity="0.06"/>
         <rect x="150" y="58" width="700" height="144" rx="4" fill="url(#marqueeSheen)"/>
-        <rect x="150" y="58" width="700" height="144" rx="4" fill="none" stroke="#000" stroke-opacity="0.8" stroke-width="3"/>
-        <rect x="153" y="61" width="694" height="138" rx="3" fill="none" stroke="#f59e0b" stroke-opacity="0.5" stroke-width="1.5"/>
-        <!-- Pernos hexagonales -->
+        <rect x="150" y="58" width="700" height="144" rx="4" fill="none" stroke="#000" stroke-opacity="0.85" stroke-width="3"/>
+        <!-- Tornillo Allen avellanado (arandela cepillada + cono + cubo hexagonal en sombra) -->
         <g id="hexbolt">
-          <circle r="8" fill="url(#bolt)"/>
-          <polygon points="-4,-2.3 0,-4.6 4,-2.3 4,2.3 0,4.6 -4,2.3" fill="none" stroke="#111827" stroke-width="1.6"/>
-          <circle r="8.8" fill="none" stroke="#000" stroke-opacity="0.6" stroke-width="1"/>
+          <circle r="10.5" fill="rgba(0,0,0,0.55)" cx="0.8" cy="1.2"/>
+          <circle r="10" fill="url(#washer)"/>
+          <circle r="10" fill="url(#washerLight)" opacity="0.6"/>
+          <circle r="6.6" fill="url(#cone)"/>
+          <polygon points="-3.4,-2 0,-3.9 3.4,-2 3.4,2 0,3.9 -3.4,2" fill="url(#socket)"/>
+          <polygon points="-3.4,-2 0,-3.9 3.4,-2 3.4,2 0,3.9 -3.4,2" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="0.8"/>
         </g>
         <use href="#hexbolt" x="150" y="47"/><use href="#hexbolt" x="850" y="47"/>
         <use href="#hexbolt" x="150" y="213"/><use href="#hexbolt" x="850" y="213"/>
@@ -668,39 +737,49 @@
         <use href="#hexbolt" x="150" y="812"/><use href="#hexbolt" x="850" y="812"/>
         <use href="#hexbolt" x="120" y="940"/><use href="#hexbolt" x="880" y="940"/>
 
-        <!-- Joystick balltop -->
-        <ellipse cx="262" cy="896" rx="58" ry="16" fill="rgba(0,0,0,0.55)"/>
-        <ellipse cx="260" cy="884" rx="46" ry="15" fill="url(#dustwasher)"/>
-        <ellipse cx="260" cy="882" rx="46" ry="15" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1.2"/>
-        <ellipse cx="260" cy="882" rx="14" ry="4.5" fill="#000"/>
-        <rect x="251" y="808" width="18" height="76" rx="3" fill="url(#chrome)"/>
-        <rect x="251" y="808" width="18" height="76" rx="3" fill="none" stroke="#000" stroke-opacity="0.5" stroke-width="1"/>
-        <ellipse cx="262" cy="836" rx="34" ry="10" fill="rgba(0,0,0,0.35)"/>
-        <circle cx="260" cy="800" r="31" fill="url(#ballRed)"/>
-        <circle cx="260" cy="800" r="31" fill="none" stroke="#2a0606" stroke-width="1.2"/>
-        <ellipse cx="249" cy="789" rx="9" ry="6" fill="url(#spec)"/>
-        <ellipse cx="252" cy="786" rx="3.2" ry="2.2" fill="#fff"/>
+        <!-- Joystick balltop (centrado a la izquierda del panel) -->
+        <!-- sombra de contacto del dustwasher -->
+        <ellipse cx="322" cy="898" rx="64" ry="18" fill="rgba(0,0,0,0.6)"/>
+        <ellipse cx="320" cy="893" rx="52" ry="16" fill="rgba(0,0,0,0.5)"/>
+        <!-- dustwasher de goma con bisel -->
+        <ellipse cx="320" cy="884" rx="48" ry="16" fill="url(#dustwasher)"/>
+        <ellipse cx="320" cy="881" rx="44" ry="13.5" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.2"/>
+        <ellipse cx="320" cy="886" rx="48" ry="16" fill="none" stroke="rgba(0,0,0,0.9)" stroke-width="1.4"/>
+        <ellipse cx="320" cy="882" rx="14" ry="4.6" fill="#000"/>
+        <ellipse cx="320" cy="881" rx="11" ry="3.2" fill="#0d0f13"/>
+        <!-- eje cromado: reflejo anisotrópico + bandas -->
+        <rect x="311" y="806" width="18" height="78" rx="2.5" fill="url(#chrome)"/>
+        <rect x="311" y="806" width="18" height="78" rx="2.5" fill="url(#chromeBands)"/>
+        <rect x="311" y="806" width="18" height="78" rx="2.5" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="0.8"/>
+        <!-- AO de la bola sobre el eje -->
+        <ellipse cx="320" cy="832" rx="28" ry="9" fill="rgba(0,0,0,0.45)"/>
+        <!-- balltop de resina: cuerpo, rebote inferior, borde, doble especular -->
+        <circle cx="320" cy="798" r="32" fill="url(#ballRed)"/>
+        <circle cx="320" cy="798" r="32" fill="url(#ballBounce)"/>
+        <circle cx="320" cy="798" r="32" fill="none" stroke="rgba(30,4,8,0.9)" stroke-width="1"/>
+        <ellipse cx="308" cy="786" rx="10" ry="6.5" fill="url(#spec)"/>
+        <ellipse cx="311" cy="783" rx="3.4" ry="2.3" fill="#fff"/>
+        <ellipse cx="331" cy="814" rx="5" ry="2.2" fill="rgba(255,255,255,0.22)"/>
 
-        <!-- Botones Sanwa OBSF-30 -->
+        <!-- Botones Sanwa OBSF-30 (x2): collar de montaje, pozo del microswitch, émbolo convexo -->
         <g id="sanwa">
-          <ellipse cx="1" cy="5" rx="30" ry="29" fill="rgba(0,0,0,0.5)"/>
-          <circle r="29" fill="url(#ring)"/>
-          <circle r="29" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
-          <circle r="23" fill="url(#ringRecess)"/>
+          <ellipse cx="1.5" cy="6" rx="31" ry="29" fill="rgba(0,0,0,0.55)"/>
+          <circle r="30" fill="url(#collar)"/>
+          <circle r="30" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+          <circle r="30.6" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="1"/>
+          <circle r="24" fill="url(#well)"/>
         </g>
         <g id="plunger">
+          <ellipse cx="0.8" cy="2.4" rx="20" ry="19" fill="rgba(0,0,0,0.55)"/>
           <circle r="19.5" style="fill: var(--dome)"/>
-          <circle r="19.5" fill="none" stroke="rgba(0,0,0,0.55)" stroke-width="1"/>
-          <ellipse cx="-6" cy="-7" rx="7" ry="4.5" fill="url(#spec)"/>
-          <ellipse cx="-5" cy="-9" rx="2.4" ry="1.5" fill="rgba(255,255,255,0.95)"/>
+          <circle r="19.5" fill="url(#domeShade)"/>
+          <circle r="19.5" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="0.9"/>
+          <ellipse cx="-6" cy="-7.5" rx="8" ry="5" fill="url(#spec)"/>
+          <ellipse cx="-5" cy="-9.5" rx="2.6" ry="1.6" fill="rgba(255,255,255,0.95)"/>
+          <ellipse cx="6" cy="10" rx="5" ry="2" fill="rgba(255,255,255,0.14)"/>
         </g>
-        <g transform="translate(470 870)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#domeRed)"/></g>
-        <g transform="translate(540 870)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#domeBlue)"/></g>
-        <g transform="translate(640 850)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#domeYellow)"/></g>
-        <g transform="translate(710 845)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#domeWhite)"/></g>
-        <g transform="translate(780 850)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#domeGreen)"/></g>
-        <g transform="translate(660 912)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#domeRed)"/></g>
-        <g transform="translate(730 908)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#domeBlue)"/></g>
+        <g transform="translate(560 868)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#domeRed)"/></g>
+        <g transform="translate(660 868)"><use href="#sanwa"/><use href="#plunger" style="--dome: url(#domeBlue)"/></g>
 
         <!-- ===== PUERTA DE MONEDAS (chapa) ===== -->
         <rect x="132" y="990" width="736" height="310" fill="url(#coinDoor)"/>
@@ -713,7 +792,7 @@
       <!-- ============ CAPAS VIVAS (HTML) ============ -->
       <!-- Marquesina retroiluminada -->
       <div class="attract-marquee" aria-hidden="true">
-        <span class="attract-tag">COIN-OP ARCADE SYSTEM</span>
+        <span class="attract-tag">PORTFOLIO</span>
         <h1 class="attract-title">VÍCTOR CÁRDENAS</h1>
       </div>
 
@@ -731,15 +810,15 @@
             <div class="attract-subtitle">GAMEPLAY &amp; AUDIO<br>PROGRAMMER PORTFOLIO</div>
             <div class="attract-system-sub"><span class="attract-badge">C++ ENGINE ARCHITECTURE</span><span class="attract-badge">FMOD CORE &amp; STUDIO</span><span class="attract-badge">UNITY ZERO-GC</span></div>
             <div class="attract-coin-prompt">
-              <span class="coin-star" aria-hidden="true">★</span> INSERT COIN / PRESS START <span class="coin-star" aria-hidden="true">★</span>
+              <span class="coin-star" aria-hidden="true">★</span> PRESS START <span class="coin-star" aria-hidden="true">★</span>
             </div>
-            <div class="attract-start-hint" data-i18n="attract_hint">[ CLIC / ENTER / ESPACIO / MANDO ]</div>
+            <div class="attract-start-hint" data-i18n="attract_hint">[ TOCA / PULSA PARA ENTRAR ]</div>
           </div>
 
           <div class="attract-screen-row attract-screen-bottom">
             <span>CREDIT 01</span>
             <span>1 PLAYER ONLY</span>
-            <span>FREE PLAY</span>
+            <span>CITM · UPC BARCELONA</span>
           </div>
         </div>
         <div class="attract-screen-sweep" aria-hidden="true"></div>
@@ -750,17 +829,14 @@
       <!-- Luz del tubo sangrando sobre el bisel (fuera del overflow del cristal) -->
       <div class="attract-screen-bleed" aria-hidden="true"></div>
 
-      <!-- Coin mech: placa de zinc con ranura y pulsador iluminado -->
-      <button class="attract-coin-btn" id="attract-coin-btn" type="button" aria-label="Insertar moneda para comenzar" data-i18n-aria="attract_coin_aria">
-        <span class="coin-slot-opening" aria-hidden="true"></span>
-        <span class="coin-slot-label">INSERT COIN (25¢)</span>
-        <span class="coin-return" aria-hidden="true"></span>
-      </button>
+      <!-- Disparador accesible (invisible): teclado / lector de pantalla. El
+           prompt visual es PRESS START en el tubo; toda la máquina es clicable. -->
+      <button class="attract-start-btn sr-only" id="attract-coin-btn" type="button" aria-label="Pulsa para entrar en el arcade" data-i18n-aria="attract_coin_aria">PRESS START</button>
     </div>
   </div>
 
   <!-- Arcade Logic Engine (ES Modules, sin build step) -->
-  <script type="module" src="js/app.js?v=3.0"></script>
+  <script type="module" src="js/app.js?v=3.1"></script>
 
 </body>
 </html>
