@@ -1,421 +1,249 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Víctor Cárdenas (Vixtorbir) | Arcade Front-End — Gameplay & Systems Programmer</title>
-  <meta name="description" content="Portfolio Arcade de Víctor Cárdenas (Vixtorbir) — Gameplay & Systems Programmer (CITM-UPC). C++, FMOD nativo, Unity Zero-GC y Arquitectura de Motores.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Víctor Cárdenas, game developer</title>
+  <meta name="description" content="Game developer from Barcelona, mostly Unity and C#. Final-year student at CITM (UPC), looking for an internship at a game studio.">
+  <meta name="theme-color" content="#F5F7FA" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#11151D" media="(prefers-color-scheme: dark)">
+  <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+
   <link rel="canonical" href="https://vixtorbir.github.io/">
-  <meta name="author" content="Víctor Cárdenas Hormigo">
-  <meta name="theme-color" content="#03050a">
-
-  <!-- OpenGraph (LinkedIn / Discord / Slack) -->
+  <link rel="alternate" hreflang="en" href="https://vixtorbir.github.io/">
+  <link rel="alternate" hreflang="es" href="https://vixtorbir.github.io/es/">
+  <link rel="alternate" hreflang="x-default" href="https://vixtorbir.github.io/">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Víctor Cárdenas — Arcade Portfolio">
-  <meta property="og:title" content="Víctor Cárdenas (Vixtorbir) | Gameplay & Systems Programmer — Arcade Portfolio">
-  <meta property="og:description" content="Portfolio arcade interactivo: motor C++ propio, FMOD nativo, Unity Zero-GC y arquitectura de motores. Estudiante de 4º curso CITM-UPC en busca de prácticas en estudios AAA.">
   <meta property="og:url" content="https://vixtorbir.github.io/">
-  <meta property="og:image" content="https://vixtorbir.github.io/assets/fable_intro_title.png">
-  <meta property="og:image:alt" content="Pantalla de título de Fable — arte del portfolio arcade de Víctor Cárdenas">
-  <meta property="og:locale" content="es_ES">
-  <meta property="og:locale:alternate" content="en_US">
-
-  <!-- Twitter / X Cards -->
+  <meta property="og:title" content="Víctor Cárdenas, game developer">
+  <meta property="og:description" content="Game developer from Barcelona (Unity, C#, C++), looking for an internship at a game studio, in any role.">
+  <meta property="og:image" content="https://vixtorbir.github.io/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Víctor Cárdenas, game developer, Unity and C#">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:locale:alternate" content="es_ES">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Víctor Cárdenas (Vixtorbir) | Gameplay & Systems Programmer">
-  <meta name="twitter:description" content="Arcade portfolio: custom C++ engine, native FMOD, Unity Zero-GC and engine architecture. 4th-year CITM-UPC student seeking AAA internship.">
-  <meta name="twitter:image" content="https://vixtorbir.github.io/assets/fable_intro_title.png">
-  <meta name="twitter:image:alt" content="Fable title screen — Víctor Cárdenas arcade portfolio artwork">
-  
-  <!-- Arcade Typography -->
+
+  <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-  
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            arcade: ['"Chakra Petch"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-            sans: ['"Inter"', 'sans-serif']
-          }
-        }
-      }
-    }
-  </script>
-  
-  <!-- Arcade Cabinet Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=2.5">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/site.js" defer></script>
 </head>
 <body>
+  <a class="skip" href="#content">Skip to content</a>
 
-
-
-  <!-- Fullscreen Arcade Cabinet Viewport Environment -->
-  <div class="arcade-viewport-env">
-
-    <!-- CRT Tube Simulation: scanlines, phosphor grain, tube flicker -->
-    <div class="crt-scanlines" aria-hidden="true"></div>
-    <div class="crt-grain" aria-hidden="true"></div>
-    <div class="crt-vignette" aria-hidden="true"></div>
-    
-    <!-- Cabinet Corner Hex Bolts -->
-    <span class="chassis-bolt bolt-tl"></span>
-    <span class="chassis-bolt bolt-tr"></span>
-    <span class="chassis-bolt bolt-bl"></span>
-    <span class="chassis-bolt bolt-br"></span>
-
-    <!-- 3D Perspective Retro Floor Grid -->
-    <div class="arcade-floor-grid">
-      <div class="arcade-floor-grid-plane"></div>
+  <header class="wrap topbar">
+    <nav aria-label="Sections" class="nav">
+      <a href="#projects">Projects</a>
+      <a href="#more">More projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="tools">
+      <a href="es/" hreflang="es" lang="es">Español</a>
+      <button class="theme" type="button" aria-label="Switch between light and dark theme">
+        <svg class="icon sun" aria-hidden="true"><use href="assets/icons.svg#i-sun"/></svg>
+        <svg class="icon moon" aria-hidden="true"><use href="assets/icons.svg#i-moon"/></svg>
+      </button>
     </div>
+  </header>
 
-    <!-- Glowing Yellow Arcade Cabinet in Background Right -->
-    <div class="arcade-bg-silhouette"></div>
-
-    <!-- ===================================================================
-         1. TOP BAR RETRO MARQUEE (Exact User Specification)
-         │ [TOP BAR RETRO]  > VICTOR_CARDENAS.EXE   [INSERT COIN: P1 READY]  [CV PDF] [EN/ES]│
-         =================================================================== -->
-    <header class="arcade-top-marquee">
-      
-      <!-- Left: Speaker Grille + Terminal prompt > VICTOR_CARDENAS.EXE -->
-      <div class="flex items-center gap-3">
-        <div class="speaker-grille hidden sm:flex">
-          <span class="speaker-slit"></span>
-          <span class="speaker-slit"></span>
-          <span class="speaker-slit"></span>
-          <span class="speaker-slit"></span>
-        </div>
-        <div class="top-terminal-prompt">
-          <span>&gt; VICTOR_CARDENAS.EXE</span>
-          <span class="terminal-cursor"></span>
-        </div>
+  <main id="content" tabindex="-1">
+    <section class="wrap hero" aria-label="Introduction">
+      <div class="who">
+        <img class="avatar" src="assets/img/victor.webp" width="76" height="76" alt="Portrait of Víctor Cárdenas">
+        <h1 class="name">Víctor Cárdenas<span class="caret" aria-hidden="true"></span></h1>
       </div>
 
-      <!-- Center: [INSERT COIN: P1 READY] (Clickable with authentic coin sound!) -->
-      <div class="top-insert-coin cursor-pointer" onclick="playCoinSound()" title="Insert Coin / Insertar Moneda">
-        <span class="coin-slot-icon">[¢]</span>
-        <span data-i18n="insert_coin_text">INSERT COIN: P1 READY</span>
+      <div class="intro">
+        <p>I’m a game developer from Barcelona. I mostly work in Unity and C#.</p>
+        <p>I shipped an Android game on my own and wrote the combat core of a 2.5D fighting game.</p>
+        <p>I’m looking for an internship at a game studio, in any role. Have a look at my <a href="#projects">projects</a> below.</p>
       </div>
 
-      <!-- Right Controls: [CV PDF] [EN/ES] [SFX] -->
-      <div class="top-right-controls">
-        <!-- CV: se abre en pestaña nueva (visor PDF nativo), ES/EN según idioma activo (app.js) -->
-        <a href="assets/Victor_Cardenas_CV_ES.pdf" target="_blank" rel="noopener noreferrer" id="top-cv-btn" class="arcade-btn-retro" title="Abrir CV en nueva pestaña (PDF)">
-          <span aria-hidden="true">📄</span>
-          <span data-i18n="cv_btn">[CV PDF]</span>
-        </a>
-
-        <!-- Language Switcher [ EN | ES ] -->
-        <div class="arcade-lang-retro" role="group" aria-label="Language Selector">
-          <button id="lang-btn-en" class="lang-retro-btn" onclick="setLanguage('en')">EN</button>
-          <button id="lang-btn-es" class="lang-retro-btn active" onclick="setLanguage('es')">ES</button>
-        </div>
-
-        <!-- Audio SFX Toggle -->
-        <button id="sfx-toggle-btn" class="arcade-btn-retro !px-2" onclick="toggleAudioSFX()" title="Silenciar / Activar Sonido" aria-pressed="false">
-          <span id="sfx-label">🔊 SFX</span>
-        </button>
-
-        <div class="speaker-grille hidden sm:flex">
-          <span class="speaker-slit"></span>
-          <span class="speaker-slit"></span>
-          <span class="speaker-slit"></span>
-          <span class="speaker-slit"></span>
-        </div>
+      <div class="cta">
+        <a class="btn primary" href="assets/Victor-Cardenas-CV-Game-Developer.pdf" download><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-download"/></svg>Download CV</a>
+        <a class="btn" href="mailto:victorcarhor@gmail.com"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-mail"/></svg>Email me</a>
       </div>
 
-    </header>
+      <figure class="code" aria-label="Summary of Víctor as a C# object">
+        <div class="code-bar"><span class="code-tab">Victor.cs</span></div>
+<pre><code><span class="ln"><span class="k">var</span> victor <span class="o">=</span> <span class="k">new</span> <span class="t">GameDeveloper</span></span><span class="ln"><span class="o">{</span></span><span class="ln">    <span class="c">// Who I am</span></span><span class="ln">    <span class="p">Location</span> <span class="o">=</span> <span class="t">City</span><span class="o">.</span><span class="e">Barcelona</span><span class="o">,</span></span><span class="ln">    <span class="p">Studies</span> <span class="o">=</span> <span class="k">new</span> <span class="t">Degree</span><span class="o">(</span><span class="s">"Video Game Design and Development"</span><span class="o">, </span><span class="s">"CITM (UPC)"</span><span class="o">, </span><span class="p">Year</span><span class="o">: </span><span class="n">4</span><span class="o">)</span><span class="o">,</span></span><span class="ln"></span><span class="ln">    <span class="c">// What I'm looking for</span></span><span class="ln">    <span class="p">LookingFor</span> <span class="o">=</span> <span class="s">"Internship at a game studio"</span><span class="o">,</span></span><span class="ln">    <span class="p">OpenTo</span> <span class="o">=</span> <span class="t">Role</span><span class="o">.</span><span class="e">Any</span><span class="o">,</span></span><span class="ln">    <span class="p">UniversityAgreement</span> <span class="o">=</span> <span class="k">true</span><span class="o">,</span></span><span class="ln">    <span class="p">StartBefore</span> <span class="o">=</span> <span class="k">new</span> <span class="t">DateOnly</span><span class="o">(</span><span class="n">2027</span><span class="o">, </span><span class="n">2</span><span class="o">, </span><span class="n">1</span><span class="o">)</span><span class="o">,</span></span><span class="ln"></span><span class="ln">    <span class="c">// What I work with</span></span><span class="ln">    <span class="p">Focus</span> <span class="o">=</span> <span class="o">[</span><span class="t">Skill</span><span class="o">.</span><span class="e">Gameplay</span><span class="o">, </span><span class="t">Skill</span><span class="o">.</span><span class="e">Combat</span><span class="o">, </span><span class="t">Skill</span><span class="o">.</span><span class="e">GameFeel</span><span class="o">, </span><span class="t">Skill</span><span class="o">.</span><span class="e">Audio</span><span class="o">]</span><span class="o">,</span></span><span class="ln">    <span class="p">Code</span> <span class="o">=</span> <span class="o">[</span><span class="s">"C#"</span><span class="o">, </span><span class="s">"C++"</span><span class="o">, </span><span class="s">"C"</span><span class="o">, </span><span class="s">"SQL"</span><span class="o">]</span><span class="o">,</span></span><span class="ln">    <span class="p">Engines</span> <span class="o">=</span> <span class="o">[</span><span class="s">"Unity"</span><span class="o">, </span><span class="s">"Custom C++ engines (OpenGL, SDL)"</span><span class="o">]</span><span class="o">,</span></span><span class="ln">    <span class="p">Tools</span> <span class="o">=</span> <span class="o">[</span><span class="s">"FMOD"</span><span class="o">, </span><span class="s">"Git"</span><span class="o">, </span><span class="s">"Scrum"</span><span class="o">, </span><span class="s">"HacknPlan"</span><span class="o">, </span><span class="s">"Trello"</span><span class="o">]</span><span class="o">,</span></span><span class="ln">    <span class="p">Speaks</span> <span class="o">=</span> <span class="o">[</span><span class="s">"Spanish"</span><span class="o">, </span><span class="s">"Catalan"</span><span class="o">, </span><span class="s">"English (B2)"</span><span class="o">]</span><span class="o">,</span></span><span class="ln"></span><span class="ln">    <span class="c">// Where to find me</span></span><span class="ln">    <span class="p">Email</span> <span class="o">=</span> <a class="s" href="mailto:victorcarhor@gmail.com">"victorcarhor@gmail.com"</a><span class="o">,</span></span><span class="ln">    <span class="p">LinkedIn</span> <span class="o">=</span> <a class="s" href="https://www.linkedin.com/in/victor-cardenas-gamedev">"linkedin.com/in/victor-cardenas-gamedev"</a><span class="o">,</span></span><span class="ln">    <span class="p">GitHub</span> <span class="o">=</span> <a class="s" href="https://github.com/Vixtorbir">"github.com/Vixtorbir"</a><span class="o">,</span></span><span class="ln">    <span class="p">CV</span> <span class="o">=</span> <a class="s" href="assets/Victor-Cardenas-CV-Game-Developer.pdf">"Victor-Cardenas-CV-Game-Developer.pdf"</a><span class="o">,</span></span><span class="ln"><span class="o">};</span></span></code></pre>
+      </figure>
+    </section>
 
-    <!-- ===================================================================
-         2. MAIN STAGE (EXACT LAYOUT OF IMAGE 2)
-         - Left: Framed Vertical Title + Sci-Fi Screen + Hardware Box + Clear Metadata
-         - Right: Thick Glowing Curved Rail + Custom System Branding Logos
-         =================================================================== -->
-    <main class="arcade-main-stage">
-      
-      <!-- =================================================================
-           LEFT COLUMN: SCI-FI BEZEL SCREEN & METADATA TRAY
-           ================================================================= -->
-      <section class="arcade-left-display">
-        
-        <!-- Sci-Fi Bezel Screen Housing (Solid white mecha frame, vents, targets) -->
-        <div class="scifi-screen-wrapper">
+    <section class="wrap section" id="bring" aria-labelledby="bring-h">
+      <h2 id="bring-h">What I bring</h2>
+      <ul class="bring">
+        <li><strong>Gameplay systems in Unity and C#</strong>I built a fighting game’s combat core on my own: a state machine, frame data, an input buffer that reads motion inputs, combos and hitstop.</li>
+        <li><strong>I take games to release</strong>I made Ave Phoenix Regen alone, from the first prototype to an Android APK (v1.1).</li>
+        <li><strong>C++ and engine code</strong>In a team of 3 I wrote the GameObject and Inspector system, resource manager, scene save and load, octree and mouse picking of a C++/OpenGL engine.</li>
+        <li><strong>Team work under Scrum</strong>I was lead programmer in a team of 5 and split the programming work into Trello tasks. On The Fable of the Eclipse I turned playtest feedback into sprint tasks.</li>
+        <li><strong>Game audio</strong>I integrated FMOD into our class engine and did the audio of a Unity walking simulator: mixer routing, snapshots and 3D sound.</li>
+      </ul>
+    </section>
 
-          <!-- Vertical Title Box: anclado al alto exacto de la pantalla -->
-          <div class="vertical-title-container">
-            <div class="vertical-title-text" id="vertical-title">01. PLAYER 1 // VÍCTOR CÁRDENAS</div>
-          </div>
-          
-          <!-- Sci-Fi Bevelled Bezel: chamfered outline, top notch, circuit traces, vent slats -->
-          <div class="crt-bezel-frame" aria-hidden="true">
-            <svg class="bezel-circuit-svg" viewBox="0 0 1000 620" preserveAspectRatio="none">
-              <!-- Inner chamfered outline -->
-              <path d="M 22 8 L 978 8 L 992 22 L 992 598 L 978 612 L 22 612 L 8 598 L 8 22 Z"
-                    fill="none" stroke="rgba(15,23,42,0.55)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-              <!-- Top notch tab -->
-              <path d="M 440 0 L 560 0 L 548 14 L 452 14 Z" fill="#0b0f19" />
-              <!-- Circuit traces: top-left -->
-              <path d="M 8 120 L 40 120 L 52 132 L 52 200" fill="none" stroke="rgba(15,23,42,0.6)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-              <circle cx="52" cy="204" r="3" fill="#0b0f19" />
-              <path d="M 120 8 L 120 30 L 132 42 L 260 42" fill="none" stroke="rgba(15,23,42,0.6)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-              <circle cx="264" cy="42" r="3" fill="#0b0f19" />
-              <!-- Circuit traces: bottom-right -->
-              <path d="M 992 480 L 960 480 L 948 468 L 948 380" fill="none" stroke="rgba(15,23,42,0.6)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-              <circle cx="948" cy="376" r="3" fill="#0b0f19" />
-              <path d="M 880 612 L 880 590 L 868 578 L 700 578" fill="none" stroke="rgba(15,23,42,0.6)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-              <circle cx="696" cy="578" r="3" fill="#0b0f19" />
-              <!-- Targeting crosshair + arrow (bottom decal) -->
-              <circle cx="330" cy="596" r="6" fill="none" stroke="#0b0f19" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-              <line x1="340" y1="596" x2="400" y2="596" stroke="#0b0f19" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-              <polygon points="400,590 412,596 400,602" fill="#0b0f19" />
-            </svg>
-            <span class="bezel-vent bezel-vent-right"></span>
-            <span class="bezel-vent bezel-vent-bottom"></span>
-            <span class="bezel-screw screw-tl"></span>
-            <span class="bezel-screw screw-tr"></span>
-            <span class="bezel-screw screw-bl"></span>
-            <span class="bezel-screw screw-br"></span>
-          </div>
+    <section class="wrap section" id="projects" aria-labelledby="projects-h">
+      <h2 id="projects-h">Projects</h2>
+      <div class="projects">
 
-          <!-- Inner Screen Viewport (Zero-filter, 100% crisp media!) -->
-          <div class="scifi-screen-viewport" role="button" tabindex="0" aria-label="Inspeccionar ficha técnica del sistema seleccionado / Inspect selected system spec sheet">
-            
-            <!-- Top-Left Arcade Badge -->
-            <div class="screen-top-badge">
-              <span class="text-amber-400 text-sm">[*]</span>
-              <span class="badge-logo-text" id="screen-badge-text">CITM // ARCADE</span>
-            </div>
-
-            <!-- Dynamic Canvas / Video (Crisp, zero-filter display) -->
-            <div class="w-full h-full relative" id="screen-media-container">
-              <canvas id="media-canvas" class="w-full h-full block"></canvas>
-            </div>
-
-            <!-- Fase 3: bloom de fosforo + micro-flicker (solo opacity, canvas sin filtros) -->
-            <div class="crt-flicker-layer" aria-hidden="true"></div>
-
-            <!-- Interactive CTA: click / Enter navigates to project.html (Phase 2) -->
-            <div class="screen-inspect-cta" data-i18n="screen_inspect_cta">[ ↵ CLIC / ENTER: INSPECCIONAR ]</div>
-
-            <!-- Fase 4: OSD retro (mando conectado / desconectado, SFX) -->
-            <div class="arcade-osd-toast" id="arcade-osd" role="status" aria-live="polite"></div>
-
-            <!-- Authentic Arcade Decal Strip -->
-            <div class="arcade-decal-strip" id="arcade-decal-strip"><span id="screen-decal-text">Lanzado en Itch.io // Motor C++ Propio</span></div>
-
-          </div>
-
-        </div>
-
-        <!-- Metadata Tray (Personalized Hardware Icon + Crystal-Clear Spec List) -->
-        <div class="arcade-metadata-tray">
-
-          <!-- Year / label tag embedded in the top border line -->
-          <span class="tray-top-tag" id="tray-tag">CITM-UPC</span>
-          <!-- Vertical brand tab on the left edge -->
-          <span class="tray-brand-tab" id="tray-brand">CITM</span>
-
-          <!-- Hardware Thumbnail Box (Renders Phoenix pixel art, LoopieEngine logo, Victor portrait) -->
-          <div class="hardware-thumb-box" id="hardware-box">
-            <!-- Dynamically populated in js/app.js with real assets -->
-          </div>
-
-          <!-- Metadata Spec List (Crisp monospace font, ultra-legible) -->
-          <div class="metadata-list" id="metadata-list-container">
-            <div class="metadata-row">
-              <span class="metadata-label" data-i18n="meta_role_lbl">Rol :</span>
-              <span class="metadata-value" id="meta-role">Gameplay &amp; Systems Programmer</span>
-            </div>
-            <div class="metadata-row">
-              <span class="metadata-label" data-i18n="meta_stack_lbl">Tech Stack :</span>
-              <span class="metadata-value" id="meta-stack">C++ / C# / Unity / Unreal Engine</span>
-            </div>
-            <div class="metadata-row">
-              <span class="metadata-label" data-i18n="meta_focus_lbl">Especialidad :</span>
-              <span class="metadata-value" id="meta-focus">Low-Level Architecture &amp; Audio Subsystems</span>
-            </div>
-            <div class="metadata-row">
-              <span class="metadata-label" data-i18n="meta_status_lbl">Estado :</span>
-              <span class="metadata-value text-emerald-400 font-semibold" id="meta-status">Barcelona, España (BCN)</span>
+        <article class="project">
+          <img class="media" src="assets/img/bh6.webp" srcset="assets/img/bh6-640.webp 640w, assets/img/bh6.webp 1200w" sizes="(min-width: 801px) 400px, calc(100vw - 40px)" width="1200" height="675" alt="Two fighters facing each other on a grid stage, with health bars and a round timer">
+          <div class="project-body">
+            <span class="tag">Solo project, 2026</span>
+            <h3>Counterhit</h3>
+            <p class="desc">The combat core of a 2.5D fighting game, with local two-player matches on gamepad or keyboard.</p>
+            <p class="did"><strong>What I did:</strong> the combat state machine, frame data for each move, an input buffer that reads motion inputs, combos, juggles and hitstop.</p>
+            <ul class="chips" aria-label="Technologies"><li>Unity 6</li><li>C#</li></ul>
+            <div class="actions">
+              <a class="btn primary" href="https://github.com/Vixtorbir/Counterhit"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-github"/></svg>View code<span class="visually-hidden">, Counterhit</span></a>
             </div>
           </div>
+        </article>
 
-        </div>
-
-      </section>
-
-      <!-- =================================================================
-           RIGHT COLUMN: TWIN CURVED RAILS "( (" + VINTAGE MARQUEE WHEEL
-           ================================================================= -->
-      <section class="arcade-wheel-section" id="wheel-section" aria-label="Console Selector">
-
-        <!-- Twin parallel rails + translucent channel (single SVG, scales with the column) -->
-        <svg class="wheel-rails-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="railChannelFill" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="rgba(30, 41, 59, 0.55)" />
-              <stop offset="0.45" stop-color="rgba(10, 15, 30, 0.35)" />
-              <stop offset="1" stop-color="rgba(10, 15, 30, 0.12)" />
-            </linearGradient>
-            <linearGradient id="railSteel" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#94a3b8" />
-              <stop offset="0.35" stop-color="#ffffff" />
-              <stop offset="0.5" stop-color="#fef9c3" />
-              <stop offset="0.65" stop-color="#ffffff" />
-              <stop offset="1" stop-color="#94a3b8" />
-            </linearGradient>
-            <filter id="railGlow" x="-50%" y="-10%" width="200%" height="120%">
-              <feGaussianBlur stdDeviation="6" />
-            </filter>
-          </defs>
-          <!-- Channel between the rails: translucent, floor grid and amber glow show through -->
-          <path class="rail-channel" d="M 200 -40 Q -40 500 200 1040 L 760 1040 Q 520 500 760 -40 Z" fill="url(#railChannelFill)" />
-          <!-- Left rail: glow halo (blurred copy) + steel core -->
-          <path class="rail-left-glow" d="M 200 -40 Q -40 500 200 1040" fill="none" stroke="#38bdf8" stroke-width="16" filter="url(#railGlow)" vector-effect="non-scaling-stroke" opacity="0.55" />
-          <path class="rail-left-glow-warm" d="M 200 -40 Q -40 500 200 1040" fill="none" stroke="#fbbf24" stroke-width="10" filter="url(#railGlow)" vector-effect="non-scaling-stroke" opacity="0.5" />
-          <path class="rail-left" d="M 200 -40 Q -40 500 200 1040" fill="none" stroke="url(#railSteel)" stroke-width="6" vector-effect="non-scaling-stroke" />
-          <!-- Right rail: thinner, parallel, same curvature -->
-          <path class="rail-right" d="M 760 -40 Q 520 500 760 1040" fill="none" stroke="rgba(226, 232, 240, 0.42)" stroke-width="2" vector-effect="non-scaling-stroke" />
-          <path class="rail-right-glow" d="M 760 -40 Q 520 500 760 1040" fill="none" stroke="#38bdf8" stroke-width="6" filter="url(#railGlow)" vector-effect="non-scaling-stroke" opacity="0.25" />
-        </svg>
-
-        <!-- Retro amber marker on the outer apex of the left rail -->
-        <div class="arcade-wheel-pointer" aria-hidden="true">
-          <span class="pointer-bar"></span>
-          <span class="pointer-triangle"></span>
-        </div>
-
-        <!-- Floating Logos Track (Vintage Marquees) -->
-        <div class="arcade-logos-track" id="logos-track">
-
-          <!-- Logo 0: VÍCTOR CÁRDENAS (Tandy / Sega Arcade: bevelled silver + speed stripes) -->
-          <div class="system-logo-item active" data-index="0" onclick="selectSystem(0)">
-            <div class="logo-tandy-style">
-              <span class="tandy-text">VÍCTOR CÁRDENAS</span>
-              <div class="tandy-slashes">
-                <span class="tandy-slash slash-red"></span>
-                <span class="tandy-slash slash-green"></span>
-                <span class="tandy-slash slash-blue"></span>
-              </div>
+        <article class="project">
+          <img class="media" src="assets/img/fable-of-the-eclipse.webp" srcset="assets/img/fable-of-the-eclipse-640.webp 640w, assets/img/fable-of-the-eclipse.webp 1200w" sizes="(min-width: 801px) 400px, calc(100vw - 40px)" width="1200" height="674" alt="Isometric view of the player crossing a wooden bridge over a river, with the HUD at the top left" loading="lazy">
+          <div class="project-body">
+            <span class="tag">Team project, 2026</span>
+            <h3>The Fable of the Eclipse</h3>
+            <p class="desc">A 3D action game made in our own engine and released on itch.io, built in Scrum sprints with constant playtests.</p>
+            <p class="did"><strong>What I did:</strong> the HUD (health, orbs, gems, skills), items and healing, popups, puzzles and the God Mode debug tools. I also turned playtest feedback into sprint tasks.</p>
+            <ul class="chips" aria-label="Technologies"><li>C#</li><li>LoopieEngine</li><li>Scrum</li></ul>
+            <div class="actions">
+              <a class="btn primary" href="https://mini-knight-studio.itch.io/fable-of-the-eclipse"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-play"/></svg>Play on itch.io</a>
+              <a class="btn" href="https://mini-knight-studio.github.io/The-Fable-Of-The-Eclipse/"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-monitor-play"/></svg>Website<span class="visually-hidden">, The Fable of the Eclipse</span></a>
+              <a class="btn" href="https://github.com/Mini-Knight-Studio/The-Fable-Of-The-Eclipse/commits?author=Vixtorbir"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-github"/></svg>My commits<span class="visually-hidden">, The Fable of the Eclipse</span></a>
             </div>
           </div>
+        </article>
 
-          <!-- Logo 1: THE FABLE OF THE ECLIPSE (Dreamcast / PlayStation: eclipse orb + metallic type) -->
-          <div class="system-logo-item pos-1" data-index="1" onclick="selectSystem(1)">
-            <div class="logo-eclipse-style">
-              <span class="eclipse-orb"></span>
-              <div class="eclipse-title-block">
-                <span class="eclipse-main">THE FABLE OF THE ECLIPSE</span>
-                <span class="eclipse-sub">3D ACTION RPG // CUSTOM C++ ENGINE</span>
-              </div>
+        <article class="project">
+          <img class="media" src="assets/img/loopie-editor.webp" srcset="assets/img/loopie-editor-640.webp 640w, assets/img/loopie-editor.webp 800w" sizes="(min-width: 801px) 400px, calc(100vw - 40px)" width="800" height="449" alt="LoopieEngine editor with the hierarchy, scene view, asset explorer and inspector panels" loading="lazy">
+          <div class="project-body">
+            <span class="tag">Whole-class project, 2026</span>
+            <h3>LoopieEngine</h3>
+            <p class="desc">A Unity-style engine written in C++, with an editor and C# scripting. The class built The Fable of the Eclipse with it.</p>
+            <p class="did"><strong>What I did:</strong> integrated FMOD, with an AudioManager for music and sound effects, AudioSource and AudioListener components, and their inspector panels so audio is set up from the editor.</p>
+            <ul class="chips" aria-label="Technologies"><li>C++</li><li>FMOD</li></ul>
+            <div class="actions">
+              <a class="btn primary" href="https://github.com/Mini-Knight-Studio/LoopieEngine/commits?author=Vixtorbir"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-github"/></svg>My commits<span class="visually-hidden">, LoopieEngine</span></a>
+              <a class="btn" href="https://github.com/Mini-Knight-Studio/LoopieEngine"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-code-xml"/></svg>Code<span class="visually-hidden">, LoopieEngine</span></a>
             </div>
           </div>
+        </article>
 
-          <!-- Logo 2: AVE PHOENIX REGEN (Shmup arcade marquee: sprite + fire/gold type) -->
-          <div class="system-logo-item pos-2" data-index="2" onclick="selectSystem(2)">
-            <div class="logo-phoenix-marquee">
-              <img src="assets/phoenix_pixel_art.png" class="phoenix-wheel-thumb" alt="Phoenix" />
-              <div class="phoenix-title-block">
-                <span class="phoenix-main-text">AVE PHOENIX</span>
-                <span class="phoenix-sub-text">REGEN &middot; UNITY C#</span>
-              </div>
+        <article class="project">
+          <img class="media focus-30" src="assets/img/jade-theory.webp" srcset="assets/img/jade-theory-640.webp 640w, assets/img/jade-theory.webp 1200w" sizes="(min-width: 801px) 400px, calc(100vw - 40px)" width="1200" height="675" alt="Jade Theory title screen: a hooded ninja with a sword" loading="lazy">
+          <div class="project-body">
+            <span class="tag">Team of 5, lead programmer, 2025</span>
+            <h3>Jade Theory</h3>
+            <p class="desc">A narrative 2D Metroidvania set in feudal Japan, made in C++ with SDL. Our team made every asset.</p>
+            <p class="did"><strong>What I did:</strong> player controls, the ninja enemy AI, a multi-phase boss, JSON dialogues and Tiled maps. I split the programming work into Trello tasks.</p>
+            <ul class="chips" aria-label="Technologies"><li>C++</li><li>SDL</li><li>Tiled</li><li>Trello</li></ul>
+            <div class="actions">
+              <a class="btn primary" href="https://github.com/Vixtorbir/Ninja-CamareroUnaRubia/releases"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-play"/></svg>Play (builds)<span class="visually-hidden">, Jade Theory</span></a>
+              <a class="btn" href="https://github.com/Vixtorbir/Ninja-CamareroUnaRubia"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-code-xml"/></svg>Code<span class="visually-hidden">, Jade Theory</span></a>
+              <a class="btn" href="https://github.com/Vixtorbir/Ninja-CamareroUnaRubia/commits?author=Vixtorbir"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-github"/></svg>My commits<span class="visually-hidden">, Jade Theory</span></a>
             </div>
           </div>
+        </article>
 
-          <!-- Logo 3: FIGHTING GAMES (Capcom / Neo-Geo VS badge) -->
-          <div class="system-logo-item pos-hidden" data-index="3" onclick="selectSystem(3)">
-            <div class="logo-versus-style">
-              <span class="versus-badge">VS</span>
-              <div class="versus-title-block">
-                <span class="versus-main">FIGHTING GAMES</span>
-                <span class="versus-sub">COMBAT SYSTEMS &amp; AI</span>
-              </div>
+        <article class="project">
+          <img class="media" src="assets/img/ave-phoenix-regen.webp" srcset="assets/img/ave-phoenix-regen-640.webp 640w, assets/img/ave-phoenix-regen.webp 1200w" sizes="(min-width: 801px) 400px, calc(100vw - 40px)" width="1200" height="675" alt="The player ship facing a phoenix boss and smaller birds in space" loading="lazy">
+          <div class="project-body">
+            <span class="tag">Solo project, 2026</span>
+            <h3>Ave Phoenix Regen</h3>
+            <p class="desc">A remake of a classic arcade shoot ’em up, released for Android.</p>
+            <p class="did"><strong>What I did:</strong> the whole game, with a story mode and an endless arcade mode, the boss state machine, object pooling for bullets and enemies, and the APK release (v1.1).</p>
+            <ul class="chips" aria-label="Technologies"><li>Unity 6</li><li>C#</li><li>Android</li></ul>
+            <div class="actions">
+              <a class="btn primary" href="https://github.com/Vixtorbir/Ave-Phoenix-Regen/releases/latest"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-download"/></svg>Download APK</a>
+              <a class="btn" href="https://github.com/Vixtorbir/Ave-Phoenix-Regen"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-code-xml"/></svg>Code<span class="visually-hidden">, Ave Phoenix Regen</span></a>
             </div>
           </div>
+        </article>
 
-          <!-- Logo 4: HARDWARE & SKILLS (SGI / Naomi industrial) -->
-          <div class="system-logo-item pos-hidden" data-index="4" onclick="selectSystem(4)">
-            <div class="logo-hardware-style">
-              <div class="hw-main">
-                <span class="hw-bracket">&lt;</span>
-                <span class="hw-text">HARDWARE <em>&amp;</em> SKILLS</span>
-                <span class="hw-bracket">&gt;</span>
-              </div>
-              <span class="hw-sub">C++ ENGINE ARCHITECTURE &middot; MEMORY</span>
-            </div>
-          </div>
-
-          <!-- Logo 5: CONTACT & HELP (Sega Service Menu plate) -->
-          <div class="system-logo-item pos--1" data-index="5" onclick="selectSystem(5)">
-            <div class="logo-service-style">
-              <span class="service-plate-tag">SERVICE MENU</span>
-              <span class="service-main">CONTACT &amp; HELP</span>
-              <span class="service-sub">GITHUB &middot; LINKEDIN &middot; EMAIL</span>
-            </div>
-          </div>
-
-        </div>
-
-      </section>
-
-    </main>
-
-    <!-- ===================================================================
-         3. CONTROLES INFERIORES RETRO (Exact Layout Mandated by User)
-         │ [CONTROLES INFERIORES]  [▲/▼ SCROLL PARA CAMBIAR]  [ENTER/CLIC: INSPECCIONAR] [MUTE SFX]│
-         =================================================================== -->
-    <footer class="arcade-bottom-panel">
-
-      <div class="bottom-ctrl-group">
-        <!-- Real cabinet control panel: ball-top joystick + Sanwa-style buttons -->
-        <div class="control-panel-visual" aria-hidden="true">
-          <div class="mini-joystick" id="mini-joystick">
-            <span class="joystick-shaft"></span>
-            <span class="joystick-ball"></span>
-          </div>
-        </div>
-        <button class="panel-action" id="main-menu-btn" onclick="goToMainMenu()" title="Volver al Perfil Principal (tecla A) / Back to Main Profile (A key)">
-          <span class="sanwa-btn sanwa-red" aria-hidden="true">A</span>
-          <span class="panel-action-label" data-i18n="bottom_main_menu">MENÚ PRINCIPAL</span>
-        </button>
-        <button class="panel-action" id="scroll-btn" type="button" title="Siguiente sistema (↓ / rueda) / Next system (↓ / wheel)">
-          <span class="sanwa-btn sanwa-blue" aria-hidden="true">↕</span>
-          <span class="panel-action-label" data-i18n="bottom_scroll">SCROLL PARA CAMBIAR</span>
-        </button>
-        <button class="panel-action" id="inspect-btn" type="button" title="Inspeccionar ficha técnica / Inspect spec sheet">
-          <span class="sanwa-btn sanwa-yellow" aria-hidden="true">↵</span>
-          <span class="panel-action-label" data-i18n="bottom_inspect">INSPECCIONAR</span>
-        </button>
       </div>
+    </section>
 
-      <div class="bottom-right-branding">
-        <span>CITM<span class="hidden 2xl:inline"> - UNIVERSITAT POLITÈCNICA DE CATALUNYA</span><span class="inline 2xl:hidden"> · UPC</span></span>
-        <span class="text-zinc-600">|</span>
-        <a href="https://github.com/Vixtorbir" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline">
-          github.com/Vixtorbir
-        </a>
+    <section class="wrap section" id="more" aria-labelledby="more-h">
+      <h2 id="more-h">More projects</h2>
+      <ul class="more">
+        <li>
+          <div class="thumb"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-cpu"/></svg></div>
+          <div class="info">
+            <h3>GameJamEngine</h3>
+            <p>A C++ and OpenGL 4.6 engine. I wrote the GameObject and Inspector system, resource manager, scene save and load, octree and mouse picking.</p>
+            <p class="meta">Team of 3, C++, SDL3</p>
+            <p class="go"><a href="https://github.com/UPC-GameEngines-BCN-2025/GameJamEngine/releases">Builds<span class="visually-hidden">, GameJamEngine</span></a><a href="https://github.com/UPC-GameEngines-BCN-2025/GameJamEngine">Code<span class="visually-hidden">, GameJamEngine</span></a><a href="https://github.com/UPC-GameEngines-BCN-2025/GameJamEngine/commits?author=Vixtorbir">My commits<span class="visually-hidden">, GameJamEngine</span></a></p>
+          </div>
+        </li>
+        <li>
+          <div class="thumb"><video class="loop" muted loop playsinline preload="none" width="640" height="400" poster="assets/clips/xarxes-poster.webp" aria-hidden="true"><source src="assets/clips/xarxes.mp4" type="video/mp4"></video><button class="loop-toggle" type="button" aria-label="Pause the gameplay video" aria-pressed="false"><svg class="icon i-pause" aria-hidden="true"><use href="assets/icons.svg#i-pause"/></svg><svg class="icon i-play" aria-hidden="true"><use href="assets/icons.svg#i-play"/></svg></button></div>
+          <div class="info">
+            <h3>Multiplayer arena</h3>
+            <p>Players move, jump and shoot over UDP. I made the lobby and chat, the binary serializer and the start flow.</p>
+            <p class="meta">Team of 4, Unity, C#</p>
+            <p class="go"><a href="https://github.com/Vixtorbir/Xarxes-Juego">Code<span class="visually-hidden">, Multiplayer arena</span></a><a href="https://github.com/Vixtorbir/Xarxes-Juego/releases">Build<span class="visually-hidden">, Multiplayer arena</span></a></p>
+          </div>
+        </li>
+        <li>
+          <div class="thumb"><img src="assets/img/game-analytics.webp" width="800" height="500" alt="Bar chart of average daily players per month, from my KPI analysis" loading="lazy"></div>
+          <div class="info">
+            <h3>Game Analytics</h3>
+            <p>A Unity client simulates players and a PHP server stores their events. I set up both, designed the database schema, wrote the KPI queries and built the Excel charts.</p>
+            <p class="meta">Team of 3, SQL, PHP, Unity, Excel</p>
+            <p class="go"><a href="https://github.com/Vixtorbir/GameAnalytics-Delivery1">Code<span class="visually-hidden">, Game Analytics</span></a></p>
+          </div>
+        </li>
+        <li>
+          <div class="thumb"><svg class="brand" aria-hidden="true"><use href="assets/icons.svg#b-wwise"/></svg></div>
+          <div class="info">
+            <h3>Audio walking simulator</h3>
+            <p>I did the audio: mixer routing, pause and underwater snapshots, a 3D sound beacon and footsteps driven by animation events.</p>
+            <p class="meta">Team of 2, Unity, Wwise</p>
+            <p class="go"><a href="https://github.com/Vixtorbir/Practica-de-Audio-Unity">Code<span class="visually-hidden">, Audio walking simulator</span></a></p>
+          </div>
+        </li>
+        <li>
+          <div class="thumb"><img src="assets/img/racing-pony-640.webp" width="640" height="358" alt="" loading="lazy"></div>
+          <div class="info">
+            <h3>Racing Pony</h3>
+            <p>A 2D racing game. I made the menus, lap counting per car, nitro, the start lights and a first AI driver.</p>
+            <p class="meta">Team of 4, C++</p>
+            <p class="go"><a href="https://github.com/Vixtorbir/Racing-Pony">Code<span class="visually-hidden">, Racing Pony</span></a><a href="https://github.com/Vixtorbir/Racing-Pony/releases">Build<span class="visually-hidden">, Racing Pony</span></a></p>
+          </div>
+        </li>
+        <li>
+          <div class="thumb"><img src="assets/img/kichiku-gemu.webp" width="709" height="458" alt="" loading="lazy"></div>
+          <div class="info">
+            <h3>Kichiku Gemu</h3>
+            <p>A troll platformer. I made the boss, the second level, lives and respawn, and checkpoints.</p>
+            <p class="meta">Team of 3, C++</p>
+            <p class="go"><a href="https://github.com/PauGon75/Kichiku-Gemu-Platformer/commits?author=Vixtorbir">My commits<span class="visually-hidden">, Kichiku Gemu</span></a><a href="https://github.com/PauGon75/Kichiku-Gemu-Platformer/releases">Builds<span class="visually-hidden">, Kichiku Gemu</span></a></p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="wrap section contact" id="contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">Contact me</h2>
+      <p>If you’re hiring interns, write to me.</p>
+      <a class="mail" href="mailto:victorcarhor@gmail.com">victorcarhor@gmail.com</a>
+      <div class="cta">
+        <a class="btn primary" href="assets/Victor-Cardenas-CV-Game-Developer.pdf" download><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-download"/></svg>Download CV</a>
+        <a class="btn" href="https://www.linkedin.com/in/victor-cardenas-gamedev"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-linkedin"/></svg>LinkedIn</a>
+        <a class="btn" href="https://github.com/Vixtorbir"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-github"/></svg>GitHub</a>
       </div>
+    </section>
+  </main>
 
-    </footer>
-
-  </div>
-
-  <!-- Desktop-Only Fallback Screen (shown below 1024px via styles.css) -->
-  <div class="arcade-mobile-fallback" role="status">
-    <div class="mobile-fallback-icon" aria-hidden="true">[*]</div>
-    <p class="mobile-fallback-title" data-i18n="mobile_fallback_title">EXPERIENCIA OPTIMIZADA PARA ESCRITORIO</p>
-    <p class="mobile-fallback-msg" data-i18n="mobile_fallback_msg">Este cabinet arcade necesita una pantalla de 1024px de ancho o más para mostrarse sin recortes. Abre este portfolio en un ordenador de escritorio o portátil.</p>
-  </div>
-
-  <!-- Arcade Logic Engine (ES Modules, sin build step) -->
-  <script type="module" src="js/app.js?v=2.6"></script>
-
+  <footer class="foot">
+    <p>Made by Víctor Cárdenas Hormigo, Barcelona, 2026</p>
+  </footer>
 </body>
 </html>

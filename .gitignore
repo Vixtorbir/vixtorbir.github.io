@@ -1,0 +1,8 @@
+# Publish only the website. Everything else (design docs, product notes, skills,
+# screenshots, local tooling) stays on this machine.
+/*
+!/.gitignore
+!/.nojekyll
+!/index.html
+!/es/
+!/assets/
